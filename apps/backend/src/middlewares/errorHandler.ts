@@ -15,6 +15,13 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
         })
     };
 
+    if (err.status) {
+        return res.status(err.status).json({
+            ok: false,
+            msg: err.msg || 'Error en la solicitud'
+        });
+    }
+
     res.status(500).json({
         ok: false,
         msg: 'Error interno en el servidor'

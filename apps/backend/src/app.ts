@@ -1,6 +1,13 @@
 import express from "express";
 import cors from "cors";
-import { marcasRoute, productosRoute, provedoresRoute, usuariosRoute } from "./modules";
+import {
+  categoriasRoute,
+  configuracionRoute,
+  marcasRoute,
+  productosRoute,
+  provedoresRoute,
+  usuariosRoute,
+} from "./modules";
 import { errorHandler } from "./middlewares/errorHandler";
 import path from "path";
 const app = express();
@@ -21,7 +28,10 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/PCStore/marcas', marcasRoute);
 app.use('/PCStore/provedores', provedoresRoute);
 app.use('/PCStore/usuarios', usuariosRoute);
-app.use('/PCStore/productos', productosRoute)
+app.use('/PCStore/productos', productosRoute);
+app.use('/PCStore/categorias', categoriasRoute);
+app.use('/PCStore/configuracion', configuracionRoute);
+
 
 app.use(errorHandler);
 
