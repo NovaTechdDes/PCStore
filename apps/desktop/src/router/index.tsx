@@ -1,0 +1,19 @@
+import { createBrowserRouter } from "react-router-dom";
+import { RootLayout } from '../layouts';
+import { NotFound, Productos } from '../pages/index';
+
+
+
+export const router = createBrowserRouter([
+    {
+        path: '/',
+        element: <RootLayout/>,
+        errorElement: <NotFound/>,
+        children: [
+            {
+                index: true,
+                element: <Productos/>
+            }
+        ]
+    }
+])

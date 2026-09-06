@@ -1,12 +1,19 @@
 import { Router } from "express";
-import { getProvedores, getProvedorById, crearProvedor, putProvedor, deleteProvedor } from "./provedores.controller";
+import { verificarToken } from "../../middlewares/auth";
+import {
+  getProvedores,
+  getProvedorById,
+  crearProvedor,
+  putProvedor,
+  deleteProvedor,
+} from "./provedores.controller";
 
 const router = Router();
 
-router.get('/', getProvedores);
-router.post('/', crearProvedor);
-router.get('/:id', getProvedorById);
-router.put('/:id', putProvedor);
-router.delete('/:id', deleteProvedor);
+router.get("/", getProvedores);
+router.post("/", verificarToken, crearProvedor);
+router.get("/:id", getProvedorById);
+router.put("/:id", verificarToken, putProvedor);
+router.delete("/:id", verificarToken, deleteProvedor);
 
 export default router;

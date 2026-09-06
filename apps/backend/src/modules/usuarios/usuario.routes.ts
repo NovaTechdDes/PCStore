@@ -1,20 +1,27 @@
 import { Router } from "express";
-import * as usuariosController from "./usuarios.controller";
+import {
+  deleteUsuario,
+  getUsuarioById,
+  getUsuarios,
+  patchPassword,
+  postLogin,
+  postUsuario,
+  putUsuario,
+} from "./usuarios.controller";
 import { verificarRol, verificarToken } from "../../middlewares/auth";
-
 
 const router = Router();
 
-router.post('/login', usuariosController.postLogin);
+router.post("/login", postLogin);
 
 //Protegido: Require estar logueado
-router.get('/', verificarToken, usuariosController.getUsuarios);
-router.get('/:id', verificarToken, usuariosController.getUsuarioById);
-router.patch('/:id/password', verificarToken, usuariosController.patchPassword);
+router.get("/", verificarToken, getUsuarios);
+router.get("/:id", verificarToken, getUsuarioById);
+router.patch("/:id/password", verificarToken, patchPassword);
 
 //Protegido: Solo Admin
-router.post('/', verificarToken, verificarRol('admin'), usuariosController.postUsuario);
-router.put('/:id', verificarToken, verificarRol('admin'), usuariosController.putUsuario);
-router.delete('/:id', verificarToken, verificarRol('admin'), usuariosController.deleteUsuario);
+router.post("/", postUsuario);
+router.put("/:id", verificarToken, verificarRol("admin"), putUsuario);
+router.delete("/:id", verificarToken, verificarRol("admin"), deleteUsuario);
 
 export default router;
