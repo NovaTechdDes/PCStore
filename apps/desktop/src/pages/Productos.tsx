@@ -3,6 +3,7 @@ import { Cabecera, ProductosItem, Loading } from "../compontents";
 import { useProductos } from "../hooks";
 
 export const Productos = () => {
+  
   const [buscador, setBuscador] = useState("");
   const { data, isLoading } = useProductos();
 
@@ -46,6 +47,7 @@ export const Productos = () => {
                 <th className="py-3.5 px-4">Precio</th>
                 <th className="py-3.5 px-4">Marca</th>
                 <th className="py-3.5 px-4">Cód. Fábrica</th>
+                <th className="py-3.5 px-4">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-zinc-800/60">

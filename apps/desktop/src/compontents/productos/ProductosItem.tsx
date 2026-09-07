@@ -1,7 +1,24 @@
 import { Producto } from '../../interface';
 
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import EditIcon from '@mui/icons-material/Edit';
+
 interface Props {
   item: Producto;
+}
+
+const handleAddMov = () => {
+
+};
+
+const handleViewMovs = () => {
+  
+}
+
+const handleEdit = () => {
+
 }
 
 export const ProductosItem = ({ item }: Props) => {
@@ -56,6 +73,29 @@ export const ProductosItem = ({ item }: Props) => {
       </td>
       <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">
         {item.cod_fabrica || <span className="text-slate-400 dark:text-zinc-600">-</span>}
+      </td>
+      <td className='px-6 py-4 text-rigth'>
+        <div className='className="flex items-center justify-end gap-1"'>
+           <button
+            className="p-1.5 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+            onClick={handleAddMov}
+            title="Agregar Movimiento"
+          >
+            <AddCircleIcon sx={{ fontSize: 18, color: '#2563eb' }} />
+          </button>
+
+          <button
+            className="p-1.5 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+            onClick={handleViewMovs}
+            title="Ver Movimientos"
+          >
+            <VisibilityIcon sx={{ fontSize: 18, color: '#16a34a' }} />
+          </button>
+
+          <button onClick={handleEdit} className="p-1.5 text-slate-500 hover:text-amber-600 dark:text-zinc-400 dark:hover:text-amber-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer">
+            <EditIcon sx={{ fontSize: 18 }} />
+          </button>
+        </div>
       </td>
     </tr>
   );

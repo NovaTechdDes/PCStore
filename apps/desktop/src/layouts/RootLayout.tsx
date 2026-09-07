@@ -1,8 +1,9 @@
-import  { useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useGlobalStore } from '../store';
 import { Login } from '../compontents/ui/Login';
 import { ServerSetup } from '../pages/App';
+import { getServerUrl, initAppStore } from '../services';
 
 const RootLayout = () => {
 
@@ -11,28 +12,32 @@ const RootLayout = () => {
   const [hasServerURL, setHasServerURL] = useState(false);
 
   // Cargar configuración de tauri-plugin-store al iniciar
-  useState(() => {
-    import('../services/store.service').then(async ({ initAppStore, getServerUrl }) => {
-      await initAppStore();
-      const url = getServerUrl();
+  useEffect(() => {
+    let isMounted = true;
 
-      // Si la URL cargada no es la de por defecto (localhost), está configurada
-      if (url && url !== 'http://localhost:3000' && url.trim() !== '') {
-        setHasServerURL(true);
-      } else {
-        // Compatibilidad: ver si había guardado algo distinto de localhost en localStorage
-        const saved = localStorage.getItem('server_url');
-        if (saved && saved !== 'http://localhost:3000' && saved.trim() !== '') {
-          const { setServerUrl } = await import('../services/store.service');
-          await setServerUrl(saved);
-          setHasServerURL(true);
+    const checkConfiguration = async () => {
+      try {
+        const savedUrl = await initAppStore();
+        const url = savedUrl || getServerUrl();
+
+        if (url && url.trim() !== '') {
+          if (isMounted) setHasServerURL(true);
         } else {
-          setHasServerURL(false);
+          if (isMounted) setHasServerURL(false);
         }
+      } catch (error) {
+        console.error('Error inicializando la configuración:', error);
+        if (isMounted) setHasServerURL(false);
+      } finally {
+        if (isMounted) setLoadingConfig(false);
       }
-      setLoadingConfig(false);
-    });
-  });
+    };
+    checkConfiguration();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   if(loadingConfig){
     return(
