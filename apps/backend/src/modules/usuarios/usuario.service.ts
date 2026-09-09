@@ -170,3 +170,41 @@ export const login = async (data: LoginDTO) => {
     },
   };
 };
+
+export const inicializarUsuarioAdmin = async () => {
+  try {
+    const pool = await getPool();
+
+    // Verificamos si ya existe el usuario AGUSTIN
+    const existe = await pool
+      .request()
+      .input("nombreUsuario", sql.NVarChar(50), "AGUSTIN")
+      .query(
+        `SELECT Id, NombreUsuario, Rol, Activo FROM Usuarios WHERE UPPER(NombreUsuario) = UPPER(@nombreUsuario)`
+      );
+
+    if (existe.recordset.length > 0) {
+      console.log("ℹ️ El usuario AGUSTIN ya existe. Perfecto.");
+      return;
+    }
+
+    // Hasheamos la contraseña "210"
+    const passwordHash = await bcrypt.hash("210", SALT_ROUNDS);
+
+    // Creamos el usuario AGUSTIN con rol admin y contraseña hasheada
+    await pool
+      .request()
+      .input("nombreUsuario", sql.NVarChar(50), "AGUSTIN")
+      .input("passwordHash", sql.NVarChar(255), passwordHash)
+      .input("rol", sql.NVarChar(30), "admin")
+      .query(
+        `INSERT INTO Usuarios (NombreUsuario, PasswordHash, Rol)
+         VALUES (@nombreUsuario, @passwordHash, @rol)`
+      );
+
+    console.log("✅ Usuario administrador 'AGUSTIN' creado exitosamente.");
+  } catch (error) {
+    console.error("❌ Error al verificar o inicializar el usuario administrador 'AGUSTIN':", error);
+  }
+};
+

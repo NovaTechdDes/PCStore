@@ -5,6 +5,8 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import Loading from '../ui/Loading';
 import { useDatos } from '../../hooks';
 import { useProductoStore } from '../../store';
+import { mensaje } from '../../helper';
+import { Producto } from '../../interface';
 
 
 interface Props {
@@ -77,21 +79,19 @@ export const ModalProducto = ({ onClose }: Props) => {
     }
 
     const productoParseado: Producto = {
-      _id: formData.codigo,
-      descripcion: formData.descripcion.trim(),
-      codigoSecundario: formData.codigoSecundario,
-      unidad: formData.unidad.trim(),
-      marca: formData.marca,
-      rubro: formData.rubro,
-      provedor: formData.provedor,
-      costo: Number(formData.costo),
-      costoDolar: Number(formData.costoDolar),
-      utilidad: Number(formData.utilidad),
-      impuesto: Number(formData.impuesto),
+      CodigoInterno: formData.codigo,
+      Descripcion: formData.descripcion.trim(),
+      cod_fabrica: formData.codigoSecundario,
+      UnidadId: formData.unidad.trim(),
+      MarcaId: formData.marca,
+      ProveedorId: formData.provedor,
+      Costo: Number(formData.costo),
+      CostoDolar: Number(formData.costoDolar),
+      IVA: Number(formData.iva),
       ganancia: Number(formData.ganancia),
-      precio: Number(formData.precio),
-      stock: Number(formData.stock),
-      activo: true,
+      Precio: Number(formData.precio),
+      Stock: Number(formData.stock),
+      Activo: true,
     };
 
     if (productoSeleccionado) {

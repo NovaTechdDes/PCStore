@@ -2,6 +2,7 @@ import path from "path";
 import { configDotenv } from "dotenv";
 import { getPool } from "./config/db";
 import app from "./app";
+import { inicializarUsuarioAdmin } from "./modules/usuarios/usuario.service";
 
 configDotenv({
     path: path.join(__dirname, '../.env')
@@ -9,8 +10,9 @@ configDotenv({
 
 const PORTLOCAL = process.env.PORT || 4000;
 
-getPool().then(() => {
-    
+getPool().then(async () => {
+    await inicializarUsuarioAdmin();
+
     app.listen(PORTLOCAL, () => {
         console.log(`Servidor corriendo en el puerto ${PORTLOCAL} como puerto local`)
     });
