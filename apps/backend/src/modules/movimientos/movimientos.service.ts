@@ -1,4 +1,4 @@
-import { CrearMovimientosDTO } from "./movimientos.schema";
+import { CrearMovimientosDTO, FiltrosMovimientosDTO } from "./movimientos.schema";
 import { getPool, sql } from "../../config/db";
 
 export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: number) => {
@@ -6,6 +6,8 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
     const transaction = new sql.Transaction(pool);
 
     try {
+        await transaction.begin();
+        
         const productoResult = await new sql.Request(transaction)
         .input('id', sql.Int, data.productoId)
         .query(
@@ -16,8 +18,6 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
         if(!producto){
             throw { status: 400, msg: "Producto no encontrado"}
         };
-
-        
 
         const nuevoStock = producto.Stock + data.cantidad;
 
@@ -32,6 +32,7 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
         .input('cliente', sql.NVarChar(150), data.cliente ?? null)
         .query(
             `INSERT INTO Movimientos(ProductoId, UsuarioId, Cantidad, Tipo, NumeroFactura, TipoVenta, Cliente)
+            OUTPUT INSERTED.*
             VALUES(@productoId, @usuarioId, @cantidad, @tipo, @numeroFactura, @tipoVenta, @cliente)`
         );
 
@@ -43,7 +44,7 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
             .input('productoId', sql.Int, data.productoId)
             .input('numeroSerie', sql.NVarChar(100), numeroSerie)
             .query(
-                `INSERT INTO MovimientosSeries(MovimientoId, ProductoId, NumeroSerie)
+                `INSERT INTO Series(MovimientoId, ProductoId, NumeroSerie)
                 VALUES(@movimientoId, @productoId, @numeroSerie)`
             );
         }
@@ -69,4 +70,71 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
     }
         throw error;
     }
-}
+};
+
+export const listarMovimientos = async(filtros: FiltrosMovimientosDTO) => {
+    const pool = await getPool();
+    const request = pool.request();
+    const condiciones: string[] = [];
+    
+
+    if(filtros.productoId){
+        request.input('productoId', sql.Int, filtros.productoId)
+        condiciones.push("m.ProductoId = @productoId")   
+    };
+
+    if(filtros.tipo){
+        request.input('tipo', sql.NVarChar(20), filtros.tipo);
+        condiciones.push('m.Tipo = @tipo')
+    };
+
+    if(filtros.desde){
+        request.input('desde', sql.DateTime, filtros.desde);
+        condiciones.push("m.Fecha >= @desde")
+    }
+
+    if(filtros.hasta){
+        request.input('hasta', sql.DateTime, filtros.hasta);
+        condiciones.push("m.Fecha <= @hasta")
+    }
+
+    const where = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : ""
+    
+    const result = await request.query(`
+        SELECT m.*, p.Descripcion AS ProductoDescripcion, p.CodigoInterno, u.NombreUsuario
+        FROM Movimientos m    
+        JOIN Productos p ON p.Id = m.ProductoId
+        JOIN Usuarios u ON u.Id = m.UsuarioId
+        ${where}
+        ORDER BY m.Fecha DESC, m.Id DESC
+    `) 
+    return result.recordset;
+
+};
+
+export const obtenerMovimientoPorId = async(id: number) => {
+    const pool = await getPool();
+
+    const movResult = await pool
+    .request()
+    .input('id', sql.Int, id)
+    .query(`
+        SELECT m.*, p.Descripcion AS ProductoDescripcion, p.CodigoInterno, u.NombreUsuario
+        FROM Movimientos m
+        JOIN Productos p ON p.Id = m.ProductoId
+        JOIN Usuarios u ON u.Id = m.UsuarioId
+        WHERE m.Id = @Id
+    `);
+
+    const movimiento = movResult.recordset[0];
+    if(!movimiento) return null
+
+    const seriesResult = await pool
+    .request()
+    .input('movimientoId', sql.Int, id)
+    .query(`SELECT Id, NumeroSerie FROM Series WHERE MovimientoId = @movimientoId AND Activo = 1`);
+
+    return {...movimiento, series: seriesResult.recordset};
+
+};
+

@@ -4,6 +4,7 @@ import {
   categoriasRoute,
   configuracionRoute,
   marcasRoute,
+  movimientosRoute,
   productosRoute,
   provedoresRoute,
   unidadesRoute,
@@ -32,6 +33,7 @@ app.use("/PCStore/productos", productosRoute);
 app.use("/PCStore/categorias", categoriasRoute);
 app.use("/PCStore/configuracion", configuracionRoute);
 app.use("/PCStore/unidades", unidadesRoute);
+app.use("/PCStore/movimientos", movimientosRoute);
 
 app.use(errorHandler);
 
