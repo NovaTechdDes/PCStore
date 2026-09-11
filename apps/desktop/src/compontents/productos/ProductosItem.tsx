@@ -4,24 +4,30 @@ import { Producto } from '../../interface';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
+import { useProductoStore } from '../../store';
 
 interface Props {
   item: Producto;
+  setShowAddMovModal: (value: boolean) => void;
 }
 
-const handleAddMov = () => {
 
-};
 
-const handleViewMovs = () => {
-  
-}
 
 const handleEdit = () => {
 
 }
 
-export const ProductosItem = ({ item }: Props) => {
+export const ProductosItem = ({ item, setShowAddMovModal }: Props) => {
+  const { setProducto } = useProductoStore()
+  const handleViewMovs = () => {
+  }
+  
+  const handleAddMov = () => {
+    setShowAddMovModal(true)
+    setProducto(item)
+  };
+
   const stockColor =
     item.Stock <= 0
       ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'

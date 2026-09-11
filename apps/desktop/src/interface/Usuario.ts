@@ -5,6 +5,7 @@ export interface Usuario {
   NombreUsuario: string;
   Rol: RolUsuario;
   Activo?: boolean;
+  token: string;
 }
 
 export interface CrearUsuarioDTO {

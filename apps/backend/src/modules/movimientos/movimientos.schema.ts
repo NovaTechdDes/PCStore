@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const tipoMovimientoEnum = z.enum(["Entrada", "Salida", "Ajuste"]);
+export const tipoMovimientoEnum = z.enum(["Entrada", "Salida", "Suma", 'Resta']);
 
 export const crearMovimientosSchema = z.object({
     productoId: z.coerce.number().int().positive(),
@@ -12,11 +12,15 @@ export const crearMovimientosSchema = z.object({
     cliente: z.string().max(150).optional(),
     series: z.array(z.string().min(1).max(100)).optional().default([]),
 })
-.refine((data) => data.tipo === 'Ajuste' || data.cantidad > 0, {
-    message: 'La cantidad debe ser mayor a 0 para Entradas y Salidas',
+.refine((data) => data.tipo === 'Suma' || data.cantidad > 0, {
+    message: 'La cantidad debe ser mayor a 0 para Suma',
     path: ['cantidad']
 })
-.refine((data) => data.tipo !== 'Ajuste' || data.cantidad !== 0, {
+.refine((data) => data.tipo === 'Resta' || data.cantidad < 0, {
+    message: 'La cantidad debe ser mayor a 0 para Resta',
+    path: ['cantidad']
+})
+.refine((data) => (data.tipo !== 'Suma' && data.tipo !== 'Resta') || data.cantidad !== 0, {
     message: 'La cantidad de ajuste no puede ser 0',
     path: ['cantidad']
 });

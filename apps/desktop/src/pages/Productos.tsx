@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import { Cabecera, ProductosItem, Loading } from "../compontents";
+import { Cabecera, ProductosItem, Loading, ModalAddMovimiento } from "../compontents";
 import { useProductos } from "../hooks";
 
 export const Productos = () => {
   
   const [buscador, setBuscador] = useState("");
+  const [viewModalMovimiento, setViewModalMovimiento] = useState<boolean>(false)
   const { data, isLoading } = useProductos();
 
   const productosFiltrados = useMemo(() => {
@@ -68,7 +69,7 @@ export const Productos = () => {
                 </>
               ) : productosFiltrados.length > 0 ? (
                 productosFiltrados.map((elem) => (
-                  <ProductosItem key={elem.Id || elem.CodigoInterno} item={elem} />
+                  <ProductosItem key={elem.Id || elem.CodigoInterno} item={elem} setShowAddMovModal={setViewModalMovimiento} />
                 ))
               ) : (
                 <tr>
@@ -96,6 +97,8 @@ export const Productos = () => {
           </div>
         )}
       </div>
+
+      {viewModalMovimiento && <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />}
     </div>
   );
 };

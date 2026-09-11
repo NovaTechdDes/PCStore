@@ -38,6 +38,15 @@ export const actualizarProductoSchema = z.object({
     stock: z.coerce.number().min(0).optional(),
 });
 
+export const actualizarStockSchema = z.object({
+    productoId: z.coerce.number().int().positive(),
+    stock: z.coerce.number().min(0),
+    tipo: z.string().min(1).max(50),
+    descripcion: z.string().min(1).max(255),
+    vendedor: z.coerce.number().int().positive(),
+    cant: z.coerce.number().int().positive(),
+})
+
 export const filtrosProductoSchema = z.object({
     todos: z.string().optional(),
     marcaId: z.coerce.number().int().positive().optional(),
@@ -47,4 +56,5 @@ export const filtrosProductoSchema = z.object({
 
 export type CrearProductoDTO = z.infer<typeof crearProductoSchema>;
 export type ActualizarProductoDTO = z.infer<typeof actualizarProductoSchema>;
+export type ActualizarStockDTO = z.infer<typeof actualizarStockSchema>;
 export type FiltrosProductoDTO = z.infer<typeof filtrosProductoSchema>;

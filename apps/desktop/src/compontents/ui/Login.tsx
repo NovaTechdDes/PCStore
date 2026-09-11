@@ -24,9 +24,10 @@ export const Login = () => {
       console.log(res)
       if (res) {
         setUsuario({
-          id: res.id,
+          Id: res.Id,
           NombreUsuario: res.NombreUsuario,
           Rol: res.Rol,
+          token: res.token,
         });
       } else {
         setError("Contraseña incorrecta");

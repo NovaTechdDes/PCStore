@@ -5,3 +5,4 @@ export * from "./Unidad";
 export * from "./Producto";
 export * from "./Usuario";
 export * from "./Configuracion";
+export * from "./Movimiento";

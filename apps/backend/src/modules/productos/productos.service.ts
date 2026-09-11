@@ -253,6 +253,27 @@ export const actualizarProducto = async (
   return result.recordset[0] ?? null;
 };
 
+export const actualizarStock = async (data: any) => {
+
+  console.log(data.stock)
+
+  const pool = await getPool();
+  const transaction = await pool.transaction()
+
+  try {
+    transaction.begin();
+
+
+    // 1. Actualizar Stock
+    const query = `UPDATE Productos SET Stock = @stock WHERE Id = @Id`;
+  } catch (error) {
+    
+  }
+
+
+
+}
+
 // ===== Baja lógica =====
 export const eliminarProducto = async (id: number) => {
   const pool = await getPool();

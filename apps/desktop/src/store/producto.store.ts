@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Producto } from "../interface";
 
+
 interface ProductoState {
   buscadorProducto: string;
   setBuscadorProducto: (texto: string) => void;
