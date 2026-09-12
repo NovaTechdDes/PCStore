@@ -1,4 +1,4 @@
-import { CrearMovimientosDTO, FiltrosMovimientosDTO } from "./movimientos.schema";
+import { AjustarStockDTO, CrearMovimientosDTO, FiltrosMovimientosDTO } from "./movimientos.schema";
 import { getPool, sql } from "../../config/db";
 
 export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: number) => {
@@ -137,4 +137,77 @@ export const obtenerMovimientoPorId = async(id: number) => {
     return {...movimiento, series: seriesResult.recordset};
 
 };
+
+export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => {
+    console.log(usuarioId)
+    const pool = await getPool();
+    const transaction = new sql.Transaction(pool);
+
+    try{
+        await transaction.begin();
+
+        const productoResult = await new sql.Request(transaction)
+        .input('id', sql.Int, data.productoId)
+        .query(
+            "SELECT * FROM Productos WITH (UPDLOCK, ROWLOCK) WHERE Id = @id and Activo = 1"
+        );
+
+        const producto = productoResult.recordset[0];
+        
+        if(!producto){
+            throw { status: 404, msg: "Producto no encontrado"}
+        };
+
+        const stockCalculado = producto.Stock + data.cant;
+        if(stockCalculado !== data.stock){
+            throw {
+                status: 409,
+                msg: `El stock se cambio mientras editaba. Actual: ${producto.Stock}, recibido como final: ${data.stock}, calculado: ${stockCalculado}`
+            }
+        }
+
+        const cantidadAbsoluta = Math.abs(data.cant);
+
+        const movResult = await new sql.Request(transaction)
+        .input('productoId', sql.Int, data.productoId)
+        .input('tipo', sql.NVarChar(50), data.tipo)
+        .input('cantidad', sql.Int, data.cant)
+        .input("descripcion", sql.NVarChar(100), data.descripcion ?? null)
+        .input('usuarioId', sql.Int, usuarioId)
+        .query(`INSERT INTO Movimientos (ProductoId, Tipo, Cantidad, Referencia, UsuarioId)
+            OUTPUT INSERTED.*
+            VALUES (@productoId, @tipo, @cantidad, @descripcion, @usuarioId)    
+        `);
+
+        const movimiento = movResult.recordset[0];
+
+        for (const {nro_serie, proveedorId, numeroFactura} of data.series) {
+      await new sql.Request(transaction)
+        .input("movimientoId", sql.Int, movimiento.Id)
+        .input("productoId", sql.Int, producto.Id)
+        .input("numeroSerie", sql.NVarChar(100), nro_serie)
+        .input("numeroFactura", sql.NVarChar(50), numeroFactura)
+        .input("provedorId", sql.Int, proveedorId)
+
+        .query(`
+          INSERT INTO Series (MovimientoId, ProductoId, NumeroSerie, NumeroFactura, ProveedorId)
+          VALUES (@movimientoId, @productoId, @numeroSerie, @numeroFactura, @provedorId)
+        `);
+    }
+
+    await new sql.Request(transaction)
+      .input("id", sql.Int, producto.Id)
+      .input("stock", sql.Int, data.stock)
+      .query("UPDATE Productos SET Stock = @stock WHERE Id = @id");
+
+    await transaction.commit();
+        return obtenerMovimientoPorId(movimiento.Id);
+
+
+    }catch(e){
+        await transaction.rollback();
+        throw e;
+    }
+    
+}
 

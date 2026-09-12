@@ -3,7 +3,7 @@ import api from "./api.service";
 
 export const login = async (password: string): Promise<Usuario | null> => {
   try {
-    const { data } = await api.post(`usuarios/login`, { password });
+    const { data } = await api.post(`/usuarios/login`, { password });
     const usuario = data.data.usuario;
     const token = data.data.token;
 

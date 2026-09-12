@@ -18,16 +18,19 @@ export interface Producto {
   CodigoBarra?: string | null;
   cod_fabrica?: string | null;
   Descripcion: string;
+
   MarcaId?: number | null;
   ProveedorId?: number | null;
   Id_categoria?: number | null;
   UnidadId?: number | null;
+
   Costo: number;
   CostoDolar: number;
   IVA: number;
   Ganancia: number;
   Precio: number;
   Stock: number;
+  
   Activo: boolean;
 
   // Propiedades unidas de relaciones (JOINs)
@@ -48,16 +51,20 @@ export interface CaracteristicaDTO {
 export interface CrearProductoDTO {
   codigoInterno: string;
   codigoBarra?: string;
-  cod_fabrica?: string;
   descripcion: string;
+  cod_fabrica?: string;
+  
   marcaId?: number;
   proveedorId?: number;
   unidadId?: number;
-  Id_categoria?: number;
+  id_categoria?: number;
+
   costo?: number;
   costoDolar?: number;
   iva?: number;
   ganancia?: number;
+  precio?: number;
+
   stock?: number;
   caracteristicas?: CaracteristicaDTO[];
 }
@@ -65,16 +72,20 @@ export interface CrearProductoDTO {
 export interface ActualizarProductoDTO {
   codigoInterno?: string;
   codigoBarra?: string;
-  cod_fabrica?: string;
   descripcion?: string;
+  cod_fabrica?: string;
+
   marcaId?: number;
   proveedorId?: number;
   unidadId?: number;
-  Id_categoria?: number;
+  id_categoria?: number;
+  
   costo?: number;
   costoDolar?: number;
   iva?: number;
   ganancia?: number;
+  precio?: number;
+
   stock?: number;
 }
 

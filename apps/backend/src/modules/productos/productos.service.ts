@@ -111,6 +111,23 @@ export const obtenerProductoPorId = async (id: Number) => {
   };
 };
 
+export const obtenerProductoPorCodigoInterno = async (codigo: string) => {
+  const pool = await getPool();
+
+  const productoResult = await pool.request().input("codigoInterno", sql.NVarChar(50), codigo).query(`
+        SELECT p.CodigoInterno
+        FROM Productos p
+        WHERE p.CodigoInterno = @codigoInterno
+    `);
+
+
+  const producto = productoResult.recordset[0];
+  if (!producto) return null;
+  return {
+    ...producto,
+  };
+};
+
 export const crearProducto = async (
   data: CrearProductoDTO,
   archivos: Express.Multer.File[],
@@ -150,7 +167,7 @@ export const crearProducto = async (
       .input("descripcion", sql.NVarChar(255), data.descripcion)
       .input("marcaId", sql.Int, data.marcaId ?? null)
       .input("proveedorId", sql.Int, data.proveedorId ?? null)
-      .input("Id_categoria", sql.Int, data.Id_categoria ?? null)
+      .input("categoriaId", sql.Int, data.id_categoria ?? null)
       .input("unidadId", sql.Int, data.unidadId ?? null)
       .input("costo", sql.Decimal(18, 2), data.costo)
       .input("costoDolar", sql.Decimal(18, 2), data.costoDolar)
@@ -162,7 +179,7 @@ export const crearProducto = async (
                     (CodigoInterno, CodigoBarra, cod_fabrica, Descripcion, MarcaId, ProveedorId, Id_categoria, UnidadId, Costo, CostoDolar, IVA, Ganancia, Precio, Stock, Activo)
                     OUTPUT INSERTED.*
                     VALUES
-                    (@codigoInterno, @codigoBarra, @cod_fabrica, @descripcion, @marcaId, @proveedorId, @Id_categoria, @unidadId, @costo, @costoDolar, @iva, @ganancia, @precio, @stock, 1);
+                    (@codigoInterno, @codigoBarra, @cod_fabrica, @descripcion, @marcaId, @proveedorId, @categoriaId, @unidadId, @costo, @costoDolar, @iva, @ganancia, @precio, @stock, 1);
             `);
 
     const producto = productoResult.recordset[0];
@@ -253,26 +270,6 @@ export const actualizarProducto = async (
   return result.recordset[0] ?? null;
 };
 
-export const actualizarStock = async (data: any) => {
-
-  console.log(data.stock)
-
-  const pool = await getPool();
-  const transaction = await pool.transaction()
-
-  try {
-    transaction.begin();
-
-
-    // 1. Actualizar Stock
-    const query = `UPDATE Productos SET Stock = @stock WHERE Id = @Id`;
-  } catch (error) {
-    
-  }
-
-
-
-}
 
 // ===== Baja lógica =====
 export const eliminarProducto = async (id: number) => {

@@ -6,3 +6,4 @@ export * from "./ui/Login";
 // Productos
 export * from "./productos/ProductosItem";
 export * from "./productos/ModalAddMovimiento";
+export * from "./productos/ModalProducto";

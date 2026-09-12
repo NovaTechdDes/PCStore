@@ -6,5 +6,21 @@ export interface Movimiento {
     usuarioId?: string;
     numeroFactura?: string;
     tipoVenta?: string;
-    cliente?: number
+    cliente?: number;
+}
+
+export interface AjustarStockDTO {
+    productoId: number;
+    stock: number;
+    tipo: string;
+    cant: number;
+    descripcion?: string;
+    vendedor?: number;
+    series?: Serie[];
+}
+
+export interface Serie {
+    nro_serie: string;
+    numeroFactura: string;
+    proveedorId: number;
 }

@@ -1,11 +1,19 @@
 import { useState, useMemo } from "react";
-import { Cabecera, ProductosItem, Loading, ModalAddMovimiento } from "../compontents";
+import {
+  Cabecera,
+  ProductosItem,
+  Loading,
+  ModalAddMovimiento,
+  ModalProducto,
+} from "../compontents";
 import { useProductos } from "../hooks";
 
 export const Productos = () => {
-  
   const [buscador, setBuscador] = useState("");
-  const [viewModalMovimiento, setViewModalMovimiento] = useState<boolean>(false)
+  const [viewModalAddProducto, setViewModalAddProducto] =
+    useState<boolean>(false);
+  const [viewModalMovimiento, setViewModalMovimiento] =
+    useState<boolean>(false);
   const { data, isLoading } = useProductos();
 
   const productosFiltrados = useMemo(() => {
@@ -13,13 +21,14 @@ export const Productos = () => {
     if (!buscador.trim()) return data;
 
     const query = buscador.toLowerCase();
-    return data.filter((item) =>
-      item.Descripcion?.toLowerCase().includes(query) ||
-      item.CodigoInterno?.toLowerCase().includes(query) ||
-      item.CodigoBarra?.toLowerCase().includes(query) ||
-      item.cod_fabrica?.toLowerCase().includes(query) ||
-      item.MarcaNombre?.toLowerCase().includes(query) ||
-      item.CategoriaNombre?.toLowerCase().includes(query)
+    return data.filter(
+      (item) =>
+        item.Descripcion?.toLowerCase().includes(query) ||
+        item.CodigoInterno?.toLowerCase().includes(query) ||
+        item.CodigoBarra?.toLowerCase().includes(query) ||
+        item.cod_fabrica?.toLowerCase().includes(query) ||
+        item.MarcaNombre?.toLowerCase().includes(query) ||
+        item.CategoriaNombre?.toLowerCase().includes(query),
     );
   }, [data, buscador]);
 
@@ -30,7 +39,9 @@ export const Productos = () => {
         titulo="Gestión de Productos"
         descripcion="Administra el catálogo de productos, precios y control de stock"
         textoBoton="Nuevo Producto"
-        funcion={() => {}}
+        funcion={() => {
+          setViewModalAddProducto(true);
+        }}
         buscador={buscador}
         setBuscador={setBuscador}
       />
@@ -56,28 +67,56 @@ export const Productos = () => {
               {isLoading ? (
                 <>
                   {Array.from({ length: 6 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse border-b border-slate-200 dark:border-zinc-800/60">
-                      <td className="py-4 px-4"><div className="h-4 w-16 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
-                      <td className="py-4 px-4"><div className="h-4 w-24 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
-                      <td className="py-4 px-4"><div className="h-4 w-48 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
-                      <td className="py-4 px-4"><div className="h-5 w-16 bg-slate-200 dark:bg-zinc-800 rounded-full" /></td>
-                      <td className="py-4 px-4"><div className="h-4 w-20 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
-                      <td className="py-4 px-4"><div className="h-5 w-20 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
-                      <td className="py-4 px-4"><div className="h-4 w-20 bg-slate-200 dark:bg-zinc-800 rounded" /></td>
+                    <tr
+                      key={idx}
+                      className="animate-pulse border-b border-slate-200 dark:border-zinc-800/60"
+                    >
+                      <td className="py-4 px-4">
+                        <div className="h-4 w-16 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-4 w-24 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-4 w-48 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-5 w-16 bg-slate-200 dark:bg-zinc-800 rounded-full" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-4 w-20 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-5 w-20 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="h-4 w-20 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      </td>
                     </tr>
                   ))}
                 </>
               ) : productosFiltrados.length > 0 ? (
                 productosFiltrados.map((elem) => (
-                  <ProductosItem key={elem.Id || elem.CodigoInterno} item={elem} setShowAddMovModal={setViewModalMovimiento} />
+                  <ProductosItem
+                    key={elem.Id || elem.CodigoInterno}
+                    item={elem}
+                    setShowAddMovModal={setViewModalMovimiento}
+                  />
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500 dark:text-zinc-500">
+                  <td
+                    colSpan={7}
+                    className="py-12 text-center text-slate-500 dark:text-zinc-500"
+                  >
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">No se encontraron productos</p>
+                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">
+                        No se encontraron productos
+                      </p>
                       <p className="text-xs text-slate-500 dark:text-zinc-500">
-                        {buscador ? "Prueba cambiando los términos de búsqueda" : "No hay productos registrados en el sistema"}
+                        {buscador
+                          ? "Prueba cambiando los términos de búsqueda"
+                          : "No hay productos registrados en el sistema"}
                       </p>
                     </div>
                   </td>
@@ -92,13 +131,20 @@ export const Productos = () => {
           <div className="absolute inset-0 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center">
             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-3">
               <Loading size="sm" showText={false} />
-              <span className="text-sm font-medium text-slate-800 dark:text-zinc-200">Cargando productos...</span>
+              <span className="text-sm font-medium text-slate-800 dark:text-zinc-200">
+                Cargando productos...
+              </span>
             </div>
           </div>
         )}
       </div>
 
-      {viewModalMovimiento && <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />}
+      {viewModalAddProducto && (
+        <ModalProducto onClose={() => setViewModalAddProducto(false)} />
+      )}
+      {viewModalMovimiento && (
+        <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />
+      )}
     </div>
   );
 };

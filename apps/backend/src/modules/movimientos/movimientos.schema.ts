@@ -25,6 +25,26 @@ export const crearMovimientosSchema = z.object({
     path: ['cantidad']
 });
 
+export const ajustarStockSchema = z.object({
+    productoId: z.number().min(1, 'Codigo Requerido'),
+    stock: z.number(),
+    tipo: tipoMovimientoEnum,
+    vendedor: z.coerce.number().int().positive().optional(),
+    cant: z.number(),
+    descripcion: z.string().optional(),
+    series: z.array(
+        z.object({
+            nro_serie: z.string().min(1).max(100),
+            proveedorId: z.coerce.number().int(),
+            numeroFactura: z.string().max(50)
+        })
+    ).optional().default([])
+})
+.refine((data) => data.cant !== 0, {
+    message: "La cantidad no puede ser 0",
+    path: ['cant']
+});
+
 export const filtrosMovimientosSchema = z.object({
     productoId: z.coerce.number().int().positive().optional(),
     tipo: tipoMovimientoEnum.optional(),
@@ -34,3 +54,4 @@ export const filtrosMovimientosSchema = z.object({
 
 export type CrearMovimientosDTO = z.infer<typeof crearMovimientosSchema>;
 export type FiltrosMovimientosDTO = z.infer<typeof filtrosMovimientosSchema>;
+export type AjustarStockDTO = z.infer<typeof ajustarStockSchema>;

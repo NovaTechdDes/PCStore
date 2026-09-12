@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import Loading from '../ui/Loading';
+import { startCrearProducto, useDatos } from '../../hooks';
+import { useProductoStore } from '../../store';
+import { mensaje } from '../../helper';
+import { Categoria, CrearProductoDTO, Marca, Provedor, UnidadMedida } from '../../interface';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import BadgeIcon from '@mui/icons-material/Badge';
-import Loading from '../ui/Loading';
-import { useDatos } from '../../hooks';
-import { useProductoStore } from '../../store';
-import { mensaje } from '../../helper';
-import { Producto } from '../../interface';
-
+import { handleFormEnter } from '../../helper/handleFormEnter';
+import { getCodigoProducto } from '../../services';
 
 interface Props {
   onClose: () => void;
@@ -19,48 +20,43 @@ export const ModalProducto = ({ onClose }: Props) => {
 
   const { data: datos, isLoading } = useDatos();
 
+  const dolar = datos?.dolar.Valor ?? 1;
+
   const { productoSeleccionado, setProducto } = useProductoStore();
 
-//   const { mutateAsync: mutateAsyncActualizar, isPending: isPendingActualizar } = startActualizarProducto();
+  //   const { mutateAsync: mutateAsyncActualizar, isPending: isPendingActualizar } = startActualizarProducto();
 
-//   const { mutateAsync: mutateAsyncCrear, isPending: isPendingCrear } = startCrearProducto();
+  const { mutateAsync: mutateAsyncCrear, isPending: isPendingCrear } = startCrearProducto();
 
-  
-
-  const [formData, setFormData] = useState({
-    codigo: productoSeleccionado?.CodigoInterno || '',
+  const [formData, setFormData] = useState<CrearProductoDTO>({
+    codigoInterno: productoSeleccionado?.CodigoInterno || '',
     descripcion: productoSeleccionado?.Descripcion || '',
-    codigoSecundario: productoSeleccionado?.cod_fabrica || '',
-    
-    marca: productoSeleccionado?.MarcaId || '',
-    categoria: productoSeleccionado?.CategoriaNombre || '',
-    provedor: productoSeleccionado?.ProveedorId || '',
+    codigoBarra: productoSeleccionado?.CodigoBarra || '',
+    cod_fabrica: productoSeleccionado?.cod_fabrica || '',
+
+    marcaId: productoSeleccionado?.MarcaId || 0,
+    id_categoria: productoSeleccionado?.Id_categoria || 0,
+    proveedorId: productoSeleccionado?.ProveedorId || 0,
+    unidadId: productoSeleccionado?.UnidadId || 1,
+
     costo: productoSeleccionado?.Costo ?? 0,
     costoDolar: productoSeleccionado?.CostoDolar ?? 0,
     ganancia: productoSeleccionado?.Ganancia ?? 0,
-    impuesto: productoSeleccionado?.IVA ?? 21,
+    iva: productoSeleccionado?.IVA ?? 21,
     precio: productoSeleccionado?.Precio ?? 0,
     stock: productoSeleccionado?.Stock ?? 0,
   });
 
-  const calcularCostoUtilidad = (costo: number, costoDolar: number, utilidad: number): number => {
-    const baseCosto = Number(costoDolar) !== 0 ? Number(costoDolar) : Number(costo);
-    const porcentaje = Number(utilidad) || 0;
+  const calcularCostoIva = (costo: number, costoDolar: number, iva: number): number => {
+    const baseCosto = Number(costoDolar) !== 0 ? Number(costoDolar) * dolar : Number(costo);
+    const porcentaje = costoDolar !== 0 ? Number(iva) : Number(iva);
     const resultado = baseCosto + baseCosto * (porcentaje / 100);
     return Number(resultado.toFixed(2));
   };
 
-  const calcularPrecioInstalador = (costo: number, costoDolar: number, utilidad: number, impuesto: number): number => {
-    const costoMasUtilidad = calcularCostoUtilidad(costo, costoDolar, utilidad);
-    const conImpuesto = costoMasUtilidad + costoMasUtilidad * (Number(impuesto) / 100);
-    const resultado = Number(costoDolar) !== 0 ? conImpuesto * 1 : conImpuesto;
-    return Number(resultado.toFixed(2));
-  };
-
-  const calcularTotal = (costo: number, costoDolar: number, utilidad: number, impuesto: number, ganancia: number, cotizacion: number): number => {
-    const costoMasUtilidad = calcularCostoUtilidad(costo, costoDolar, utilidad);
-    const conImpuesto = costoMasUtilidad + costoMasUtilidad * (Number(impuesto) / 100);
-    const conGanancia = conImpuesto + conImpuesto * (Number(ganancia) / 100);
+  const calcularTotal = (costo: number, costoDolar: number, iva: number, ganancia: number, cotizacion: number): number => {
+    const costoMasUtilidad = calcularCostoIva(costo, costoDolar, iva);
+    const conGanancia = costoMasUtilidad + costoMasUtilidad * (ganancia / 100);
     const resultado = Number(costoDolar) !== 0 ? conGanancia * cotizacion : conGanancia;
     return Number(resultado.toFixed(2));
   };
@@ -78,33 +74,33 @@ export const ModalProducto = ({ onClose }: Props) => {
       return;
     }
 
-    const productoParseado: Producto = {
-      CodigoInterno: formData.codigo,
-      Descripcion: formData.descripcion.trim(),
-      cod_fabrica: formData.codigoSecundario,
-      UnidadId: formData.unidad.trim(),
-      MarcaId: formData.marca,
-      ProveedorId: formData.provedor,
-      Costo: Number(formData.costo),
-      CostoDolar: Number(formData.costoDolar),
-      IVA: Number(formData.iva),
+    const productoParseado: CrearProductoDTO = {
+      codigoInterno: formData.codigoInterno,
+      descripcion: formData.descripcion.trim(),
+      codigoBarra: formData.codigoBarra,
+      cod_fabrica: formData.cod_fabrica,
+      unidadId: formData.unidadId ?? 1,
+      marcaId: formData.marcaId,
+      proveedorId: formData.proveedorId,
+      id_categoria: formData.id_categoria,
+      costo: Number(formData.costo),
+      costoDolar: Number(formData.costoDolar),
+      iva: Number(formData.iva),
       ganancia: Number(formData.ganancia),
-      Precio: Number(formData.precio),
-      Stock: Number(formData.stock),
-      Activo: true,
+      stock: Number(formData.stock),
     };
 
-    if (productoSeleccionado) {
-      const res = await mutateAsyncActualizar(productoParseado);
+    // if (productoSeleccionado) {
+    //   const res = await mutateAsyncActualizar(productoParseado);
 
-      if (res.ok) {
-        mensaje('Producto actualizado exitosamente!', 'success');
-        handleClose();
-      } else {
-        mensaje(res.msg || 'Error al actualizar el Producto', 'error');
-      }
-      return;
-    }
+    //   if (res.ok) {
+    //     mensaje("Producto actualizado exitosamente!", "success");
+    //     handleClose();
+    //   } else {
+    //     mensaje(res.msg || "Error al actualizar el Producto", "error");
+    //   }
+    //   return;
+    // }
 
     const res = await mutateAsyncCrear(productoParseado);
 
@@ -121,18 +117,18 @@ export const ModalProducto = ({ onClose }: Props) => {
       esPrimerRender.current = false;
       if (productoSeleccionado) return;
     }
-    const total = calcularTotal(formData.costo, formData.costoDolar, formData.utilidad, formData.impuesto, formData.ganancia, dolarNormal);
+    const total = calcularTotal(formData.costo ?? 0, formData.costoDolar ?? 0, formData.iva ?? 0, formData.ganancia ?? 0, 1);
     setFormData((prev) => ({ ...prev, precio: total }));
-  }, [formData.costo, formData.costoDolar, formData.utilidad, formData.impuesto, formData.ganancia, dolarNormal]);
+  }, [formData.costo, formData.costoDolar, formData.iva, formData.ganancia]);
 
   const handleBlurCodigo = async () => {
-    if (formData.codigo.trim() && !productoSeleccionado) {
+    if (formData.codigoInterno.trim() && !productoSeleccionado) {
       try {
-        const producto = await getCodigoProducto(formData.codigo);
+        const producto = await getCodigoProducto(formData.codigoInterno);
 
         if (producto) {
           mensaje('El codigo ya existe!', 'error');
-          setFormData((prev) => ({ ...prev, codigo: '' }));
+          setFormData((prev) => ({ ...prev, codigoInterno: '' }));
 
           setTimeout(() => {
             inputCodigoRef.current?.focus();
@@ -177,13 +173,8 @@ export const ModalProducto = ({ onClose }: Props) => {
         <form onSubmit={handleSubmit} onKeyDown={handleFormEnter} className="p-2 space-y-6 overflow-y-auto">
           {/* Dólares / Valores de Referencia */}
           <div className="flex justify-end gap-4 p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs font-semibold text-slate-700 dark:text-zinc-300">
-            <div className="flex items-center gap-2">
-              <span className="text-slate-500 dark:text-zinc-400">Dólar Instalador:</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400 font-mono text-sm">$ {dolarInstalador.toFixed(2)}</span>
-            </div>
             <div className="flex items-center gap-2 border-l border-slate-300 dark:border-zinc-700 pl-4">
-              <span className="text-slate-500 dark:text-zinc-400">Dólar Normal:</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400 font-mono text-sm">$ {dolarNormal.toFixed(2)}</span>
+              <span className="text-slate-500 dark:text-zinc-400">Dólar: {dolar.toFixed(2)}</span>
             </div>
           </div>
 
@@ -191,9 +182,9 @@ export const ModalProducto = ({ onClose }: Props) => {
           <div className="border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-4 relative pt-5">
             <span className="absolute -top-2.5 left-3 bg-white dark:bg-[#18181b] px-2 text-xs font-bold text-amber-600 dark:text-amber-400">Identificador</span>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
-                  Código <span className="text-red-500">*</span>
+                  Código Interno <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -202,8 +193,8 @@ export const ModalProducto = ({ onClose }: Props) => {
                   onBlur={handleBlurCodigo}
                   readOnly={productoSeleccionado !== null}
                   placeholder="Código"
-                  value={formData.codigo}
-                  onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                  value={formData.codigoInterno}
+                  onChange={(e) => setFormData({ ...formData, codigoInterno: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                 />
               </div>
@@ -220,16 +211,31 @@ export const ModalProducto = ({ onClose }: Props) => {
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 />
               </div>
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Código Secundario</label>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Código Barra</label>
                 <input
                   type="text"
-                  value={formData.codigoSecundario}
-                  placeholder="Código secundario"
+                  value={formData.codigoBarra}
+                  placeholder="Código Barra"
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      codigoSecundario: e.target.value,
+                      codigoBarra: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Código Fabrica</label>
+                <input
+                  type="text"
+                  value={formData.cod_fabrica}
+                  placeholder="Código Fabrica"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      cod_fabrica: e.target.value,
                     })
                   }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
@@ -243,29 +249,21 @@ export const ModalProducto = ({ onClose }: Props) => {
             <span className="absolute -top-2.5 left-3 bg-white dark:bg-[#18181b] px-2 text-xs font-bold text-amber-600 dark:text-amber-400">Información</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Unidad</label>
-                <select
-                  value={formData.unidad}
-                  onChange={(e) => setFormData({ ...formData, unidad: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
-                >
-                  <option value="UNIDAD">UNIDAD</option>
-                  <option value="METRO">METRO</option>
-                  <option value="KILO">KILO</option>
-                </select>
-              </div>
-
-              <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Marca</label>
                 <select
-                  value={formData.marca}
-                  onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                  value={formData.marcaId}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      marcaId: Number(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 >
                   <option value="">Seleccionar</option>
-                  {datos?.marcas.map((marca: MarcaBackend) => (
-                    <option key={marca._id} value={marca._id}>
-                      {marca.nombre}
+                  {datos?.marcas.map((marca: Marca) => (
+                    <option key={marca.Id} value={marca.Id}>
+                      {marca.Nombre}
                     </option>
                   ))}
                 </select>
@@ -274,14 +272,19 @@ export const ModalProducto = ({ onClose }: Props) => {
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Rubro</label>
                 <select
-                  value={formData.rubro}
-                  onChange={(e) => setFormData({ ...formData, rubro: e.target.value })}
+                  value={formData.id_categoria}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      id_categoria: Number(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 >
                   <option value="">Seleccionar</option>
-                  {datos?.rubros.map((rubro: RubroBackend) => (
-                    <option key={rubro._id} value={rubro._id}>
-                      {rubro.rubro}
+                  {datos?.categorias.map((rubro: Categoria) => (
+                    <option key={rubro.Id_categoria} value={rubro.Id_categoria}>
+                      {rubro.Nombre}
                     </option>
                   ))}
                 </select>
@@ -290,14 +293,40 @@ export const ModalProducto = ({ onClose }: Props) => {
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Proveedor</label>
                 <select
-                  value={formData.provedor}
-                  onChange={(e) => setFormData({ ...formData, provedor: e.target.value })}
+                  value={formData.proveedorId}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      proveedorId: Number(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 >
                   <option value="">Seleccionar</option>
-                  {datos?.proveedores.map((proveedor: ProvedorBackEnd) => (
-                    <option key={proveedor._id} value={proveedor._id}>
-                      {proveedor.nombre}
+                  {datos?.proveedores.map((proveedor: Provedor) => (
+                    <option key={proveedor.Id} value={proveedor.Id}>
+                      {proveedor.Nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Unidad</label>
+                <select
+                  value={formData.unidadId}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      unidadId: Number(e.target.value),
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                >
+                  <option value="">Seleccionar</option>
+                  {datos?.unidades.map((unidad: UnidadMedida) => (
+                    <option key={unidad.Id} value={unidad.Id}>
+                      {unidad.Nombre}
                     </option>
                   ))}
                 </select>
@@ -308,7 +337,7 @@ export const ModalProducto = ({ onClose }: Props) => {
           {/* Sección: Precios */}
           <div className="border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-4 relative pt-5">
             <span className="absolute -top-2.5 left-3 bg-white dark:bg-[#18181b] px-2 text-xs font-bold text-amber-600 dark:text-amber-400">Precios</span>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
                   Costo <span className="text-red-500">*</span>
@@ -317,8 +346,8 @@ export const ModalProducto = ({ onClose }: Props) => {
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  value={formData.costo}
-                  onChange={(e) => setFormData({ ...formData, costo: Number(e.target.value) })}
+                  value={formData.costo === 0 ? '' : formData.costo}
+                  onChange={(e) => setFormData({ ...formData, costo: e.target.value === '' ? 0 : Number(e.target.value) })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                 />
               </div>
@@ -331,7 +360,7 @@ export const ModalProducto = ({ onClose }: Props) => {
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  value={formData.costoDolar}
+                  value={formData.costoDolar === 0 ? '' : formData.costoDolar}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -343,59 +372,26 @@ export const ModalProducto = ({ onClose }: Props) => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Utilidad %</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.utilidad}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      utilidad: Number(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Costo + Utilidad</label>
-                <div className="w-full px-3 py-2 bg-slate-100 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 rounded-xl text-xs font-bold font-mono">
-                  {calcularCostoUtilidad(formData.costo, formData.costoDolar, formData.utilidad).toFixed(2)}
-                </div>
-              </div>
-
-              <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Impuesto %</label>
                 <input
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  value={formData.impuesto}
+                  value={formData.iva}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      impuesto: Number(e.target.value),
+                      iva: Number(e.target.value),
                     })
                   }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Sección: Precio Instalador */}
-          <div className="border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-4 relative pt-5">
-            <span className="absolute -top-2.5 left-3 bg-white dark:bg-[#18181b] px-2 text-xs font-bold text-amber-600 dark:text-amber-400">Precio Instalador</span>
-            <div className="flex justify-center">
-              <div className="w-full max-w-xs text-center">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Costo + IVA (Instalador)</label>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Costo + Iva</label>
                 <div className="w-full px-3 py-2 bg-slate-100 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 rounded-xl text-xs font-bold font-mono">
-                  ${' '}
-                  {calcularPrecioInstalador(formData.costo, formData.costoDolar, formData.utilidad, formData.impuesto).toLocaleString('es-AR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {calcularCostoIva(formData.costo ?? 0, formData.costoDolar ?? 0, formData.iva ?? 0).toFixed(2)}
                 </div>
               </div>
             </div>
@@ -458,10 +454,10 @@ export const ModalProducto = ({ onClose }: Props) => {
             </button>
             <button
               type="submit"
-              disabled={isPendingCrear || isPendingActualizar}
+              disabled={isPendingCrear}
               className="flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-amber-500/20 cursor-pointer disabled:opacity-50"
             >
-              {isPendingCrear || isPendingActualizar ? (
+              {isPendingCrear ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>

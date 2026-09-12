@@ -36,13 +36,8 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
   const [series, setSeries] = useState<
     {
       nro_serie: string;
-      provedor: string;
-      factura: string;
-      codigo: string;
-      nombre_provedor: string;
-      producto: string;
-      marca: string;
-      vendedor: string;
+      numeroFactura: string;
+      proveedorId: number;
     }[]
   >([]);
 
@@ -51,8 +46,7 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
   const stockBase = productoSeleccionado.Stock ?? 0;
   const nuevoStock = tipo === 'Resta' ? stockBase - cantidad : stockBase + cantidad;
 
-const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entrada') || nroSerie !== '';
-
+  const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entrada') || nroSerie !== '';
 
   const handleClose = () => {
     setShowAddMovModal(false);
@@ -75,13 +69,8 @@ const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entra
       ...series,
       {
         nro_serie: nroSerie,
-        provedor,
-        factura,
-        nombre_provedor: provedores.find((p) => p.Id === Number(provedor))?.Nombre ?? '',
-        codigo: productoSeleccionado.Id,
-        producto: productoSeleccionado.Descripcion,
-        marca: productoSeleccionado.MarcaNombre ?? '',
-        vendedor: usuario?.NombreUsuario ?? '',
+        numeroFactura: factura,
+        proveedorId: Number(provedor),
       },
     ];
 
@@ -114,14 +103,24 @@ const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entra
         return;
       }
     }
-    console.log(usuario)
+    const cantidadEfectiva = cantidad > 0 ? cantidad : series.length;
+    const cantFinal = tipo === 'Resta' ? -Math.abs(cantidadEfectiva) : Math.abs(cantidadEfectiva);
 
-    const res = await mutateAsync({ productoId: productoSeleccionado.Id, stock: nuevoStock, tipo, descripcion: productoSeleccionado.Descripcion, series, vendedor: usuario?.Id, cant: cantidad });
+    const res = await mutateAsync({
+      productoId: productoSeleccionado.Id,
+      stock: nuevoStock,
+      tipo,
+      descripcion: productoSeleccionado.Descripcion,
+      series,
+      vendedor: usuario?.Id,
+      cant: cantFinal,
+    });
+
     if (res.ok) {
-      mensaje('Movimiento Cargado correctamente', 'success');
-    //   handleClose();
+      mensaje(res.msg || 'Movimiento cargado correctamente', 'success');
+      handleClose();
     } else {
-      mensaje('Error al cargar el movimiento', 'error');
+      mensaje(res.msg || 'Error al cargar el movimiento', 'error');
     }
   };
 
@@ -330,8 +329,8 @@ const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entra
                           <tr key={index}>
                             <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{index + 1}</td>
                             <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{serie.nro_serie}</td>
-                            <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{serie.nombre_provedor}</td>
-                            <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{serie.factura}</td>
+                            <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{provedores.find((p) => p.Id === serie.proveedorId)?.Nombre ?? ''}</td>
+                            <td className="px-4 py-2.5 text-xs font-medium text-slate-800 dark:text-zinc-100">{serie.numeroFactura}</td>
                             <td className="px-4 py-2.5 text-center">
                               <button
                                 type="button"
@@ -366,12 +365,12 @@ const desabilitadoAgregar = isPending || (series.length === 0 && tipo === 'Entra
           </button>
           <button
             onClick={handleSubmit}
-            disabled={false}
+            disabled={desabilitadoAgregar}
             type="button"
             className="flex items-center justify-center gap-2 px-6 py-2 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-amber-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {false ? <Loading size="xs" showText={false} /> : <SaveIcon className="w-4 h-4" />}
-            <span>{false ? 'Guardando...' : 'Aceptar'}</span>
+            {isPending ? <Loading size="xs" showText={false} /> : <SaveIcon className="w-4 h-4" />}
+            <span>{isPending ? 'Guardando...' : 'Aceptar'}</span>
           </button>
         </div>
       </div>

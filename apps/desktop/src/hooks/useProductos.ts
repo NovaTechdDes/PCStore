@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { actualizarStock, getProductos } from "../services";
-import { Movimiento } from "../interface";
+import { actualizarStock, crearProducto, getProductos } from "../services";
+import { AjustarStockDTO, CrearProductoDTO } from "../interface";
 
 export const useProductos = () => {
   return useQuery({
@@ -9,14 +9,24 @@ export const useProductos = () => {
   });
 };
 
+export const startCrearProducto = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (producto: CrearProductoDTO) => crearProducto(producto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["productos"]})
+    }
+  })
+}
 
 export const startActualizarStock = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { data: Movimiento }) => actualizarStock(data),
+    mutationFn: (data: AjustarStockDTO) => actualizarStock(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
     },
   })
-}
+};
