@@ -4,6 +4,7 @@ import { useGlobalStore } from '../store';
 import { Login } from '../compontents/ui/Login';
 import { ServerSetup } from '../pages/App';
 import { getServerUrl, initAppStore } from '../services';
+import { TopNavbar } from '../compontents';
 
 const RootLayout = () => {
 
@@ -55,6 +56,7 @@ const RootLayout = () => {
 
   return (
     <div>
+      <TopNavbar />
       {/* Tu Navbar / Layout aquí */}
       <Outlet />
     </div>

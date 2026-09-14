@@ -1,8 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { RootLayout } from '../layouts';
-import { NotFound, Productos } from '../pages/index';
-
-
+import { NotFound, Productos, Marcas, Categoria } from '../pages/index';
 
 export const router = createBrowserRouter([
     {
@@ -13,7 +11,15 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <Productos/>
+            },
+            {
+                path: 'marcas',
+                element: <Marcas/>
+            },
+            {
+                path: 'categorias',
+                element: <Categoria/>
             }
         ]
     }
-])
+]);

@@ -19,8 +19,8 @@ export const obtenerMarcaPorId = async(id: number) => {
 
 export const crearMarca = async( marca: CrearMarcaDTO) => {
     const pool = await getPool();
-    const query = `INSERT INTO Marcas (nombre) OUTPUT INSERTED.* values (@nombre)`;
-    const result = await pool.request().input('nombre', sql.NVarChar(100), marca.nombre).query(query);
+    const query = `INSERT INTO Marcas (nombre, sitioWeb, Descripcion, Activo) OUTPUT INSERTED.* values (@nombre, @sitioWeb, @Descripcion, @Activo)`;
+    const result = await pool.request().input('nombre', sql.NVarChar(100), marca.nombre).input('sitioWeb', sql.NVarChar(255), marca.sitioWeb).input('Descripcion', sql.NVarChar(255), marca.descripcion).input('Activo', sql.Bit, marca.activo).query(query);
     return result.recordset[0];
 };
 
