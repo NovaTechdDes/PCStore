@@ -8,8 +8,12 @@ export interface Categoria {
 
 export interface CrearCategoriaDTO {
   nombre: string;
+  descripcion: string;
+  activo: boolean;
 }
 
 export interface ActualizarCategoriaDTO {
   nombre?: string;
+  descripcion?: string;
+  activo: boolean
 }

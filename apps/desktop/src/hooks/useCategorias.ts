@@ -10,7 +10,7 @@ export const useCategorias = () => {
 }
 
 
-export const usePutCategoria = () => {
+export const useStartPutCategoria = () => {
     const query = useQueryClient();
     return useMutation({
         mutationFn: ({data, id}: {data: CrearCategoriaDTO, id:number}) => putCategoria(data, id),

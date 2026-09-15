@@ -4,63 +4,26 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import StorageIcon from '@mui/icons-material/Storage';
-import BadgeIcon from '@mui/icons-material/Badge';
 import CategoryIcon from '@mui/icons-material/Category';
-import SellIcon from '@mui/icons-material/Sell';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-import ErrorIcon from '@mui/icons-material/Error';
-import PersonIcon from '@mui/icons-material/Person';
-import ArticleIcon from '@mui/icons-material/Article';
 
 export const TopNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [anchorElDatos, setAnchorElDatos] = useState<null | HTMLElement>(null);
-  const [anchorElProductos, setAnchorElProductos] = useState<null | HTMLElement>(null);
-  const [anchorElClientes, setAnchorElClientes] = useState<null | HTMLElement>(null);
-  const [anchorElGerencia, setAnchorElGerencia] = useState<null | HTMLElement>(null);
+
   const openDatos = Boolean(anchorElDatos);
-  const openProductos = Boolean(anchorElProductos);
-  const openClientes = Boolean(anchorElClientes);
-  const openGerencia = Boolean(anchorElGerencia);
 
   const handleOpenDatos = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorElDatos(event.currentTarget);
-  };
-
-  const handleOpenProductos = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorElProductos(event.currentTarget);
-  };
-
-  const handleOpenClientes = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorElClientes(event.currentTarget);
-  };
-
-  const handleOpenGerencia = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorElGerencia(event.currentTarget);
   };
 
   const handleCloseDatos = () => {
     setAnchorElDatos(null);
   };
 
-  const handleCloseProductos = () => {
-    setAnchorElProductos(null);
-  };
-
-  const handleCloseClientes = () => {
-    setAnchorElClientes(null);
-  };
-
-  const handleCloseGerencia = () => {
-    setAnchorElGerencia(null);
-  };
-
   const handleNavigate = (path: string) => {
     handleCloseDatos();
-    handleCloseProductos();
     navigate(path);
   };
 
@@ -68,7 +31,7 @@ export const TopNavbar = () => {
     {
       label: 'Provedor',
       Icon: StorageIcon,
-      navigate: 'numeros',
+      navigate: 'proveedores',
     },
     {
       label: 'Marcas',
@@ -79,14 +42,10 @@ export const TopNavbar = () => {
       label: 'Categorias',
       Icon: CategoryIcon,
       navigate: 'categorias',
-    }
+    },
   ];
 
- 
-
   const isDatosActive = location.pathname === '/vendedores' || location.pathname === '/rubros';
-  const isProductosActive = location.pathname === '/series';
-  const isGerenciaActive = location.pathname === '/gerencial' || location.pathname === '/fallidas';
 
   return (
     <header className="h-12 pl-20 bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 px-4 flex items-center justify-between z-10 transition-colors duration-200">

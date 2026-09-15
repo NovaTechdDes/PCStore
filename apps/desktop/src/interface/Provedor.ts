@@ -4,6 +4,7 @@ export interface Provedor {
   Contacto: string;
   Telefono?: string | null;
   Email?: string | null;
+  Activo: boolean;
 }
 
 export interface CrearProvedorDTO {

@@ -12,3 +12,10 @@ export * from "./productos/ModalProducto";
 //Marcas
 export * from './marcas/MarcaItem'
 export * from './marcas/ModalMarca'
+
+//Categoria
+export * from './categorias/ModalCategoria';
+
+// Proveedores
+export * from './proveedores/ModalProveedor';
+export * from './proveedores/ProveedorItem';

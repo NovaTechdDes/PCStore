@@ -1,4 +1,4 @@
-import { Categoria, CrearCategoriaDTO } from "../interface";
+import { ActualizarCategoriaDTO, Categoria, CrearCategoriaDTO } from "../interface";
 import api from "./api.service";
 
 export const getCategorias = async (): Promise<Categoria[]> => {
@@ -31,7 +31,7 @@ export const postCategoria = async(categoria: CrearCategoriaDTO): Promise<boolea
     }
 };
 
-export const putCategoria = async (categoria: CrearCategoriaDTO, id: number): Promise<boolean> => {
+export const putCategoria = async (categoria: ActualizarCategoriaDTO, id: number): Promise<boolean> => {
     try {
         const { data } = await api.put(`/categorias/${id}`, categoria);
 
