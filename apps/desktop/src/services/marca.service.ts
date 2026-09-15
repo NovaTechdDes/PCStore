@@ -35,6 +35,21 @@ export const postMarca = async (marca: CrearMarcaDTO): Promise<Marca> => {
     }
 };
 
+export const putMarca = async (marca: CrearMarcaDTO, id:number): Promise<Marca> => {
+    try {
+        const { data } = await api.put(`/marcas/${id}`, marca);
+
+        if(data.ok){
+          return data.data;
+        }
+
+        throw new Error(data.message);
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 export const deleteMarca = async (id: number): Promise<Marca> => {
     try {
         const { data } = await api.delete(`/marcas/${id}`);

@@ -4,12 +4,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import LanguageIcon from '@mui/icons-material/Language';
 import SaveIcon from '@mui/icons-material/Save';
 import { useMarcaStore } from '../../store';
-import { useStartPostMarca } from '../../hooks';
+import { usePutMarca, useStartPostMarca } from '../../hooks';
+import { mensaje } from '../../helper';
 
 
 export const ModalMarca = () => {
     const { setModalAbierto, marca, setMarca } = useMarcaStore();
     const { mutateAsync: cargarMarca, isPending: isPendingCargar} = useStartPostMarca();
+    const { mutateAsync: actualizarMarca, isPending: isPendingActualizar} = usePutMarca();
 
     const [formData, setFormData] = useState({
         nombre: '',
@@ -25,11 +27,28 @@ export const ModalMarca = () => {
     };
 
     const handleSaveMarca = async () => {
-        const res = await cargarMarca(formData);
+
+      if(marca){
+        const res = await actualizarMarca({data: formData, id: marca.Id});
+        if(res){
+          setModalAbierto(false);
+          setMarca(null);
+          mensaje('Marca actualizada correctamente', 'success')
+        }else{
+          mensaje('Error al actualizar la marca', 'error');
+        }
+        console.log(res)
+        return;
+      }
+
+      const res = await cargarMarca(formData);
 
         if(res){
             setModalAbierto(false);
             setMarca(null);
+            mensaje('Marca creada correctamente', 'success')
+        }else{
+          mensaje('Error al crear la marca', 'error');
         }
     };
 
@@ -168,6 +187,7 @@ export const ModalMarca = () => {
                 <button
                   type="button"
                   onClick={handleSaveMarca}
+                  disabled={isPendingCargar || isPendingActualizar}
                   className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                 >
                   <SaveIcon className="w-4 h-4" />

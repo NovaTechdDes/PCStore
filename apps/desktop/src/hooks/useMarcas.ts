@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { deleteMarca, getMarcas, postMarca } from "../services"
+import { deleteMarca, getMarcas, postMarca, putMarca } from "../services"
 import { CrearMarcaDTO } from "../interface";
 
 export const useMarcas = () => {
@@ -9,7 +9,16 @@ export const useMarcas = () => {
     })
 };
 
+export const usePutMarca = () => {
+    const query = useQueryClient();
 
+    return useMutation({
+        mutationFn: ({data, id}: {data: CrearMarcaDTO, id: number}) => putMarca(data, id),
+        onSuccess: () => {
+            query.invalidateQueries({ queryKey: ['marcas'] })
+        }
+    })
+}
 
 export const useStartPostMarca = () => {
     const query = useQueryClient();

@@ -12,6 +12,7 @@ interface Props {
 }
 
 export const MarcaItem = ({item}: Props) => {
+  console.log(item)
     const { setModalAbierto, setMarca} = useMarcaStore();
     const { mutateAsync, isPending } = useStartDeleteMarca();
 

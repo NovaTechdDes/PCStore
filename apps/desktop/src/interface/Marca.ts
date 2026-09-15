@@ -3,7 +3,7 @@ export interface Marca {
   Nombre: string;
   Descripcion: string;
   SitioWeb?: string;
-  TotalProductos: number;
+  TotalProductos?: number;
   Activo: boolean;
 }
 

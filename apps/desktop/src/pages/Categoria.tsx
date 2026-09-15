@@ -1,123 +1,28 @@
 import { useState, useMemo } from 'react';
-import { Cabecera } from '../compontents';
+import { Cabecera, Loading } from '../compontents';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import CategoryIcon from '@mui/icons-material/Category';
 import LayersIcon from '@mui/icons-material/Layers';
-import PercentIcon from '@mui/icons-material/Percent';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Categoria } from '../interface';
+import { useCategorias } from '../hooks';
 
-// Tipado mock de la interfaz de Categoría para el diseño
-interface CategoriaUI {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  margenSugerido: number;
-  ivaPorDefecto: number;
-  totalProductos: number;
-  colorTag: string; // Tailwind color theme indicator
-  estado: 'activa' | 'inactiva';
-}
 
-// Datos de ejemplo para renderizado del diseño
-const MOCK_CATEGORIAS: CategoriaUI[] = [
-  {
-    id: 1,
-    nombre: 'Procesadores',
-    descripcion: 'CPUs Intel Core y AMD Ryzen para estaciones de trabajo y gaming.',
-    margenSugerido: 18,
-    ivaPorDefecto: 21,
-    totalProductos: 36,
-    colorTag: 'blue',
-    estado: 'activa',
-  },
-  {
-    id: 2,
-    nombre: 'Placas de Video',
-    descripcion: 'GPUs NVIDIA GeForce RTX y AMD Radeon con trazado de rayos.',
-    margenSugerido: 22,
-    ivaPorDefecto: 21,
-    totalProductos: 25,
-    colorTag: 'purple',
-    estado: 'activa',
-  },
-  {
-    id: 3,
-    nombre: 'Memorias RAM',
-    descripcion: 'Módulos DDR4 y DDR5 con perfiles XMP / EXPO de alta frecuencia.',
-    margenSugerido: 25,
-    ivaPorDefecto: 21,
-    totalProductos: 48,
-    colorTag: 'amber',
-    estado: 'activa',
-  },
-  {
-    id: 4,
-    nombre: 'Almacenamiento SSD',
-    descripcion: 'Discos de estado sólido NVMe M.2 PCIe 4.0/5.0 y SSD SATA 2.5.',
-    margenSugerido: 30,
-    ivaPorDefecto: 21,
-    totalProductos: 52,
-    colorTag: 'emerald',
-    estado: 'activa',
-  },
-  {
-    id: 5,
-    nombre: 'Monitores',
-    descripcion: 'Pantallas IPS, OLED y curvas con tasas de refresco de 144Hz+.',
-    margenSugerido: 28,
-    ivaPorDefecto: 21,
-    totalProductos: 17,
-    colorTag: 'cyan',
-    estado: 'activa',
-  },
-  {
-    id: 6,
-    nombre: 'Periféricos',
-    descripcion: 'Teclados mecánicos, mouses gamer, auriculares y micrófonos.',
-    margenSugerido: 35,
-    ivaPorDefecto: 21,
-    totalProductos: 64,
-    colorTag: 'rose',
-    estado: 'activa',
-  },
-  {
-    id: 7,
-    nombre: 'Fuentes de Poder',
-    descripcion: 'PSUs certificadas 80 Plus Bronze, Gold, Platinum y modulares.',
-    margenSugerido: 20,
-    ivaPorDefecto: 21,
-    totalProductos: 14,
-    colorTag: 'orange',
-    estado: 'inactiva',
-  },
-];
-
-// Opciones de colores temáticos para categorías
-const COLOR_OPTIONS = [
-  { id: 'blue', label: 'Azul', bg: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
-  { id: 'purple', label: 'Violeta', bg: 'bg-purple-500', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' },
-  { id: 'amber', label: 'Ámbar', bg: 'bg-amber-500', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
-  { id: 'emerald', label: 'Esmeralda', bg: 'bg-emerald-500', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
-  { id: 'cyan', label: 'Cian', bg: 'bg-cyan-500', badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20' },
-  { id: 'rose', label: 'Rosa', bg: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' },
-];
-
-export const Categoria = () => {
+export const CategoriaScreen = () => {
   const [buscador, setBuscador] = useState('');
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [categoriaAEditar, setCategoriaAEditar] = useState<CategoriaUI | null>(null);
+  const [categoriaAEditar, setCategoriaAEditar] = useState<Categoria | null>(null);
+
+  const { data: categorias, isLoading }= useCategorias();
 
   // Formulario mock para diseño
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    margenSugerido: '25',
-    ivaPorDefecto: '21',
-    colorTag: 'amber',
-    estado: 'activa' as 'activa' | 'inactiva',
+    activo: false
   });
 
   const abrirModalCrear = () => {
@@ -125,23 +30,17 @@ export const Categoria = () => {
     setFormData({
       nombre: '',
       descripcion: '',
-      margenSugerido: '25',
-      ivaPorDefecto: '21',
-      colorTag: 'amber',
-      estado: 'activa',
+      activo: false
     });
     setModalAbierto(true);
   };
 
-  const abrirModalEditar = (cat: CategoriaUI) => {
+  const abrirModalEditar = (cat: Categoria) => {
     setCategoriaAEditar(cat);
     setFormData({
-      nombre: cat.nombre,
-      descripcion: cat.descripcion,
-      margenSugerido: cat.margenSugerido.toString(),
-      ivaPorDefecto: cat.ivaPorDefecto.toString(),
-      colorTag: cat.colorTag,
-      estado: cat.estado,
+      nombre: cat.Nombre,
+      descripcion: cat.Descripcion || '',
+      activo: cat.Activo
     });
     setModalAbierto(true);
   };
@@ -153,24 +52,23 @@ export const Categoria = () => {
 
   // Filtrado de diseño
   const categoriasFiltradas = useMemo(() => {
-    if (!buscador.trim()) return MOCK_CATEGORIAS;
+    if (!buscador.trim()) return categorias || [];
     const query = buscador.toLowerCase();
-    return MOCK_CATEGORIAS.filter(
+    return categorias?.filter(
       (c) =>
-        c.nombre.toLowerCase().includes(query) ||
-        c.descripcion.toLowerCase().includes(query)
+        c.Nombre.toLowerCase().includes(query) ||
+        c.Descripcion?.toLowerCase().includes(query)
     );
-  }, [buscador]);
+  }, [categorias,buscador]);
 
   // Cálculos rápidos de métricas
-  const totalCategorias = MOCK_CATEGORIAS.length;
-  const categoriasActivas = MOCK_CATEGORIAS.filter((c) => c.estado === 'activa').length;
-  const totalArticulos = MOCK_CATEGORIAS.reduce((acc, c) => acc + c.totalProductos, 0);
+  const totalCategorias = categorias?.length || 0;
+  const categoriasActivas = categorias?.filter((c) => c.Activo).length || 0;
+  const totalArticulos = categorias?.reduce((acc, c) => acc + (c?.TotalProductos || 0), 0) || 0;
 
-  const getColorBadge = (colorKey: string) => {
-    const found = COLOR_OPTIONS.find((c) => c.id === colorKey);
-    return found ? found.badge : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-zinc-800 dark:text-zinc-300';
-  };
+  if (isLoading) return <Loading text="Cargando Categorías..." />;
+
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 p-6 space-y-6 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
@@ -238,62 +136,44 @@ export const Categoria = () => {
                 <th className="py-3.5 px-4 w-20">ID</th>
                 <th className="py-3.5 px-4">Categoría</th>
                 <th className="py-3.5 px-4">Descripción</th>
-                <th className="py-3.5 px-4 text-center">Margen Sugerido</th>
-                <th className="py-3.5 px-4 text-center">IVA</th>
+                
                 <th className="py-3.5 px-4 text-center">Productos</th>
                 <th className="py-3.5 px-4 text-center">Estado</th>
                 <th className="py-3.5 px-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-zinc-800/60">
-              {categoriasFiltradas.length > 0 ? (
-                categoriasFiltradas.map((item) => (
+              {categorias && categoriasFiltradas && categoriasFiltradas?.length > 0 ? (
+                categoriasFiltradas?.map((item) => (
                   <tr
-                    key={item.id}
+                    key={item.Id_categoria}
                     className="hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 border-b border-slate-200 dark:border-zinc-800/60 text-sm"
                   >
                     {/* ID */}
                     <td className="py-3.5 px-4 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                      #CAT-{item.id.toString().padStart(2, '0')}
+                      #CAT-{item.Id_categoria}
                     </td>
 
                     {/* Nombre y Badge de color */}
                     <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-zinc-100 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border ${getColorBadge(
-                            item.colorTag
-                          )}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border`}
                         >
-                          {item.nombre}
+                          {item.Nombre}
                         </span>
                       </div>
                     </td>
 
                     {/* Descripción */}
                     <td className="py-3.5 px-4 text-slate-600 dark:text-zinc-400 max-w-sm truncate text-xs">
-                      {item.descripcion}
-                    </td>
-
-                    {/* Margen Sugerido */}
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-                        <PercentIcon sx={{ fontSize: 13 }} />
-                        <span>{item.margenSugerido}%</span>
-                      </span>
-                    </td>
-
-                    {/* IVA */}
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <span className="text-xs font-mono font-medium text-slate-600 dark:text-zinc-400">
-                        {item.ivaPorDefecto}%
-                      </span>
+                      {item.Descripcion}
                     </td>
 
                     {/* Total de productos */}
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
-                        {item.totalProductos} u.
+                        {item.TotalProductos} u.
                       </span>
                     </td>
 
@@ -301,17 +181,17 @@ export const Categoria = () => {
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                          item.estado === 'activa'
+                          item.Activo
                             ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
                             : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
                         }`}
                       >
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            item.estado === 'activa' ? 'bg-emerald-500' : 'bg-slate-400'
+                            item.Activo ? 'bg-emerald-500' : 'bg-slate-400'
                           }`}
                         />
-                        {item.estado === 'activa' ? 'Activa' : 'Inactiva'}
+                        {item.Activo ? 'Activa' : 'Inactiva'}
                       </span>
                     </td>
 
@@ -357,7 +237,7 @@ export const Categoria = () => {
 
         {/* Footer de la tabla con contador */}
         <div className="px-4 py-3 bg-slate-50/50 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-          <span>Mostrando {categoriasFiltradas.length} de {MOCK_CATEGORIAS.length} categorías</span>
+          <span>Mostrando {categoriasFiltradas?.length} de {totalCategorias} categorías</span>
           <span>Familias del Catálogo</span>
         </div>
       </div>
@@ -378,7 +258,7 @@ export const Categoria = () => {
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-zinc-400">
                     {categoriaAEditar
-                      ? `Modificando detalles de ${categoriaAEditar.nombre}`
+                      ? `Modificando detalles de ${categoriaAEditar.Nombre}`
                       : 'Define una nueva familia de productos y sus márgenes'}
                   </p>
                 </div>
@@ -408,64 +288,6 @@ export const Categoria = () => {
                 />
               </div>
 
-              {/* Margen Sugerido e IVA en Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide">
-                    Margen Sugerido (%)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      placeholder="25"
-                      value={formData.margenSugerido}
-                      onChange={(e) => setFormData({ ...formData, margenSugerido: e.target.value })}
-                      className="w-full pl-3.5 pr-8 py-2.5 bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium font-mono"
-                    />
-                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 dark:text-zinc-500">
-                      %
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide">
-                    IVA Predeterminado
-                  </label>
-                  <select
-                    value={formData.ivaPorDefecto}
-                    onChange={(e) => setFormData({ ...formData, ivaPorDefecto: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
-                  >
-                    <option value="21">21% (General)</option>
-                    <option value="10.5">10.5% (Diferencial)</option>
-                    <option value="0">0% (Exento)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Selector de Color de Identificación */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide">
-                  Color de Etiqueta Visual
-                </label>
-                <div className="flex items-center gap-2.5 pt-1">
-                  {COLOR_OPTIONS.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, colorTag: c.id })}
-                      className={`w-7 h-7 rounded-full ${c.bg} flex items-center justify-center transition-transform cursor-pointer ${
-                        formData.colorTag === c.id
-                          ? 'ring-2 ring-offset-2 ring-amber-500 scale-110'
-                          : 'opacity-70 hover:opacity-100 hover:scale-105'
-                      }`}
-                      title={c.label}
-                    />
-                  ))}
-                </div>
-              </div>
-
               {/* Descripción de la Categoría */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide">
@@ -488,9 +310,9 @@ export const Categoria = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, estado: 'activa' })}
+                    onClick={() => setFormData({ ...formData, activo: true })}
                     className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                      formData.estado === 'activa'
+                      formData.activo
                         ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20'
                         : 'bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-100'
                     }`}
@@ -501,9 +323,9 @@ export const Categoria = () => {
 
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, estado: 'inactiva' })}
+                    onClick={() => setFormData({ ...formData, activo: false })}
                     className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                      formData.estado === 'inactiva'
+                      formData.activo === false
                         ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20'
                         : 'bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-100'
                     }`}
