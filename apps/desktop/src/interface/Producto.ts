@@ -95,3 +95,15 @@ export interface FiltrosProductoDTO {
   proveedorId?: number;
   buscar?: string;
 }
+
+export interface ProductoCarrito {
+    _id: string;
+    descripcion: string;
+    precio: number;
+    cantidad: number;
+    impuesto: number;
+    marca: string;
+    productoOriginal?: Producto;
+    codigoAux?: string;
+    series?: string;
+}

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import StorageIcon from '@mui/icons-material/Storage';
+import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
 import CategoryIcon from '@mui/icons-material/Category';
 
 export const TopNavbar = () => {
@@ -35,7 +36,7 @@ export const TopNavbar = () => {
     },
     {
       label: 'Marcas',
-      Icon: CategoryIcon,
+      Icon: BrandingWatermarkIcon,
       navigate: 'marcas',
     },
     {

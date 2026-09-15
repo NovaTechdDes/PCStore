@@ -6,3 +6,7 @@ export * from "./Producto";
 export * from "./Usuario";
 export * from "./Configuracion";
 export * from "./Movimiento";
+export * from "./Venta";
+export * from "./Presupuesto";
+export * from "./MetodoPago";
+export * from "./Cliente";

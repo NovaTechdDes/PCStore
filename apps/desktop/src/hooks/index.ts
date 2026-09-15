@@ -3,3 +3,7 @@ export * from "./useDatos";
 export * from "./useMarcas";
 export * from './useCategorias';
 export * from './useProveedores';
+export * from './useClientes';
+export * from './useRemitos';
+export * from './useVenta';
+export * from './usePresupuesto';

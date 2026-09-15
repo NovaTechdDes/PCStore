@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const crearCategoriaSchema = z.object({
-  nombre: z.string().min(1, "El nombre es requerido").max(100),
+    nombre: z.string().min(1, "El nombre es requerido").max(100),
+    descripcion: z.string().max(1000).nullable().optional(),
+    activo: z.coerce.boolean().default(true),
 });
 
 export const actualizarCategoriaSchema = crearCategoriaSchema.partial();

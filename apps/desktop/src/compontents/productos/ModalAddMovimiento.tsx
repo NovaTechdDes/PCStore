@@ -103,7 +103,8 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
         return;
       }
     }
-    const cantidadEfectiva = cantidad > 0 ? cantidad : series.length;
+    const cantidadEfectiva = cantidad !== 0 ? cantidad : series.length;
+    console.log(cantidadEfectiva);
     const cantFinal = tipo === 'Resta' ? -Math.abs(cantidadEfectiva) : Math.abs(cantidadEfectiva);
 
     const res = await mutateAsync({
@@ -166,7 +167,7 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
                   onChange={(e) => setTipo(e.target.value as TypeMovimiento)}
                   type="radio"
                   name="operacion"
-                  value="compra"
+                  value="Entrada"
                   defaultChecked
                   className="w-4 h-4 text-amber-500 accent-amber-500 focus:ring-amber-500 cursor-pointer"
                 />
@@ -178,7 +179,7 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
                   onChange={(e) => setTipo(e.target.value as TypeMovimiento)}
                   type="radio"
                   name="operacion"
-                  value="suma"
+                  value="Suma"
                   className="w-4 h-4 text-amber-500 accent-amber-500 focus:ring-amber-500 cursor-pointer"
                 />
                 Suma
@@ -189,7 +190,7 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
                   onChange={(e) => setTipo(e.target.value as TypeMovimiento)}
                   type="radio"
                   name="operacion"
-                  value="resta"
+                  value="Resta"
                   className="w-4 h-4 text-amber-500 accent-amber-500 focus:ring-amber-500 cursor-pointer"
                 />
                 Resta
@@ -349,7 +350,9 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
               </div>
               {series.length === 0 && tipo === 'Entrada' && <p className="text-sm text-red-500 dark:text-red-600 text-end mt-2">Se necesita obligatoriamente un proveedor y un número de factura</p>}
               {nroSerie !== '' && <p className="text-sm text-red-500 dark:text-red-600 text-end mt-2">Hay un numero de serie escrito para precarga, agregalo</p>}
-              {cantidad !== series.length && <p className="text-sm text-red-500 dark:text-red-600 text-end mt-2">Faltan {cantidad - series.length} nros de serie para completar el movimiento</p>}
+              {cantidad !== series.length && tipo === 'Entrada' && (
+                <p className="text-sm text-red-500 dark:text-red-600 text-end mt-2">Faltan {cantidad - series.length} nros de serie para completar el movimiento</p>
+              )}
             </div>
           </div>
         </form>
