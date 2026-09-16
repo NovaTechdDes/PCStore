@@ -5,6 +5,7 @@ import { Login } from '../compontents/ui/Login';
 import { ServerSetup } from '../pages/App';
 import { getServerUrl, initAppStore } from '../services';
 import { TopNavbar } from '../compontents';
+import AsideBar from '../compontents/ui/AsideBar';
 
 const RootLayout = () => {
 
@@ -58,7 +59,10 @@ const RootLayout = () => {
     <div>
       <TopNavbar />
       {/* Tu Navbar / Layout aquí */}
-      <Outlet />
+      <div className='flex'>
+        <AsideBar/>
+        <Outlet />
+      </div>
     </div>
   )
 }

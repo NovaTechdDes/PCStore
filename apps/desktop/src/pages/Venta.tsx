@@ -10,7 +10,7 @@ import { imprimirPresupuesto, imprimirRemito, imprimirVenta } from '../helper/im
 import { startPostRemito, useClienteById, startPostVenta, startPostPresupuesto } from '../hooks';
 
 export const Ventas = () => {
-  const {} = useVentaStore();
+  const { ventaData, setVentaData, productosCarrito, clearProductosCarrito, resetVenta, } = useVentaStore();
   const { data: datos } = useDatos();
   const { usuario } = useGlobalStore();
 
@@ -18,7 +18,7 @@ export const Ventas = () => {
   const { mutateAsync: cargarRemito, isPending: isPendingCargarRemito } = startPostRemito();
   const { mutateAsync: cargarPresupuesto, isPending: isPendingPresupuesto } = startPostPresupuesto();
 
-  const { data: cliente, isLoading: isLoadingCliente } = useClienteById(clienteIdStore);
+  const { data: cliente, isLoading: isLoadingCliente } = useClienteById(ventaData.clienteId);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isDrawerOpenProductos, setIsDrawerOpenProductos] = useState<boolean>(false);
@@ -30,11 +30,14 @@ export const Ventas = () => {
   const [telefono, setTelefono] = useState<string>(cliente?.telefono ?? '');
   const [localidad, setLocalidad] = useState<string>(cliente?.localidad ?? '');
   const [direccion, setDireccion] = useState<string>(cliente?.direccion ?? '');
+  const [condicionFacturacion, setCondicionFacturacion] = useState<string>(cliente?.condicionFacturacion ?? '');
   const [condicionIva, setCondicionIva] = useState<string>(cliente?.condicionIva ?? '');
   const [observaciones, setObservaciones] = useState<string>(cliente?.observaciones ?? '');
 
+  const [facturado, setFacturado] = useState<boolean>(false);
+
   //Productos
-  const [codigo, setCodigo] = useState<string>('');
+  const [codigo, setCodigo] = useState<number>(0);
 
   //Metodo Pago
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -42,7 +45,7 @@ export const Ventas = () => {
 
   useEffect(() => {
     if (cliente) {
-      setCliente(cliente);
+      setVentaData({ ...ventaData, clienteId: cliente._id });
       setNombre(cliente.nombre);
       setCuit(cliente.cuit);
       setSaldo(cliente.saldo?.toString() ?? '');
@@ -50,19 +53,11 @@ export const Ventas = () => {
       setTelefono(cliente.telefono ?? '');
       setLocalidad(cliente.localidad ?? '');
       setDireccion(cliente.direccion ?? '');
+      setCondicionFacturacion(cliente.condicionFacturacion ?? '');
       setCondicionIva(cliente.condicionIva ?? '');
       setObservaciones(cliente.observaciones ?? '');
     }
   }, [cliente]);
-
-  useEffect(() => {
-    const nuevaLista = lista === 'INSTALADOR' ? 'INSTALADOR' : 'NORMAL';
-    setListPrecios(nuevaLista);
-
-    if (datos?.numeros) {
-      recalcularPrecioscarrito(nuevaLista, datos.numeros);
-    }
-  }, [lista, datos]);
 
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
@@ -234,38 +229,11 @@ export const Ventas = () => {
   };
 
   const handleCancelar = async () => {
-    if (isPendingGerencia) return;
     if (productosCarrito.length > 0 && usuario) {
-      const ventaGerencia: Gerencia = {
-        fecha: new Date().toISOString(),
-        idCliente: clienteId,
-        cliente: nombre,
-        tipo_comp: 'Gerencia',
-        tipo_venta: 'GR',
-        precio: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
-        vendedor: usuario._id,
-        dolar: datos?.numeros ? (listPrecios === 'INSTALADOR' ? datos?.numeros.dolarInstalador : datos?.numeros.Dolar) : 0,
-      };
-
-      try {
-        const res = await cargarGerencia({
-          gerencia: ventaGerencia,
-          productos: productosCarrito,
-        });
-
-        if (!res.ok) {
-          mensaje(res.msg || 'Error al guardar el registro en gerencia', 'error');
-          return;
-        }
-      } catch (error) {
-        mensaje('Error al guardar el registro en gerencia', 'error');
-        return;
-      }
-    }
-    setClienteId('1');
+      
+    setVentaData({ ...ventaData, clienteId: 1 });
     setMetodosPago([]);
     clearProductosCarrito();
-    setRemitos([]);
   };
 
   return (
@@ -283,7 +251,7 @@ export const Ventas = () => {
       )}
 
       {/* Banner identificador de Modo Nota de Crédito */}
-      {esNotaCredito && (
+      {ventaData.esNotaCredito && (
         <div className="mb-3 px-4 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
@@ -298,8 +266,8 @@ export const Ventas = () => {
 
       <div className="shrink-0">
         <HeaderVenta
-          codigo={clienteId}
-          setCodigo={setClienteId}
+          codigo={ventaData.clienteId}
+          setCodigo={(id: number) => setVentaData({ ...ventaData, clienteId: id })}
           setIsDrawerOpen={setIsDrawerOpen}
           nombre={nombre}
           setNombre={setNombre}
@@ -323,7 +291,7 @@ export const Ventas = () => {
       </div>
 
       <div className="flex-1 min-h-98 flex flex-col">
-        {!esNotaCredito ? (
+        {!ventaData.esNotaCredito ? (
           <ProductoVenta codigo={codigo} setCodigo={setCodigo} setIsDrawerOpen={setIsDrawerOpenProductos} />
         ) : (
           <div className="flex-1 overflow-auto bg-white dark:bg-[#18181b] border-x border-slate-200 dark:border-zinc-800">
@@ -334,13 +302,13 @@ export const Ventas = () => {
 
       <div className="shrink-0">
         <FooterVenta
-          clienteId={clienteId}
+          clienteId={ventaData.clienteId}
           condicionFacturacion={condicionFacturacion}
           facturado={facturado}
           onCancelar={handleCancelar}
           onFacturar={() => {
             if (productosCarrito.length === 0) return mensaje('Debe agregar productos', 'error');
-            if (tipoPago === 'CD') {
+            if (ventaData.tipoPago === 'CD') {
               setIsModalOpen(true);
             } else {
               handleAddVenta();
@@ -352,8 +320,8 @@ export const Ventas = () => {
       <DrawerClientes
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        onSelectCliente={(id, nombre) => {
-          setClienteId(id);
+        onSelectCliente={(id: number, nombre: string) => {
+          setVentaData({ ...ventaData, clienteId: id });
           setNombre(nombre);
           setIsDrawerOpen(false);
         }}
@@ -362,7 +330,7 @@ export const Ventas = () => {
       <DrawerProductos
         isOpen={isDrawerOpenProductos}
         onClose={() => setIsDrawerOpenProductos(false)}
-        onSelectProducto={(id) => {
+        onSelectProducto={(id: number) => {
           setCodigo(id);
           setIsDrawerOpenProductos(false);
         }}
@@ -374,13 +342,13 @@ export const Ventas = () => {
         metodosPago={metodosPago}
         setMetodosPago={setMetodosPago}
         cliente={cliente?.nombre}
-        tipoComprobante={tipoVenta}
+        tipoComprobante={ventaData.tipoVenta}
         domicilio=""
         telefono=""
         onConfirm={handleAddVenta}
       />
 
-      {(isPending || isPendingCargarRemito || isPendingPresupuesto || isPendingGerencia) && <Loading fullScreen text="Facturando..." />}
+      {(isPending || isPendingCargarRemito || isPendingPresupuesto) && <Loading fullScreen text="Facturando..." />}
     </div>
   );
-};
+}};

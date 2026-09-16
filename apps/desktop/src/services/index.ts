@@ -6,3 +6,4 @@ export * from "./proveedor.service";
 export * from "./store.service";
 export * from "./unidad.service";
 export * from "./usuario.service";
+export * from "./cliente.service";

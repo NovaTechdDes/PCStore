@@ -119,10 +119,49 @@ export const inicializarUnidadPorDefecto = async () => {
   }
 };
 
+export const inicializarClienteConsumidorFinal = async () => {
+  try {
+    const pool = await getPool();
+    const existe = await pool
+      .request()
+      .input("nombre", sql.NVarChar(150), "Consumidor Final")
+      .input("cuit", sql.NVarChar(20), "00000000")
+      .query(
+        `SELECT Id, Nombre FROM Clientes WHERE UPPER(Nombre) = UPPER(@nombre) OR Cuit = @cuit`
+      );
+
+    if (existe.recordset.length > 0) {
+      console.log("ℹ️ El cliente 'Consumidor Final' ya existe.");
+      return;
+    }
+
+    await pool
+      .request()
+      .input("nombre", sql.NVarChar(150), "Consumidor Final")
+      .input("cuit", sql.NVarChar(20), "00000000")
+      .input("condicionIva", sql.NVarChar(50), "Consumidor Final")
+      .input("condicionFacturacion", sql.Int, 2)
+      .input("localidad", sql.NVarChar(100), "Chajari")
+      .input("direccion", sql.NVarChar(200), "Chajari")
+      .input("telefono", sql.NVarChar(50), "000000")
+      .input("email", sql.NVarChar(150), "consumidorfinal@correo.com")
+      .input("tipoCuenta", sql.NVarChar(50), "Consumidor Final")
+      .query(
+        `INSERT INTO Clientes (Nombre, Cuit, CondicionIva, CondicionFacturacion, Localidad, Direccion, Telefono, Email, TipoCuenta, Activo)
+         VALUES (@nombre, @cuit, @condicionIva, @condicionFacturacion, @localidad, @direccion, @telefono, @email, @tipoCuenta, 1)`
+      );
+
+    console.log("✅ Cliente 'Consumidor Final' creado exitosamente.");
+  } catch (error) {
+    console.error("❌ Error al inicializar el cliente 'Consumidor Final':", error);
+  }
+};
+
 export const inicializarDatosPorDefecto = async () => {
   await inicializarProveedorAirComputer();
   await inicializarMarcaLogitech();
   await inicializarCategoriaMouses();
   await inicializarUnidadPorDefecto();
+  await inicializarClienteConsumidorFinal();
 };
 

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import {
   categoriasRoute,
+  clientesRoute,
   configuracionRoute,
   marcasRoute,
   movimientosRoute,
@@ -26,12 +27,13 @@ app.use("/test", (req, res) => {
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
+app.use("/PCStore/categorias", categoriasRoute);
+app.use("/PCStore/clientes", clientesRoute);
+app.use("/PCStore/configuracion", configuracionRoute);
 app.use("/PCStore/marcas", marcasRoute);
 app.use("/PCStore/proveedores", provedoresRoute);
 app.use("/PCStore/usuarios", usuariosRoute);
 app.use("/PCStore/productos", productosRoute);
-app.use("/PCStore/categorias", categoriasRoute);
-app.use("/PCStore/configuracion", configuracionRoute);
 app.use("/PCStore/unidades", unidadesRoute);
 app.use("/PCStore/movimientos", movimientosRoute);
 

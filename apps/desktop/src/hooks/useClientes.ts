@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
+import { clienteById } from "../services"
+
 
 export const useClientes = () => {
     return useQuery({
@@ -12,7 +14,7 @@ export const useClienteById = (idCliente: number) => {
     return useQuery({
         queryKey: ['clientes', idCliente],
         queryFn: () => {
-            return 
+            return clienteById(idCliente)
         }
     })
 }
