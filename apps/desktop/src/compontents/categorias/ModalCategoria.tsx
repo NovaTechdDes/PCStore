@@ -26,7 +26,7 @@ export const ModalCategoria = () => {
 
   const handleSubmit = async () => {
     if (categoria) {
-      const res = await actualizarCategoria({ data: formData, id: categoria.Id_categoria });
+      const res = await actualizarCategoria({ data: formData, id: categoria.Id });
 
       if (res) {
         mensaje(`Categoría ${formData.nombre} actualizada correctamente`, 'success');

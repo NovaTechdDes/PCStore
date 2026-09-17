@@ -64,7 +64,7 @@ export const listarProductos = async (filtros: FiltrosProductoDTO) => {
         FROM Productos p
         LEFT JOIN Marcas m ON m.Id = p.MarcaId
         LEFT JOIN Proveedores pr ON pr.Id = p.ProveedorId
-        LEFT JOIN Categoria c ON c.Id_categoria = p.Id_categoria
+        LEFT JOIN Categorias c ON c.Id = p.CategoriaId
         LEFT JOIN UnidadesMedida u ON u.id = p.UnidadId
         ${where}
         ORDER BY p.Descripcion
@@ -81,7 +81,7 @@ export const obtenerProductoPorId = async (id: Number) => {
         FROM Productos p
         LEFT JOIN Marcas m ON m.Id = p.MarcaId
         LEFT JOIN Proveedores pr ON pr.Id = p.ProveedorId
-        LEFT JOIN Categoria c ON c.Id_categoria = p.Id_categoria
+        LEFT JOIN Categorias c ON c.Id = p.CategoriaId
         LEFT JOIN UnidadesMedida u ON u.Id = p.UnidadId
         WHERE p.Id = @id
     `);
@@ -167,8 +167,9 @@ export const crearProducto = async (
       .input("descripcion", sql.NVarChar(255), data.descripcion)
       .input("marcaId", sql.Int, data.marcaId ?? null)
       .input("proveedorId", sql.Int, data.proveedorId ?? null)
-      .input("categoriaId", sql.Int, data.id_categoria ?? null)
+      .input("categoriaId", sql.Int, data.categoriaId ?? null)
       .input("unidadId", sql.Int, data.unidadId ?? null)
+      .input("manejaSeries", sql.Bit, data.manejaSeries ? 1 : 0)
       .input("costo", sql.Decimal(18, 2), data.costo)
       .input("costoDolar", sql.Decimal(18, 2), data.costoDolar)
       .input("iva", sql.Decimal(5, 2), data.iva)
@@ -176,7 +177,7 @@ export const crearProducto = async (
       .input("precio", sql.Decimal(18, 2), precio)
       .input("stock", sql.Int, data.stock).query(`
                 INSERT INTO Productos
-                    (CodigoInterno, CodigoBarra, cod_fabrica, Descripcion, MarcaId, ProveedorId, Id_categoria, UnidadId, Costo, CostoDolar, IVA, Ganancia, Precio, Stock, Activo)
+                    (CodigoInterno, CodigoBarra, cod_fabrica, Descripcion, MarcaId, ProveedorId, CategoriaId, UnidadId, Costo, CostoDolar, IVA, Ganancia, Precio, Stock, Activo)
                     OUTPUT INSERTED.*
                     VALUES
                     (@codigoInterno, @codigoBarra, @cod_fabrica, @descripcion, @marcaId, @proveedorId, @categoriaId, @unidadId, @costo, @costoDolar, @iva, @ganancia, @precio, @stock, 1);
@@ -241,7 +242,8 @@ export const actualizarProducto = async (
     .input("marcaId", sql.Int, data.marcaId ?? null)
     .input("proveedorId", sql.Int, data.proveedorId ?? null)
     .input("unidadId", sql.Int, data.unidadId ?? null)
-    .input("Id_categoria", sql.Int, data.Id_categoria ?? null)
+    .input("manejaSeries", sql.Bit, data.manejaSeries !== undefined ? (data.manejaSeries ? 1 : 0) : null)
+    .input("CategoriaId", sql.Int, data.categoriaId ?? null)
     .input("costo", sql.Decimal(18, 2), costo)
     .input("costoDolar", sql.Decimal(18, 2), costoDolar)
     .input("iva", sql.Decimal(5, 2), iva)
@@ -256,7 +258,8 @@ export const actualizarProducto = async (
         MarcaId = COALESCE(@marcaId, MarcaId),
         ProveedorId = COALESCE(@proveedorId, ProveedorId),
         UnidadId = COALESCE(@unidadId, UnidadId),
-        Id_categoria = COALESCE(@Id_categoria, Id_categoria),
+        ManejaSeries = COALESCE(@manejaSeries, ManejaSeries),
+        CategoriaId = COALESCE(@CategoriaId, CategoriaId),
         Costo = @costo,
         CostoDolar = @costoDolar,
         IVA = @iva,

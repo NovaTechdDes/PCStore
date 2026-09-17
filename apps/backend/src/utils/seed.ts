@@ -68,7 +68,7 @@ export const inicializarCategoriaMouses = async () => {
       .request()
       .input("nombre", sql.VarChar(100), "MOUSES")
       .query(
-        `SELECT Id_categoria, Nombre FROM Categoria WHERE UPPER(Nombre) = UPPER(@nombre)`
+        `SELECT Id, Nombre FROM Categorias WHERE UPPER(Nombre) = UPPER(@nombre)`
       );
 
     if (existe.recordset.length > 0) {
@@ -80,7 +80,7 @@ export const inicializarCategoriaMouses = async () => {
       .request()
       .input("nombre", sql.VarChar(100), "MOUSES")
       .query(
-        `INSERT INTO Categoria (Nombre)
+        `INSERT INTO Categorias (Nombre)
          VALUES (@nombre)`
       );
 

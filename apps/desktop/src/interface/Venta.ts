@@ -4,13 +4,26 @@ export interface Venta {
     ClienteId: number;
     UsuarioId: number;
     Total: number; 
-    Activo: number;
+    Activo: boolean;
 
 
     // Datos Clientes
     ClieteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
+}
+
+export interface CreateVenta {
+    fecha: string,
+    clienteId: number,
+    usuarioId: number;
+    total: number;
+    activo: boolean
+
+    clienteNombre: string;
+    clienteTelefono: string;
+    clienteDomicilio: string;
+    
 }
 
 export interface VentaDetalle {

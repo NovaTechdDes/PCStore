@@ -166,7 +166,14 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
             }
         }
 
-        const cantidadAbsoluta = Math.abs(data.cant);
+         // 3. Validación de consistencia si el producto maneja series
+        const cantAbsoluta = Math.abs(data.cant);
+        if (producto.ManejaSeries && data.series.length !== cantAbsoluta) {
+            throw {
+                status: 400,
+                msg: `El producto maneja números de serie: debes indicar exactamente ${cantAbsoluta} serie(s) (enviaste ${data.series.length})`
+            };
+        }
 
         const movResult = await new sql.Request(transaction)
         .input('productoId', sql.Int, data.productoId)
@@ -181,23 +188,44 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
 
         const movimiento = movResult.recordset[0];
 
-        for (const {nro_serie, proveedorId, numeroFactura} of data.series) {
-      await new sql.Request(transaction)
-        .input("movimientoId", sql.Int, movimiento.Id)
-        .input("productoId", sql.Int, producto.Id)
-        .input("numeroSerie", sql.NVarChar(100), nro_serie)
-        .input("numeroFactura", sql.NVarChar(50), numeroFactura)
-        .input("provedorId", sql.Int, proveedorId)
+        if(data.cant > 0){
+            for (const {nro_serie, proveedorId, numeroFactura} of data.series) {
+                await new sql.Request(transaction)
+                    .input("movimientoId", sql.Int, movimiento.Id)
+                    .input("productoId", sql.Int, producto.Id)
+                    .input("numeroSerie", sql.NVarChar(100), nro_serie)
+                    .input("numeroFactura", sql.NVarChar(50), numeroFactura ?? null)
+                    .input("provedorId", sql.Int, proveedorId ?? null)
 
-        .query(`
-          INSERT INTO Series (MovimientoId, ProductoId, NumeroSerie, NumeroFactura, ProveedorId)
-          VALUES (@movimientoId, @productoId, @numeroSerie, @numeroFactura, @provedorId)
-        `);
-    }
+                    .query(`
+                    INSERT INTO Series (MovimientoId, ProductoId, NumeroSerie, NumeroFactura, ProveedorId)
+                    VALUES (@movimientoId, @productoId, @numeroSerie, @numeroFactura, @provedorId)
+                    `);
+                }
+        } else if (data.cant < 0 && data.series.length > 0) {
+            // === SALIDA / RESTA: Se dan de baja las series existentes ===
+            for (const { nro_serie } of data.series) {
+                const bajaResult = await new sql.Request(transaction)
+                    .input("productoId", sql.Int, producto.Id)
+                    .input("numeroSerie", sql.NVarChar(100), nro_serie)
+                    .query(`
+                        UPDATE Series 
+                        SET Activo = 0 
+                        OUTPUT INSERTED.Id
+                        WHERE ProductoId = @productoId AND NumeroSerie = @numeroSerie AND Activo = 1
+                    `);
+                if (bajaResult.recordset.length === 0) {
+                    throw {
+                        status: 400,
+                        msg: `El número de serie "${nro_serie}" no está disponible en stock o ya fue dado de baja`
+                    };
+                }
+            }
+        }
 
     await new sql.Request(transaction)
       .input("id", sql.Int, producto.Id)
-      .input("stock", sql.Int, data.stock)
+      .input("stock", sql.Int, stockCalculado)
       .query("UPDATE Productos SET Stock = @stock WHERE Id = @id");
 
     await transaction.commit();
@@ -209,5 +237,20 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
         throw e;
     }
     
+};
+
+export const listarSeriesDisponibles = async (productoId: number) => {
+    const pool = await getPool();
+
+    const result = await pool.request()
+    .input('productoId', sql.Int, productoId)
+    .query(`
+        SELECT s.Id, s.NumeroSerie, s.NumeroFactura, s.ProveedorId, s.FechaCreacion, pr.Nombre as ProveedorNombre
+        FROM Series s
+        LEFT JOIN Proveedores pr ON pr.Id = s.ProveedorId
+        WHERE s.ProductoId = @productoId AND s.Activo = 1
+        ORDER BY s.FechaCreacion DESC
+    `)
+    return result.recordset;
 }
 

@@ -7,3 +7,4 @@ export * from './useClientes';
 export * from './useRemitos';
 export * from './useVenta';
 export * from './usePresupuesto';
+export * from './useTipoTarjeta'

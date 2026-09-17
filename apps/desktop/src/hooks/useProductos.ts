@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { actualizarStock, crearProducto, getProductos } from "../services";
+import { actualizarStock, crearProducto, getProductoByCodigoBarras, getProductos } from "../services";
 import { AjustarStockDTO, CrearProductoDTO } from "../interface";
 
 export const useProductos = () => {
@@ -29,4 +29,11 @@ export const startActualizarStock = () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
     },
   })
-};
+};
+
+export const useProductoByCodigoBarras = (codigoBarras: string) => {
+  return useQuery({
+    queryKey: ["producto-by-codigo-barras", codigoBarras],
+    queryFn: () => getProductoByCodigoBarras(codigoBarras),
+  });
+};

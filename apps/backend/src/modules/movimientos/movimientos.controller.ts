@@ -48,12 +48,8 @@ export async function patchAjustarStock(req: Request, res: Response, next: NextF
     const data = ajustarStockSchema.parse(req.body);
 
 
-    // Opción A (recomendada): usuario sale del token, ignora `vendedor` del body
-    const usuarioId =  1;
+    const usuarioId =  req.usuario!.id;
 
-    // Opción B: si todavía no tenés verificarToken en esta ruta y confiás en el body
-    // const usuarioId = data.vendedor;
-    // if (!usuarioId) throw { status: 400, msg: "Falta el vendedor" };
 
     const movimiento = await movimientosService.ajustarStock(data, usuarioId);
     res.status(200).json({ ok: true, data: movimiento });
@@ -61,3 +57,14 @@ export async function patchAjustarStock(req: Request, res: Response, next: NextF
     next(err);
   }
 }
+
+export const getSeriesDisponibles = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const productoId = Number(req.params.productoId);
+        const series = await movimientosService.listarSeriesDisponibles(productoId);
+        res.status(200).json({ ok: true, data: series });
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};

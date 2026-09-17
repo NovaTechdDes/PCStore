@@ -13,7 +13,8 @@ export const crearProductoSchema = z.object({
     marcaId: z.coerce.number().int().positive().optional(),
     proveedorId: z.coerce.number().int().positive().optional(),
     unidadId: z.coerce.number().int().positive().optional(),
-    id_categoria: z.coerce.number().int().positive().optional(),
+    categoriaId: z.coerce.number().int().positive().optional(),
+    manejaSeries: z.coerce.boolean().optional().default(false), // 👈 AGREGAR
     costo: z.coerce.number().min(0).default(0),
     costoDolar: z.coerce.number().min(0).default(0),
     iva: z.coerce.number().min(0).default(0),
@@ -30,8 +31,8 @@ export const actualizarProductoSchema = z.object({
     marcaId: z.coerce.number().int().positive().optional(),
     proveedorId: z.coerce.number().int().positive().optional(),
     unidadId: z.coerce.number().int().positive().optional(),
-    Id_categoria: z.coerce.number().int().positive().optional(),
-
+    categoriaId: z.coerce.number().int().positive().optional(),
+    manejaSeries: z.coerce.boolean().optional(),
     costo: z.coerce.number().min(0).optional(),
     costoDolar: z.coerce.number().min(0).optional(),
     iva: z.coerce.number().min(0).optional(),

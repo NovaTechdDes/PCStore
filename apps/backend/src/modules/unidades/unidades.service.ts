@@ -3,7 +3,7 @@ import { ActualizarUnidadDTO, CrearUnidadDTO } from "./unidades.schema";
 
 export const listarUnidades = async () => {
   const pool = await getPool();
-  const query = "SELECT Id, Nombre FROM UnidadesMedida ORDER BY Nombre";
+  const query = "SELECT Id, Nombre FROM UnidadesMedida WHERE Activo = 1 ORDER BY Nombre";
   const result = await pool.request().query(query);
   return result.recordset;
 };
@@ -52,7 +52,7 @@ export const eliminarUnidad = async (id: number) => {
     };
   }
 
-  const query = "DELETE FROM UnidadesMedida OUTPUT DELETED.* WHERE Id = @id";
+  const query = "UPDATE UnidadesMedida SET Activo = 0 OUTPUT INSERTED.* WHERE Id = @id";
   const result = await pool.request().input("id", sql.Int, id).query(query);
   return result.recordset[0] ?? null;
 };

@@ -10,3 +10,4 @@ export * from "./Venta";
 export * from "./Presupuesto";
 export * from "./MetodoPago";
 export * from "./Cliente";
+export * from "./TipoTarjeta";

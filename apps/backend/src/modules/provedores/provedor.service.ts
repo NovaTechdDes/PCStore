@@ -1,23 +1,23 @@
 import { getPool, sql } from "../../config/db"
-import { ActualizarProvedorDTO, CrearProvedorDTO } from "./provedor.schema";
+import { ActualizarProveedorDTO, CrearProveedorDTO } from "./provedor.schema";
 
-export const listarProvedores = async(soloActivas = true) => {
+export const listarProveedores = async(soloActivas = true) => {
     const pool = await getPool();
     const query = soloActivas 
-                    ? 'SELECT * FROM Proveedores WHERE Activo = 1 ORDER BY Nombre'
-                    : 'SELECT * FROM Proveedores ORDER BY Nombre';
+                    ? 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.Id_provedor = p.Id) as TotalProductos FROM Proveedores p WHERE p.Activo = 1 ORDER BY Nombre'
+                    : 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.Id_provedor = p.Id) as TotalProductos FROM Proveedores p ORDER BY Nombre';
     const result = await pool.request().query(query);
     return result.recordset;
 };
 
-export const obtenerProvedorPorId = async(id: number) => {
+export const obtenerProveedorPorId = async(id: number) => {
     const pool = await getPool();
     const query = 'SELECT * FROM Proveedores WHERE id = @id';
     const result = await pool.request().input('id', sql.Int, id).query(query);
     return result.recordset[0] ?? null;
 };
 
-export const crearProvedor = async (provedor: CrearProvedorDTO) => {
+export const crearProveedor = async (provedor: CrearProveedorDTO) => {
     const pool = await getPool();
     const query = `INSERT INTO Proveedores (Nombre, Contacto, Telefono, Email) OUTPUT INSERTED.* VALUES (@nombre, @contacto, @telefono, @email)`;
     const result = await pool.request()
@@ -29,7 +29,7 @@ export const crearProvedor = async (provedor: CrearProvedorDTO) => {
     return result.recordset[0];
 };
 
-export const actualizarProvedor = async(id: number, provedor: ActualizarProvedorDTO) => {
+export const actualizarProveedor = async(id: number, provedor: ActualizarProveedorDTO) => {
     const pool = await getPool();
     const query = `UPDATE Proveedores SET nombre = COALESCE(@nombre, nombre), contacto = COALESCE(@contacto, contacto), telefono = COALESCE(@telefono, telefono), email = COALESCE(@email, email) OUTPUT INSERTED.* WHERE id = @id`;
     const result = await pool.request()
@@ -42,7 +42,7 @@ export const actualizarProvedor = async(id: number, provedor: ActualizarProvedor
     return result.recordset[0] ?? null;
 };
 
-export const eliminarProvedor = async(id: number) => {
+export const eliminarProveedor = async(id: number) => {
     const pool = await getPool();
     const query = `UPDATE Proveedores SET Activo = 0 OUTPUT INSERTED.* WHERE id = @id`;
     const result = await pool.request().input('id', sql.Int, id).query(query);

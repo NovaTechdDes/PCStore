@@ -12,25 +12,17 @@ export const crearMovimientosSchema = z.object({
     cliente: z.string().max(150).optional(),
     series: z.array(z.string().min(1).max(100)).optional().default([]),
 })
-.refine((data) => data.tipo === 'Suma' || data.cantidad > 0, {
-    message: 'La cantidad debe ser mayor a 0 para Suma',
-    path: ['cantidad']
-})
-.refine((data) => data.tipo === 'Resta' || data.cantidad < 0, {
-    message: 'La cantidad debe ser mayor a 0 para Resta',
-    path: ['cantidad']
-})
-.refine((data) => (data.tipo !== 'Suma' && data.tipo !== 'Resta') || data.cantidad !== 0, {
-    message: 'La cantidad de ajuste no puede ser 0',
+.refine((data) => data.cantidad > 0, {
+    message: 'La cantidad debe ser mayor a 0',
     path: ['cantidad']
 });
 
 export const ajustarStockSchema = z.object({
-    productoId: z.number().min(1, 'Codigo Requerido'),
-    stock: z.number(),
+    productoId: z.coerce.number().int().positive('Codigo Requerido'),
+    stock: z.coerce.number(),
     tipo: tipoMovimientoEnum,
     vendedor: z.coerce.number().int().positive().optional(),
-    cant: z.number(),
+    cant: z.coerce.number(),
     descripcion: z.string().optional(),
     series: z.array(
         z.object({

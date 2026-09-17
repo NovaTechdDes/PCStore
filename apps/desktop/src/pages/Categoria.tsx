@@ -102,9 +102,9 @@ export const CategoriaScreen = () => {
             <tbody className="divide-y divide-slate-200 dark:divide-zinc-800/60">
               {categorias && categoriasFiltradas && categoriasFiltradas?.length > 0 ? (
                 categoriasFiltradas?.map((item) => (
-                  <tr key={item.Id_categoria} className="hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 border-b border-slate-200 dark:border-zinc-800/60 text-sm">
+                  <tr key={item.Id} className="hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 border-b border-slate-200 dark:border-zinc-800/60 text-sm">
                     {/* ID */}
-                    <td className="py-3.5 px-4 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">#CAT-{item.Id_categoria}</td>
+                    <td className="py-3.5 px-4 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">#CAT-{item.Id}</td>
 
                     {/* Nombre y Badge de color */}
                     <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-zinc-100 whitespace-nowrap">

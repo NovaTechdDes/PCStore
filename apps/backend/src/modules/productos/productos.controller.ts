@@ -82,27 +82,6 @@ export const putProducto = async (req:Request, res:Response, next:NextFunction)=
     }
 };
 
-export const putStock = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        console.log(req.body)
-        const data = actualizarStockSchema.parse(req.body);
-        console.log('Data', data)
-        const producto = await productosService.actualizarStock(data);
-
-        if(!producto){
-            return res.status(404).json({
-                ok: false, msg: "Producto No Encontrado"
-            })
-        };
-
-        res.status(200).json({
-            ok: true, msg: "Stock actualizado correctamente"
-        })
-    } catch (error) {
-        console.error(error);
-        next(error)
-    }
-};
 
 export const deleteProducto = async(req: Request, res: Response, next: NextFunction) => {
     try {

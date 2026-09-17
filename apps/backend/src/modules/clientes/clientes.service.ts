@@ -44,9 +44,7 @@ export const obtenerClientePorId = async (id: Number) => {
         return null;
     };
 
-    return {
-        cliente
-    }
+    return cliente;
 };
 
 export const crearCliente = async (data: CrearClienteDTO) => {
@@ -131,16 +129,16 @@ export const actualizarCliente = async (id: Number, data: ActualizarClienteDTO) 
         .input('observaciones', sql.NVarChar(255), data.observaciones)
         .query(`
             UPDATE Clientes SET
-            Nombre = @nombre,
-            Cuit = @cuit,
-            CondicionIva = @condicionIva,
-            CondicionFacturacion = @condicionFacturacion,
-            Localidad = @localidad,
-            Direccion = @direccion,
-            Telefono = @telefono,
-            Email = @email,
-            TipoCuenta = @tipoCuenta,
-            Observaciones = @observaciones
+            Nombre = COALESCE(@nombre, Nombre),
+            Cuit = COALESCE(@cuit, Cuit),
+            CondicionIva = COALESCE(@condicionIva, CondicionIva),
+            CondicionFacturacion = COALESCE(@condicionFacturacion, CondicionFacturacion),
+            Localidad = COALESCE(@localidad, Localidad),
+            Direccion = COALESCE(@direccion, Direccion),
+            Telefono = COALESCE(@telefono, Telefono),
+            Email = COALESCE(@email, Email),
+            TipoCuenta = COALESCE(@tipoCuenta, TipoCuenta),
+            Observaciones = COALESCE(@observaciones, Observaciones)
             OUTPUT INSERTED.*
             WHERE Id = @id;
         `);
@@ -162,7 +160,7 @@ export const eliminarCliente = async (id: number) => {
     try {
         await transaction.begin();
         const result = await new sql.Request(transaction).input('id', sql.Int, id)
-        .query("UPDATE Clientes SET Activo = 0 WHERE Id = @id");
+        .query("UPDATE Clientes SET Activo = 0 OUTPUT INSERTED.* WHERE Id = @id");
 
         if(!result.rowsAffected[0]){
             throw {

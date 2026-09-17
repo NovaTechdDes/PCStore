@@ -35,7 +35,7 @@ export const ModalProducto = ({ onClose }: Props) => {
     cod_fabrica: productoSeleccionado?.cod_fabrica || '',
 
     marcaId: productoSeleccionado?.MarcaId || 0,
-    id_categoria: productoSeleccionado?.Id_categoria || 0,
+    categoriaId: productoSeleccionado?.CategoriaId || 0,
     proveedorId: productoSeleccionado?.ProveedorId || 0,
     unidadId: productoSeleccionado?.UnidadId || 1,
 
@@ -82,7 +82,7 @@ export const ModalProducto = ({ onClose }: Props) => {
       unidadId: formData.unidadId ?? 1,
       marcaId: formData.marcaId,
       proveedorId: formData.proveedorId,
-      id_categoria: formData.id_categoria,
+      categoriaId: formData.categoriaId,
       costo: Number(formData.costo),
       costoDolar: Number(formData.costoDolar),
       iva: Number(formData.iva),
@@ -272,18 +272,18 @@ export const ModalProducto = ({ onClose }: Props) => {
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Rubro</label>
                 <select
-                  value={formData.id_categoria}
+                  value={formData.categoriaId}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      id_categoria: Number(e.target.value),
+                      categoriaId: Number(e.target.value),
                     })
                   }
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 >
                   <option value="">Seleccionar</option>
                   {datos?.categorias.map((rubro: Categoria) => (
-                    <option key={rubro.Id_categoria} value={rubro.Id_categoria}>
+                    <option key={rubro.Id} value={rubro.Id}>
                       {rubro.Nombre}
                     </option>
                   ))}

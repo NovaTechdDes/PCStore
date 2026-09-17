@@ -10,8 +10,8 @@ import { verificarToken } from "../../middlewares/auth";
 
 const router = Router();
 
-router.get("/", getUnidades);
-router.get("/:id", getUnidadById);
+router.get("/",verificarToken, getUnidades);
+router.get("/:id",verificarToken, getUnidadById);
 
 router.post("/", verificarToken, crearUnidad);
 router.put("/:id", verificarToken, putUnidad);

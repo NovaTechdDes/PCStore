@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
 
-import { DrawerClientes, FooterVenta, HeaderVenta, Loading, ModalMetodosPago, ProductoVenta, DrawerProductos } from '../compontents';
+import { DrawerClientes, DrawerProductos, FooterVenta, HeaderVenta, Loading, ModalMetodosPago, ProductoVenta } from '../compontents';
 
-import { useDatos } from '../hooks/useDatos';
-import { MetodoPagoDetalle, Venta, Presupuesto } from '../interface';
+import { MetodoPagoDetalle, CreatePresupuesto, CreateVenta } from '../interface';
 import { useGlobalStore, useVentaStore } from '../store';
 import { mensaje } from '../helper/mensaje';
-import { imprimirPresupuesto, imprimirRemito, imprimirVenta } from '../helper/imprimir';
-import { startPostRemito, useClienteById, startPostVenta, startPostPresupuesto } from '../hooks';
+import { imprimirPresupuesto, imprimirVenta } from '../helper/imprimir';
+import { useClienteById, startPostVenta, startPostPresupuesto } from '../hooks';
+import { sacarIva } from '../helper/sacarIva';
 
 export const Ventas = () => {
-  const { ventaData, setVentaData, productosCarrito, clearProductosCarrito, resetVenta, } = useVentaStore();
-  const { data: datos } = useDatos();
+  const { ventaData, setVentaData, productosCarrito, clearProductosCarrito, resetVenta } = useVentaStore();
+
   const { usuario } = useGlobalStore();
 
   const { mutateAsync, isPending } = startPostVenta();
-  const { mutateAsync: cargarRemito, isPending: isPendingCargarRemito } = startPostRemito();
+
   const { mutateAsync: cargarPresupuesto, isPending: isPendingPresupuesto } = startPostPresupuesto();
 
   const { data: cliente, isLoading: isLoadingCliente } = useClienteById(ventaData.clienteId);
@@ -37,7 +37,7 @@ export const Ventas = () => {
   const [facturado, setFacturado] = useState<boolean>(false);
 
   //Productos
-  const [codigo, setCodigo] = useState<number>(0);
+  const [codigo, setCodigo] = useState<string>('');
 
   //Metodo Pago
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -45,17 +45,16 @@ export const Ventas = () => {
 
   useEffect(() => {
     if (cliente) {
-      setVentaData({ ...ventaData, clienteId: cliente._id });
-      setNombre(cliente.nombre);
-      setCuit(cliente.cuit);
-      setSaldo(cliente.saldo?.toString() ?? '');
-      setLista(cliente.tipoCuenta?.toString() ?? '');
-      setTelefono(cliente.telefono ?? '');
-      setLocalidad(cliente.localidad ?? '');
-      setDireccion(cliente.direccion ?? '');
-      setCondicionFacturacion(cliente.condicionFacturacion ?? '');
-      setCondicionIva(cliente.condicionIva ?? '');
-      setObservaciones(cliente.observaciones ?? '');
+      console.log(cliente);
+      setNombre(cliente.Nombre);
+      setCuit(cliente.Cuit);
+      setSaldo(cliente.Saldo.toString() ?? '');
+      setTelefono(cliente.Telefono ?? '');
+      setLocalidad(cliente.Localidad ?? '');
+      setDireccion(cliente.Direccion ?? '');
+      setCondicionFacturacion(cliente.CondicionFacturacion ?? '');
+      setCondicionIva(cliente.CondicionIva ?? '');
+      setObservaciones(cliente.Observaciones ?? '');
     }
   }, [cliente]);
 
@@ -76,40 +75,11 @@ export const Ventas = () => {
   }, [facturado, setFacturado]);
 
   const handleAddVenta = async () => {
-    if (!usuario || isPending || isPendingCargarRemito || isPendingPresupuesto) return;
+    if (!usuario || isPending || isPendingPresupuesto) return;
 
     if (productosCarrito.length === 0) return mensaje('Debe agregar productos', 'error');
 
-    if (tipoVenta === 'Remito') {
-      const remito: Remito = {
-        fecha: new Date(),
-        idCliente: clienteId,
-        cliente: nombre,
-        tipo_comp: 'REMITO',
-        tipo_venta: 'RT',
-        observaciones: '',
-        pasado: false,
-        vendedor: usuario._id,
-        caja: '',
-      };
-
-      const res = await cargarRemito({ remito, productos: productosCarrito, descontarStock: remitos.length > 0 ? false : true, remitos });
-
-      if (res.ok) {
-        mensaje('Remito cargado correctamente', 'success');
-        setRemitos([]);
-        setClienteId('1');
-        clearProductosCarrito();
-
-        if (impresion) {
-          imprimirRemito(res.remito);
-        }
-        return;
-      } else {
-        mensaje(res.msg || 'Error al cargar el remito', 'error');
-        return;
-      }
-    } else if (tipoVenta === 'Presupuesto') {
+    if (ventaData.tipoVenta === 'Presupuesto') {
       if ((!cuit || !condicionIva) && facturado) {
         mensaje('Debe ingresar el CUIT y la Condición de IVA', 'error');
         return;
@@ -118,55 +88,35 @@ export const Ventas = () => {
       const [totalIva21, gravado21, totalIva105, gravado105, cantIva] = sacarIva(productosCarrito);
 
       const esTipoA = condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista';
-      const tipoCompFacturado = esNotaCredito ? (esTipoA ? 'Credito A' : 'Credito B') : esTipoA ? 'Factura A' : 'Factura B';
+      const tipoCompFacturado = ventaData.esNotaCredito ? (esTipoA ? 'Credito A' : 'Credito B') : esTipoA ? 'Factura A' : 'Factura B';
 
-      const presupuesto: Presupuesto = {
+      const presupuesto: CreatePresupuesto = {
         fecha: new Date().toISOString(),
-        idCliente: clienteId,
-        cliente: nombre,
-        tipo_comp: facturado ? tipoCompFacturado : 'PRESUPUESTO',
-        tipo_venta: 'PP',
-        condicion: listPrecios,
-        precio: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
-        vendedor: usuario._id,
-        F: facturado,
-        dolar: datos?.numeros ? (listPrecios === 'INSTALADOR' ? datos.numeros.dolarInstalador : datos.numeros.Dolar) : 0,
-        observaciones: observaciones || '',
+        clienteId: ventaData.clienteId,
+        usuarioId: usuario.Id,
+        total: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
+        activo: 1,
 
-        // Afip
-        condicionIva,
-        num_doc: cuit !== '' ? cuit : '00000000',
-        cod_doc: cuit === '00000000' || cuit === '' ? 99 : cuit.length > 8 ? 80 : 90,
-        cod_comp: cuit.length > 8 && (condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista') ? (esNotaCredito ? 3 : 1) : esNotaCredito ? 8 : 6,
-        cantIva,
-        iva21: totalIva21,
-        gravado21,
-        iva105: totalIva105,
-        gravado105,
-        facturaAnterior: numeroAfip,
+        observaciones,
 
-        //Opcional
-        direccion,
-        telefono,
-        localidad,
+        clieteNombre: nombre,
+        clienteTelefono: telefono,
+        clienteDomicilio: direccion,
       };
 
       const res = await cargarPresupuesto({ presupuesto, productos: productosCarrito, facturado });
 
       if (res.ok) {
         mensaje('Presupuesto cargado correctamente', 'success');
-        setClienteId('1');
         clearProductosCarrito();
-        setRemitos([]);
 
-        if (impresion && res.presupuesto && datos) {
-          const dolarImprimir = listPrecios === 'INSTALADOR' ? datos.numeros.dolarInstalador : datos.numeros.Dolar;
-          imprimirPresupuesto(res.presupuesto, dolar ? dolarImprimir : 0);
+        if (ventaData.impresion && res.presupuesto) {
+          imprimirPresupuesto(res.presupuesto, 0);
         }
 
         return;
       } else {
-        mensaje(res.msg || 'Error al cargar el presupuesto', 'error');
+        mensaje('Error al cargar el presupuesto', 'error');
         return;
       }
     }
@@ -176,64 +126,41 @@ export const Ventas = () => {
       return;
     }
 
-    const [totalIva21, gravado21, totalIva105, gravado105, cantIva] = sacarIva(productosCarrito);
-
-    const esTipoA = condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista';
-
-    const tipoCompFacturado = esNotaCredito ? (esTipoA ? 'Credito A' : 'Credito B') : esTipoA ? 'Factura A' : 'Factura B';
-    const venta: Venta = {
+    const venta: CreateVenta = {
       fecha: new Date().toISOString(),
-      idCliente: clienteId,
-      cliente: nombre,
-      tipo_comp: facturado ? tipoCompFacturado : tipoVenta,
-      tipo_venta: tipoPago,
-      condicion: listPrecios,
-      precio: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
-      vendedor: usuario._id,
-      F: facturado,
-      dolar: datos?.numeros ? (listPrecios === 'INSTALADOR' ? datos?.numeros.dolarInstalador : datos?.numeros.Dolar) : 0,
-
-      // Afip
-      condicionIva,
-      num_doc: cuit !== '' ? cuit : '00000000',
-      cod_doc: cuit === '00000000' || cuit === '' ? 99 : cuit.length > 8 ? 80 : 90,
-      cod_comp: cuit.length > 8 && (condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista') ? (esNotaCredito ? 3 : 1) : esNotaCredito ? 8 : 6,
-      cantIva,
-      iva21: totalIva21,
-      gravado21,
-      iva105: totalIva105,
-      gravado105,
-      facturaAnterior: numeroAfip,
+      clienteId: ventaData.clienteId,
+      usuarioId: usuario.Id,
+      total: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
+      activo: true,
 
       //Opcional
-      direccion,
-      telefono,
-      localidad,
+      clienteNombre: nombre,
+      clienteTelefono: telefono,
+      clienteDomicilio: direccion,
     };
 
-    const res = await mutateAsync({ venta, metodosPagos: metodosPago, productos: productosCarrito, facturado, descontarStock: remitos.length > 0 ? false : true, remitos, esNotaCredito });
+    const res = await mutateAsync({ venta, metodosPagos: metodosPago, productos: productosCarrito, facturado, descontarStock: true, esNotaCredito: ventaData.esNotaCredito });
 
     if (res.ok) {
       mensaje('Venta cargada correctamente', 'success');
-      setClienteId('1');
+
       setMetodosPago([]);
       clearProductosCarrito();
-      setRemitos([]);
-      if (impresion && datos) {
-        const dolarImprimir = listPrecios === 'INSTALADOR' ? datos?.numeros.dolarInstalador : datos?.numeros.Dolar;
-        imprimirVenta(res.venta, dolar ? dolarImprimir : 0);
+
+      if (ventaData.impresion && res.venta) {
+        imprimirVenta(res.venta, 1);
       }
     } else {
-      mensaje(res.msg || 'Error al cargar la venta', 'error');
+      mensaje('Error al cargar la venta', 'error');
     }
   };
 
   const handleCancelar = async () => {
     if (productosCarrito.length > 0 && usuario) {
-      
-    setVentaData({ ...ventaData, clienteId: 1 });
-    setMetodosPago([]);
-    clearProductosCarrito();
+      setVentaData({ ...ventaData, clienteId: 1 });
+      setMetodosPago([]);
+      clearProductosCarrito();
+    }
   };
 
   return (
@@ -292,18 +219,18 @@ export const Ventas = () => {
 
       <div className="flex-1 min-h-98 flex flex-col">
         {!ventaData.esNotaCredito ? (
-          <ProductoVenta codigo={codigo} setCodigo={setCodigo} setIsDrawerOpen={setIsDrawerOpenProductos} />
+          <ProductoVenta codigo={codigo.toString()} setCodigo={setCodigo} setIsDrawerOpen={setIsDrawerOpenProductos} />
         ) : (
           <div className="flex-1 overflow-auto bg-white dark:bg-[#18181b] border-x border-slate-200 dark:border-zinc-800">
-            <ProductoVenta codigo={codigo} setCodigo={setCodigo} setIsDrawerOpen={setIsDrawerOpenProductos} />
+            <ProductoVenta codigo={codigo.toString()} setCodigo={setCodigo} setIsDrawerOpen={setIsDrawerOpenProductos} />
           </div>
         )}
       </div>
 
       <div className="shrink-0">
         <FooterVenta
-          clienteId={ventaData.clienteId}
-          condicionFacturacion={condicionFacturacion}
+          clienteId={ventaData?.clienteId?.toString() || '1'}
+          condicionFacturacion={Number(condicionFacturacion)}
           facturado={facturado}
           onCancelar={handleCancelar}
           onFacturar={() => {
@@ -317,26 +244,26 @@ export const Ventas = () => {
         />
       </div>
 
-      <DrawerClientes
+      {/* <DrawerClientes
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        onSelectCliente={(id: number, nombre: string) => {
-          setVentaData({ ...ventaData, clienteId: id });
+        onSelectCliente={(id: string, nombre: string) => {
+          setVentaData({ ...ventaData, clienteId: Number(id) });
           setNombre(nombre);
           setIsDrawerOpen(false);
         }}
-      />
+      /> */}
 
-      <DrawerProductos
+      {/* <DrawerProductos
         isOpen={isDrawerOpenProductos}
         onClose={() => setIsDrawerOpenProductos(false)}
-        onSelectProducto={(id: number) => {
+        onSelectProducto={(id: string) => {
           setCodigo(id);
           setIsDrawerOpenProductos(false);
         }}
-      />
+      /> */}
 
-      <ModalMetodosPago
+      {/* <ModalMetodosPago
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         metodosPago={metodosPago}
@@ -346,9 +273,9 @@ export const Ventas = () => {
         domicilio=""
         telefono=""
         onConfirm={handleAddVenta}
-      />
+      /> */}
 
-      {(isPending || isPendingCargarRemito || isPendingPresupuesto) && <Loading fullScreen text="Facturando..." />}
+      {(isPending || isPendingPresupuesto) && <Loading fullScreen text="Facturando..." />}
     </div>
   );
-}};
+};

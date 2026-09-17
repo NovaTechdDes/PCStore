@@ -10,7 +10,7 @@ import { verificarToken } from "../../middlewares/auth";
 
 const router = Router();
 
-router.get("/", getMarcas);
+router.get("/", verificarToken, getMarcas);
 router.post("/", verificarToken, crearMarca);
 router.get("/:id", verificarToken, getMarcaById);
 router.put("/:id", verificarToken, putMarca);

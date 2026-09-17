@@ -28,7 +28,7 @@ export const crearProducto = async (producto: CrearProductoDTO): Promise<{ok: bo
     console.error(error)
     throw error;
   }
-}
+};
 
 export const actualizarStock = async (datos: AjustarStockDTO): Promise<{ ok: boolean; msg: string }> => {
   try {
@@ -56,4 +56,18 @@ export const getCodigoProducto = async(codigoInterno: string) => {
     console.error(error)
     throw error
   }
-}
+};
+
+export const getProductoByCodigoBarras = async(codigoBarras: string) => {
+  try {
+    const { data } = await api.get(`/productos/codigoBarras/${codigoBarras}`);
+
+    if(data.ok){
+      return data.data
+    }
+    return null;
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+};

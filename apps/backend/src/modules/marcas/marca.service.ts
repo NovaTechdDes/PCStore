@@ -5,7 +5,7 @@ export const listarMarcas = async (soloActivas = true) => {
     const pool = await getPool();
     const query = soloActivas 
                     ? 'SELECT m.*, (SELECT COUNT(1) FROM Productos p WHERE p.MarcaId = m.Id) as TotalProductos FROM Marcas m WHERE m.Activo = 1 ORDER BY m.Nombre'
-                    : 'SELECT * FROM Marcas ORDER BY Nombre'
+                    : 'SELECT m.*, (SELECT COUNT(1) FROM Productos p WHERE p.MarcaId = m.Id) as TotalProductos FROM Marcas m ORDER BY m.Nombre'
     const result = await pool.request().query(query);
     return result.recordset
 };

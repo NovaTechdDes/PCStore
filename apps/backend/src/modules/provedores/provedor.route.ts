@@ -1,19 +1,19 @@
 import { Router } from "express";
 import { verificarToken } from "../../middlewares/auth";
 import {
-  getProvedores,
-  getProvedorById,
-  crearProvedor,
-  putProvedor,
-  deleteProvedor,
+  getProveedores,
+  getProveedorById,
+  crearProveedor,
+  putProveedor,
+  deleteProveedor,
 } from "./provedores.controller";
 
 const router = Router();
 
-router.get("/", getProvedores);
-router.post("/", verificarToken, crearProvedor);
-router.get("/:id", getProvedorById);
-router.put("/:id", verificarToken, putProvedor);
-router.delete("/:id", verificarToken, deleteProvedor);
+router.get("/", verificarToken, getProveedores);
+router.post("/", verificarToken, crearProveedor);
+router.get("/:id", verificarToken, getProveedorById);
+router.put("/:id", verificarToken, putProveedor);
+router.delete("/:id", verificarToken, deleteProveedor);
 
 export default router;

@@ -6,11 +6,29 @@ export interface Presupuesto {
     Total: number; 
     Activo: number;
 
+    observaciones: string;
+
 
     // Datos Clientes
     ClieteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
+}
+
+export interface CreatePresupuesto {
+    fecha: string;
+    clienteId: number;
+    usuarioId: number;
+    total: number; 
+    activo: number;
+
+    observaciones: string;
+
+
+    // Datos Clientes
+    clieteNombre: string;
+    clienteTelefono: string;
+    clienteDomicilio: string;
 }
 
 export interface PresupuestoDetalle {

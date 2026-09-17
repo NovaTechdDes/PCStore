@@ -1,19 +1,17 @@
 import { Router } from "express";
-import { deleteImagen, putStock, deleteProducto, getProductoPorId, getProductos, postImagen, postProducto, putProducto, getProductoPorCodigoInterno } from "./productos.controller";
+import { deleteImagen, deleteProducto, getProductoPorId, getProductos, postImagen, postProducto, putProducto, getProductoPorCodigoInterno } from "./productos.controller";
 import { verificarToken } from "../../middlewares/auth";
 import { uploadImagenesProducto } from "../../middlewares/upload";
 
 const router = Router();
 
-router.get('/', getProductos)
-router.get('/:id', getProductoPorId)
-router.get('/codigoInterno/:codigoInterno', getProductoPorCodigoInterno)
+router.get('/', verificarToken, getProductos)
+router.get('/:id', verificarToken, getProductoPorId)
+router.get('/codigoInterno/:codigoInterno', verificarToken, getProductoPorCodigoInterno)
 
-router.post('/',  uploadImagenesProducto.array('imagenes', 6), postProducto);
+router.post('/', verificarToken, uploadImagenesProducto.array('imagenes', 6), postProducto);
 router.put('/:id', verificarToken, putProducto)
 router.delete('/:id', verificarToken, deleteProducto)
-
-router.put('/actualizarStock/:id',  putStock)
 
 router.post(
   "/:id/imagenes",

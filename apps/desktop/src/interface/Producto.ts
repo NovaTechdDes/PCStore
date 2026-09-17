@@ -21,7 +21,7 @@ export interface Producto {
 
   MarcaId?: number | null;
   ProveedorId?: number | null;
-  Id_categoria?: number | null;
+  CategoriaId?: number | null;
   UnidadId?: number | null;
 
   Costo: number;
@@ -57,7 +57,7 @@ export interface CrearProductoDTO {
   marcaId?: number;
   proveedorId?: number;
   unidadId?: number;
-  id_categoria?: number;
+  categoriaId?: number;
 
   costo?: number;
   costoDolar?: number;
@@ -78,7 +78,7 @@ export interface ActualizarProductoDTO {
   marcaId?: number;
   proveedorId?: number;
   unidadId?: number;
-  id_categoria?: number;
+  categoriaId?: number;
   
   costo?: number;
   costoDolar?: number;

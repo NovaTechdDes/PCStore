@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import * as clientesService from "./clientes.service";
-import { filtrosProductoSchema } from "../productos/productos.schema";
-import { actualizarClienteSchema, crearClienteSchema } from "./clientes.schema";
+import { actualizarClienteSchema, crearClienteSchema, filtrosClientesSchema } from "./clientes.schema";
 
 export const getClientes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const filtros = filtrosProductoSchema.parse(req.query);
+        const filtros = filtrosClientesSchema.parse(req.query);
         const clientes = await clientesService.clientesFiltrados(filtros);
         res.status(200).json({ok: true, data: clientes})
     } catch (error) {
