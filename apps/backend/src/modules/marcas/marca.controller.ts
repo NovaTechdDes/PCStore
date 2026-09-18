@@ -31,7 +31,7 @@ export const crearMarca = async(req: Request, res: Response, next: NextFunction)
     try {
         
         const data = crearMarcaSchema.parse(req.body);
-        console.log(data)
+        
         const nuevaMarca = await marcasService.crearMarca(data);
         res.status(201).json({ok: true, msg: 'Marca creada', data: nuevaMarca});
     } catch (error) {

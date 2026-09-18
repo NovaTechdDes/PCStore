@@ -21,7 +21,7 @@ export const Login = () => {
 
     try {
       const res = await login(password);
-      console.log(res)
+      
       if (res) {
         setUsuario({
           Id: res.Id,

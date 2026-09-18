@@ -2,7 +2,6 @@ import TagIcon from '@mui/icons-material/Tag';
 import PersonIcon from '@mui/icons-material/Person';
 import BadgeIcon from '@mui/icons-material/Badge';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
@@ -89,7 +88,7 @@ export const HeaderVenta = ({
                   id="codigo-cliente"
                   name="codigo"
                   placeholder="Código"
-                  value={codigo}
+                  value={codigo === 0 ? '' : codigo}
                   onChange={(e) => setCodigo?.(Number(e.target.value))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {

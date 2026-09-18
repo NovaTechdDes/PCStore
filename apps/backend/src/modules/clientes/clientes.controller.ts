@@ -16,12 +16,24 @@ export const getClientes = async (req: Request, res: Response, next: NextFunctio
 export const getClientePorId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
+        console.log(id)
         const cliente = await clientesService.obtenerClientePorId(id);
         if(!cliente){
             return res.status(404).json({ok: false, msg: 'Cliente no encontrado'})
         }
 
         res.status(200).json({ok: true, data: cliente})
+    } catch (error) {
+        console.error(error);
+        next(error)
+    }
+};
+
+export const getLastCliente = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const cliente = await clientesService.obtenerUltimoCliente();
+        const id = (cliente?.Id || 0) + 1;
+        res.status(200).json({ok: true, siguiente: id})
     } catch (error) {
         console.error(error);
         next(error)
@@ -43,6 +55,7 @@ export const putCliente = async (req: Request, res: Response, next: NextFunction
     try {
         const id = Number(req.params.id);
         const data = actualizarClienteSchema.parse(req.body);
+        
         const cliente = await clientesService.actualizarCliente(id, data);
         if(!cliente){
             return res.status(404).json({ok: false, msg: 'Cliente no encontrado'})

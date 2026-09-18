@@ -19,7 +19,7 @@ export const getMarcas = async (): Promise<Marca[]> => {
 export const postMarca = async (marca: CrearMarcaDTO): Promise<Marca> => {
     try {
 
-      console.log(marca)
+      
         const { data } = await api.post('/marcas', marca);
 
 

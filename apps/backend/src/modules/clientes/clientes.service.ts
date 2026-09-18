@@ -20,14 +20,20 @@ export const clientesFiltrados = async(filtros: FiltrosClientesDTO) => {
 
     const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : ''
 
-    const result =await request.query(`
-        SELECT c.Id, c.Nombre, c.Cuit, c.CondicionIva, c.Telefono, c.Email, c.Activo
+    const result = await request.query(`
+        SELECT c.*
         FROM Clientes c
         ${where}
         ORDER BY c.Nombre
     `);
 
     return result.recordset;
+};
+
+export const obtenerUltimoCliente = async() => {
+    const pool = await getPool();
+    const result = await pool.request().query(`SELECT TOP 1 * FROM Clientes ORDER BY Id DESC`);
+    return result.recordset[0] ?? null;
 };
 
 export const obtenerClientePorId = async (id: Number) => {
@@ -76,11 +82,10 @@ export const crearCliente = async (data: CrearClienteDTO) => {
         .input('direccion', sql.NVarChar(200), data.direccion)
         .input('telefono', sql.NVarChar(50), data.telefono)
         .input('email', sql.NVarChar(150), data.email)
-        .input('tipoCuenta', sql.NVarChar(50), data.tipoCuenta)
         .input('observaciones', sql.NVarChar(255), data.observaciones)
         .query(`
-            INSERT INTO Clientes (Nombre, Cuit, CondicionIva, CondicionFacturacion, Localidad, Direccion, Telefono, Email, TipoCuenta, Observaciones)
-            VALUES (@nombre, @cuit, @condicionIva, @condicionFacturacion, @localidad, @direccion, @telefono, @email, @tipoCuenta, @observaciones);
+            INSERT INTO Clientes (Nombre, Cuit, CondicionIva, CondicionFacturacion, Localidad, Direccion, Telefono, Email, Observaciones)
+            VALUES (@nombre, @cuit, @condicionIva, @condicionFacturacion, @localidad, @direccion, @telefono, @email, @observaciones);
             SELECT SCOPE_IDENTITY() AS Id;
         `);
 
@@ -115,6 +120,7 @@ export const actualizarCliente = async (id: Number, data: ActualizarClienteDTO) 
             }
         };
 
+
         const clienteResult = await new sql.Request(transaction)
         .input('id', sql.Int, id)
         .input('nombre', sql.NVarChar(255), data.nombre)
@@ -125,7 +131,6 @@ export const actualizarCliente = async (id: Number, data: ActualizarClienteDTO) 
         .input('direccion', sql.NVarChar(200), data.direccion)
         .input('telefono', sql.NVarChar(50), data.telefono)
         .input('email', sql.NVarChar(150), data.email)
-        .input('tipoCuenta', sql.NVarChar(50), data.tipoCuenta)
         .input('observaciones', sql.NVarChar(255), data.observaciones)
         .query(`
             UPDATE Clientes SET
@@ -137,7 +142,6 @@ export const actualizarCliente = async (id: Number, data: ActualizarClienteDTO) 
             Direccion = COALESCE(@direccion, Direccion),
             Telefono = COALESCE(@telefono, Telefono),
             Email = COALESCE(@email, Email),
-            TipoCuenta = COALESCE(@tipoCuenta, TipoCuenta),
             Observaciones = COALESCE(@observaciones, Observaciones)
             OUTPUT INSERTED.*
             WHERE Id = @id;
@@ -175,4 +179,4 @@ export const eliminarCliente = async (id: number) => {
         await transaction.rollback();
         throw error;
     }
-}
+};

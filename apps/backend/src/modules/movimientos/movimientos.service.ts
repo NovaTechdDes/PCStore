@@ -139,7 +139,7 @@ export const obtenerMovimientoPorId = async(id: number) => {
 };
 
 export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => {
-    console.log(usuarioId)
+    
     const pool = await getPool();
     const transaction = new sql.Transaction(pool);
 

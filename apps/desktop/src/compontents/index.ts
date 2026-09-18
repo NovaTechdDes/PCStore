@@ -33,4 +33,6 @@ export * from './ventas/ProductoVentaItem';
 export * from './ventas/FooterVenta';
 
 //Clientes
-export * from './clientes/DrawerClientes'
+export * from './clientes/DrawerClientes';
+export * from './clientes/ModalCliente';
+export * from './clientes/ClienteItem';

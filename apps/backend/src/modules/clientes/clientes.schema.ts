@@ -8,8 +8,7 @@ export const crearClienteSchema = z.object({
     localidad: z.string().max(100, "Debe tener como máximo 100 caracteres").optional(),
     direccion: z.string().max(200, "Debe tener como máximo 200 caracteres").optional(),
     telefono: z.string().max(50, "Debe tener como máximo 50 caracteres").optional(),
-    email: z.string().email("Debe ser un email válido").optional(),
-    tipoCuenta: z.string().max(50, "Debe tener como máximo 50 caracteres").optional(),
+    email: z.string().optional(),
     observaciones: z.string().max(255, "Debe tener como máximo 255 caracteres").optional().optional(),
 });
 

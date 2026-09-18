@@ -61,7 +61,9 @@ const RootLayout = () => {
       {/* Tu Navbar / Layout aquí */}
       <div className='flex'>
         <AsideBar/>
-        <Outlet />
+        <main className="flex-1 min-w-0">
+          <Outlet />
+        </main>
       </div>
     </div>
   )

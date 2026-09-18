@@ -15,7 +15,7 @@ export const DrawerClientes = ({ isOpen, onClose, onSelectCliente }: Props) => {
 
   const { data: clientes } = useClientes(busqueda === '' ? 'NADA' : busqueda);
 
-  console.log(clientes);
+  
 
   useEffect(() => {
     if (isOpen) {

@@ -18,7 +18,7 @@ export const Ventas = () => {
 
   const { mutateAsync: cargarPresupuesto, isPending: isPendingPresupuesto } = startPostPresupuesto();
 
-  const { data: cliente, isLoading: isLoadingCliente } = useClienteById(ventaData.clienteId);
+  const { data: cliente, isLoading: isLoadingCliente, isError: isErrorClienteById } = useClienteById(ventaData.clienteId);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isDrawerOpenProductos, setIsDrawerOpenProductos] = useState<boolean>(false);
@@ -45,7 +45,7 @@ export const Ventas = () => {
 
   useEffect(() => {
     if (cliente) {
-      console.log(cliente);
+    
       setNombre(cliente.Nombre);
       setCuit(cliente.Cuit);
       setSaldo(cliente.Saldo.toString() ?? '');
@@ -162,6 +162,12 @@ export const Ventas = () => {
       clearProductosCarrito();
     }
   };
+
+  useEffect(() => {
+  if (isErrorClienteById) {
+    mensaje('El cliente no existe', 'error');
+  }
+}, [isErrorClienteById]);
 
   return (
     <div className={`flex flex-col h-[calc(100vh-48px)] p-4 transition-colors duration-200 ${!facturado ? 'bg-black' : ''}`}>

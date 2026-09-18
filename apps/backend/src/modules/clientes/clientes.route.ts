@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { getClientes, getClientePorId, postCliente, putCliente, deleteCliente } from "./clientes.controller";
+import { getClientes, getClientePorId, postCliente, putCliente, deleteCliente, getLastCliente } from "./clientes.controller";
 import { verificarToken } from "../../middlewares/auth";
 
 const router = Router();
 
 router.get('/', verificarToken, getClientes);
+router.get('/next', verificarToken, getLastCliente);
 router.get('/:id', verificarToken, getClientePorId);
 
 router.post('/', verificarToken, postCliente);

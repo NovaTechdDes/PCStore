@@ -4,3 +4,4 @@ export * from "./marca.store";
 export * from "./categoria.store";
 export * from "./proveedor.store";
 export * from "./venta.store";
+export * from "./cliente.store";

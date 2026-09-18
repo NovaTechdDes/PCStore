@@ -104,7 +104,7 @@ export const ModalAddMovimiento = ({ setShowAddMovModal }: Props) => {
       }
     }
     const cantidadEfectiva = cantidad !== 0 ? cantidad : series.length;
-    console.log(cantidadEfectiva);
+    
     const cantFinal = tipo === 'Resta' ? -Math.abs(cantidadEfectiva) : Math.abs(cantidadEfectiva);
 
     const res = await mutateAsync({

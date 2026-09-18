@@ -37,7 +37,7 @@ export const ModalMarca = () => {
         }else{
           mensaje('Error al actualizar la marca', 'error');
         }
-        console.log(res)
+        
         return;
       }
 

@@ -4,8 +4,8 @@ import { ActualizarProveedorDTO, CrearProveedorDTO } from "./provedor.schema";
 export const listarProveedores = async(soloActivas = true) => {
     const pool = await getPool();
     const query = soloActivas 
-                    ? 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.Id_provedor = p.Id) as TotalProductos FROM Proveedores p WHERE p.Activo = 1 ORDER BY Nombre'
-                    : 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.Id_provedor = p.Id) as TotalProductos FROM Proveedores p ORDER BY Nombre';
+                    ? 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.ProveedorId = p.Id) as TotalProductos FROM Proveedores p WHERE p.Activo = 1 ORDER BY Nombre'
+                    : 'SELECT p.*, (SELECT COUNT(1) FROM Productos pr WHERE pr.ProveedorId = p.Id) as TotalProductos FROM Proveedores p ORDER BY Nombre';
     const result = await pool.request().query(query);
     return result.recordset;
 };
