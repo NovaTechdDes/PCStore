@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDatos } from '../../hooks/useDatos';
 import { useVentaStore } from '../../store';
-import { ModalModificarProducto } from './ModalModificarProducto';
 
 import Loading from '../ui/Loading';
 
@@ -11,7 +10,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PercentIcon from '@mui/icons-material/Percent';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-import { useProductoByCodigoBarras } from '../../hooks';
+import { startGetProductoVenta } from '../../hooks';
 import { ProductoVentaItem } from './ProductoVentaItem';
 
 interface Props {
@@ -25,7 +24,7 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
   const { productosCarrito, addProductoCarrito, ventaData } = useVentaStore();
 
   const [descripcion, setDescripcion] = useState<string>('');
-  const [iva, setIva] = useState<number>(21);
+  const [iva, setIva] = useState<number>(26);
   const [precioU, setPrecioU] = useState<number>(0);
   const [cantidad, setCantidad] = useState<number>(1);
 
@@ -41,19 +40,19 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
   //Modal Producto
   const [isOpenModalProducto, setIsOpenModalProducto] = useState<boolean>(false);
 
-  const { data: producto, isLoading } = useProductoByCodigoBarras(codigo);
+  const { data: producto, isLoading } = startGetProductoVenta(codigo);
 
   useEffect(() => {
     if (producto) {
       const precio = producto.Precio;
 
-      setDescripcion(producto.descripcion);
-      setIva(producto.impuesto);
+      setDescripcion(producto.Descripcion);
+      setIva(producto.IVA);
       setPrecioU(precio);
       setPrecioUInput(precio.toString());
     } else {
       setDescripcion('');
-      setIva(21);
+      setIva(26);
       setPrecioU(0);
       setPrecioUInput('0');
     }
@@ -61,11 +60,11 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
 
   const handleAddProduct = () => {
     addProductoCarrito({
-      _id: codigo,
+      id: producto?.Id ?? 0,
       cantidad,
       descripcion,
       impuesto: iva,
-      marca: producto?.marca?.nombre || '',
+      marca: producto?.MarcaNombre || '',
       precio: precioU,
       productoOriginal: producto || undefined,
       codigoAux: codigo === '' ? ventaData.codigoAux : '',
@@ -75,7 +74,7 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
     setDescripcion('');
     setCantidad(1);
     setPrecioU(0);
-    setIva(21);
+    setIva(26);
   };
 
   const handleCantidadKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -83,11 +82,11 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
       e.preventDefault();
       if (producto) {
         addProductoCarrito({
-          _id: producto._id,
-          descripcion,
+          id: producto.Id,
+          descripcion: producto.Descripcion,
           cantidad: Number(e.currentTarget.value),
           impuesto: iva,
-          marca: producto.marca?.nombre || '',
+          marca: producto.MarcaNombre || '',
           precio: precioU,
           productoOriginal: producto,
         });
@@ -95,7 +94,7 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
         setCantidad(1);
         setPrecioU(0);
         setCodigo('');
-        setIva(21);
+        setIva(26);
         codigoInputRef.current?.focus();
       } else {
         descripcionInputRef.current?.focus();
@@ -216,8 +215,8 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
                   }}
                   className={`w-full pl-9 pr-3 py-2 border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 transition-all appearance-none cursor-pointer ${inputClass}`}
                 >
-                  <option value="21">% 21.00</option>
-                  <option value="10.5">% 10.50</option>
+                  <option value="26">% 21.00</option>
+                  <option value="15">% 10.50</option>
                   <option value="0">% 0.00</option>
                 </select>
               </div>
@@ -299,7 +298,7 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
                   </td>
                 </tr>
               ) : (
-                productosCarrito.map((item) => <ProductoVentaItem key={item._id ? item._id : item.codigoAux} item={item} setIsOpenModalProducto={setIsOpenModalProducto} />)
+                productosCarrito.map((item) => <ProductoVentaItem key={item.id} item={item} setIsOpenModalProducto={setIsOpenModalProducto} />)
               )}
             </tbody>
           </table>

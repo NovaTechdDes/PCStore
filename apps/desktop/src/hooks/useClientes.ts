@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { activeCliente, clienteById, deleteCliente, getClientes, nextCliente, postCliente, putCliente } from "../services"
 import { CreateCliente } from "../interface"
+import { useDebounce } from "./useDebounce";
 
 
 export const useClientes = (texto: string) => {
+    const debouncedValue = useDebounce(texto, 350);
     return useQuery({
-        queryKey: ['clientes', texto],
+        queryKey: ['clientes', debouncedValue],
         queryFn: () => {
-            return getClientes(texto)
+            return getClientes(debouncedValue)
         }
     })
 }

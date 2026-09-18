@@ -40,7 +40,9 @@ export const Clientes = () => {
       {/* Listado / tabla */}
 
       {isLoading ? (
-        <Loading text="Cargando clientes..." />
+        <div className='flex items-center justify-center h-full'>
+          <Loading text="Cargando clientes..." />
+        </div>
       ) : (
         <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs overflow-hidden">
           <div className="overflow-auto h-[60vh]">

@@ -43,6 +43,21 @@ export const getProductoPorCodigoInterno = async (req: Request, res: Response, n
     }
 };
 
+export const getProductoVenta = async(req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const codigo = String(req.params.codigo);
+        const producto = await productosService.obtenerProductoParaVenta(codigo);
+        if(!producto){
+            return res.status(404).json({ok: false, msg: 'Producto no encontrado'})
+        }
+
+        res.status(200).json({ok: true, data: producto})
+    } catch (error) {
+        console.error(error);
+        next(error)
+    }
+};
+
 export const postProducto = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const body = {...req.body};

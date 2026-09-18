@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { actualizarStock, crearProducto, getProductoByCodigoBarras, getProductos } from "../services";
+import { actualizarStock, crearProducto, getProductoVenta, getProductos } from "../services";
 import { AjustarStockDTO, CrearProductoDTO } from "../interface";
 
 export const useProductos = () => {
@@ -31,9 +31,10 @@ export const startActualizarStock = () => {
   })
 };
 
-export const useProductoByCodigoBarras = (codigoBarras: string) => {
+export const startGetProductoVenta = (codigo: string) => {
   return useQuery({
-    queryKey: ["producto-by-codigo-barras", codigoBarras],
-    queryFn: () => getProductoByCodigoBarras(codigoBarras),
+    queryKey: ["producto-venta", codigo],
+    enabled: !!codigo,
+    queryFn: () => getProductoVenta(codigo),
   });
 };

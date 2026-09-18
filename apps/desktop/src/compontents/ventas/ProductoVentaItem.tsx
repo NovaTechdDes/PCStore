@@ -15,7 +15,7 @@ export const ProductoVentaItem = ({ item, setIsOpenModalProducto }: Props) => {
   const agregarNumeroSeries = async (item: ProductoCarrito) => {
     setProductoSeleccionado(item);
 
-    if (!item?._id && !item?.codigoAux) return;
+    if (!item.id) return;
 
     const { isConfirmed, value } = await Swal.fire({
       title: 'Ingrese el número de serie',
@@ -29,7 +29,7 @@ export const ProductoVentaItem = ({ item, setIsOpenModalProducto }: Props) => {
       cancelButtonText: 'Cancelar',
     });
 
-    if (isConfirmed) agregarSerie(item?._id ? item._id : item.codigoAux || '', value || '');
+    if (isConfirmed) agregarSerie(item.id, value || '');
   };
 
   return (
@@ -38,14 +38,14 @@ export const ProductoVentaItem = ({ item, setIsOpenModalProducto }: Props) => {
         setProductoSeleccionado(item);
         setIsOpenModalProducto(true);
       }}
-      key={item._id ? item._id : item.codigoAux}
+      key={item.id}
       className={`cursor-pointer transition-colors ${!ventaData.facturado ? 'hover:bg-zinc-950 text-zinc-100' : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60'}`}
     >
-      <td className={`px-4 py-3 font-mono font-semibold ${!ventaData.facturado ? 'text-zinc-400' : 'text-slate-800 dark:text-zinc-300'}`}>{item._id}</td>
+      <td className={`px-4 py-3 font-mono font-semibold ${!ventaData.facturado ? 'text-zinc-400' : 'text-slate-800 dark:text-zinc-300'}`}>{item.id}</td>
       <td className={`px-4 py-3 text-center font-mono font-bold ${!ventaData.facturado ? 'text-white' : 'text-slate-900 dark:text-zinc-100'}`}>{(item.cantidad || 0).toFixed(2)}</td>
       <td className={`px-6 py-3 font-semibold ${!ventaData.facturado ? 'text-white' : 'text-slate-900 dark:text-zinc-100'}`}>{item.descripcion.toUpperCase()}</td>
       <td className={`px-4 py-3 font-medium ${!ventaData.facturado ? 'text-zinc-400' : 'text-slate-600 dark:text-zinc-400'}`}>{item.marca || '-'}</td>
-      <td className={`px-4 py-3 text-center font-mono font-medium ${!ventaData.facturado ? 'text-zinc-300' : 'text-slate-700 dark:text-zinc-300'}`}>%{item.impuesto}</td>
+      <td className={`px-4 py-3 text-center font-mono font-medium ${!ventaData.facturado ? 'text-zinc-300' : 'text-slate-700 dark:text-zinc-300'}`}>%{item.impuesto == 26 ? '21.00' : '10.50'}</td>
       <td className={`px-4 py-3 text-right font-mono font-medium ${!ventaData.facturado ? 'text-zinc-200' : 'text-slate-800 dark:text-zinc-200'}`}>
         ${item.precio.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
@@ -73,7 +73,7 @@ export const ProductoVentaItem = ({ item, setIsOpenModalProducto }: Props) => {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              removeProductoCarrito?.(item._id ? item._id : item.codigoAux || '');
+              removeProductoCarrito?.(item.id);
             }}
             className={`p-1 rounded-lg transition-colors ${
               !ventaData.facturado

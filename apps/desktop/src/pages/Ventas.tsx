@@ -26,7 +26,6 @@ export const Ventas = () => {
   const [nombre, setNombre] = useState<string>(cliente?.nombre ?? '');
   const [cuit, setCuit] = useState<string>(cliente?.cuit ?? '');
   const [saldo, setSaldo] = useState<string>(cliente?.saldo?.toString() ?? '');
-  const [lista, setLista] = useState<string>(cliente?.saldo?.toString() ?? '');
   const [telefono, setTelefono] = useState<string>(cliente?.telefono ?? '');
   const [localidad, setLocalidad] = useState<string>(cliente?.localidad ?? '');
   const [direccion, setDireccion] = useState<string>(cliente?.direccion ?? '');
@@ -75,6 +74,7 @@ export const Ventas = () => {
   }, [facturado, setFacturado]);
 
   const handleAddVenta = async () => {
+    console.log("b")
     if (!usuario || isPending || isPendingPresupuesto) return;
 
     if (productosCarrito.length === 0) return mensaje('Debe agregar productos', 'error');
@@ -125,7 +125,7 @@ export const Ventas = () => {
       mensaje('Debe ingresar el CUIT y la Condición de IVA', 'error');
       return;
     }
-
+    console.log("a")
     const venta: CreateVenta = {
       fecha: new Date().toISOString(),
       clienteId: ventaData.clienteId,
@@ -207,8 +207,6 @@ export const Ventas = () => {
           cuit={cuit}
           setCuit={setCuit}
           saldo={saldo}
-          lista={lista}
-          setLista={setLista}
           telefono={telefono}
           setTelefono={setTelefono}
           localidad={localidad}
@@ -269,7 +267,7 @@ export const Ventas = () => {
         }}
       /> */}
 
-      {/* <ModalMetodosPago
+       <ModalMetodosPago
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         metodosPago={metodosPago}
@@ -279,7 +277,7 @@ export const Ventas = () => {
         domicilio=""
         telefono=""
         onConfirm={handleAddVenta}
-      /> */}
+      />
 
       {(isPending || isPendingPresupuesto) && <Loading fullScreen text="Facturando..." />}
     </div>

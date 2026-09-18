@@ -46,33 +46,34 @@ export const FooterVenta = ({ clienteId = '1', condicionFacturacion = 1, factura
   }, [ventaData.descuento]);
 
   const handleTipoChange = (val: TipoVenta) => {
-    setVentaData({
-      ...ventaData,
-      tipoVenta: val,
-    });
+    
 
     if (val === 'Contado') {
       setVentaData({
         ...ventaData,
         tipoPago: 'CD',
+        tipoVenta: val,
       });
     }
     if (val === 'CuentaCorriente') {
       setVentaData({
         ...ventaData,
         tipoPago: 'CC',
+        tipoVenta: val,
       });
     }
     if (val === 'Remito') {
       setVentaData({
         ...ventaData,
         tipoPago: 'RT',
+        tipoVenta: val,
       });
     }
     if (val === 'Presupuesto') {
       setVentaData({
         ...ventaData,
         tipoPago: 'PP',
+        tipoVenta: val,
       });
     }
   };

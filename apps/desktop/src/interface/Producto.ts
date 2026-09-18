@@ -97,7 +97,7 @@ export interface FiltrosProductoDTO {
 }
 
 export interface ProductoCarrito {
-    _id: string;
+    id: number;
     descripcion: string;
     precio: number;
     cantidad: number;

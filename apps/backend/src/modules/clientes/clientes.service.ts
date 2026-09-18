@@ -26,7 +26,7 @@ export const clientesFiltrados = async(filtros: FiltrosClientesDTO) => {
         ${where}
         ORDER BY c.Nombre
     `);
-
+        console.log("b")
     return result.recordset;
 };
 

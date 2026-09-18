@@ -58,9 +58,11 @@ export const getCodigoProducto = async(codigoInterno: string) => {
   }
 };
 
-export const getProductoByCodigoBarras = async(codigoBarras: string) => {
+export const getProductoVenta = async(codigo: string) => {
   try {
-    const { data } = await api.get(`/productos/codigoBarras/${codigoBarras}`);
+    const { data } = await api.get(`/productos/venta/${codigo}`);
+
+    console.log(data)
 
     if(data.ok){
       return data.data

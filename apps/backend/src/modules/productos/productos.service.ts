@@ -128,6 +128,26 @@ export const obtenerProductoPorCodigoInterno = async (codigo: string) => {
   };
 };
 
+export const obtenerProductoParaVenta = async (codigo: string) => {
+  const pool = await getPool();
+  console.log(codigo)
+
+  const result = await pool.request().input('codigo', sql.NVarChar(50), codigo)
+  .query(`
+    SELECT TOP 1 p.Id, p.CodigoInterno, p.CodigoBarra, p.Descripcion, p.Precio, p.IVA, p.Stock, p.Activo, m.Nombre as MarcaNombre
+    FROM Productos p
+    LEFT JOIN Marcas m ON m.Id = p.MarcaId
+    WHERE (p.codigoInterno = @codigo OR p.CodigoBarra = @codigo) and p.Activo = 1 ORDER BY 
+    CASE WHEN p.CodigoInterno = @codigo THEN 1 ELSE  2 END ASC
+  `);
+
+  const producto = result.recordset[0];
+  if(!producto) return null;
+  
+  return producto
+}
+
+
 export const crearProducto = async (
   data: CrearProductoDTO,
   archivos: Express.Multer.File[],
