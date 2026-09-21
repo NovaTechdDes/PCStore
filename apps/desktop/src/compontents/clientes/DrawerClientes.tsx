@@ -6,7 +6,7 @@ import { useClientes } from '../../hooks/useClientes';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSelectCliente: (id: string, nombre: string, telefono?: string, direccion?: string) => void;
+  onSelectCliente: (id: number, nombre: string, telefono?: string, direccion?: string) => void;
 }
 
 export const DrawerClientes = ({ isOpen, onClose, onSelectCliente }: Props) => {
@@ -14,8 +14,6 @@ export const DrawerClientes = ({ isOpen, onClose, onSelectCliente }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: clientes } = useClientes(busqueda === '' ? 'NADA' : busqueda);
-
-  
 
   useEffect(() => {
     if (isOpen) {
@@ -79,31 +77,31 @@ export const DrawerClientes = ({ isOpen, onClose, onSelectCliente }: Props) => {
           {clientes && clientes.length > 0 ? (
             clientes.map((cliente) => (
               <div
-                key={cliente._id}
+                key={cliente.Id}
                 onClick={() => {
-                  onSelectCliente(cliente._id, cliente.nombre, cliente?.telefono, cliente?.direccion);
+                  onSelectCliente(cliente.Id, cliente.Nombre, cliente?.Telefono, cliente?.Direccion);
                   onClose();
                 }}
                 className="p-4 border border-slate-150 dark:border-zinc-800/80 rounded-xl hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:bg-amber-500/5 dark:hover:bg-amber-500/5 transition-all cursor-pointer group"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-xs font-semibold px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 rounded-md">ID: {cliente._id}</span>
-                    <h4 className="font-bold text-sm text-slate-800 dark:text-zinc-200 mt-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{cliente.nombre}</h4>
+                    <span className="text-xs font-semibold px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 rounded-md">ID: {cliente.Id}</span>
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-zinc-200 mt-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{cliente.Nombre}</h4>
                   </div>
                 </div>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-zinc-400">
-                  {cliente.cuit && (
+                  {cliente.Cuit && (
                     <div>
                       <span className="block font-medium text-[10px] uppercase text-slate-400">CUIT</span>
-                      <span>{cliente.cuit}</span>
+                      <span>{cliente.Cuit}</span>
                     </div>
                   )}
-                  {cliente.telefono && (
+                  {cliente.Telefono && (
                     <div>
                       <span className="block font-medium text-[10px] uppercase text-slate-400">Teléfono</span>
-                      <span>{cliente.telefono}</span>
+                      <span>{cliente.Telefono}</span>
                     </div>
                   )}
                 </div>

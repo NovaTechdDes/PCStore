@@ -139,7 +139,7 @@ const ProductoItem = ({ producto, onSelectProducto }: PropsProductosItems) => {
 
   const handleConfirmCantidad = (cantidad: number) => {
     addProductoCarrito({
-      _id: producto.Id.toString(),
+      id: producto.Id,
       descripcion: producto.Descripcion,
       impuesto: producto.IVA,
       precio: producto.Precio,

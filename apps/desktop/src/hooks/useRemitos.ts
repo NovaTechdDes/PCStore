@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useRemitos = (clienteId: string) => {
     return useQuery({
@@ -10,13 +10,12 @@ export const useRemitos = (clienteId: string) => {
 };
 
 export const startPostRemito = () => {
-    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (data: any) => {
             const {remito, productos, ...res} = data;
-
-            const resp = await fetch("", {method: "POST", body: JSON.stringify(remito)})
+            console.log(res)
+            await fetch("", {method: "POST", body: JSON.stringify(remito)})
         }
     })
 }

@@ -7,7 +7,7 @@ import { useGlobalStore, useVentaStore } from '../store';
 import { mensaje } from '../helper/mensaje';
 import { imprimirPresupuesto, imprimirVenta } from '../helper/imprimir';
 import { useClienteById, startPostVenta, startPostPresupuesto } from '../hooks';
-import { sacarIva } from '../helper/sacarIva';
+// import { sacarIva } from '../helper/sacarIva';
 
 export const Ventas = () => {
   const { ventaData, setVentaData, productosCarrito, clearProductosCarrito, resetVenta } = useVentaStore();
@@ -84,10 +84,10 @@ export const Ventas = () => {
         return;
       }
 
-      const [totalIva21, gravado21, totalIva105, gravado105, cantIva] = sacarIva(productosCarrito);
+      // const [totalIva21, gravado21, totalIva105, gravado105, cantIva] = sacarIva(productosCarrito);
 
-      const esTipoA = condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista';
-      const tipoCompFacturado = ventaData.esNotaCredito ? (esTipoA ? 'Credito A' : 'Credito B') : esTipoA ? 'Factura A' : 'Factura B';
+      // const esTipoA = condicionIva === 'Responsable Inscripto' || condicionIva === 'Monotributista';
+      // const tipoCompFacturado = ventaData.esNotaCredito ? (esTipoA ? 'Credito A' : 'Credito B') : esTipoA ? 'Factura A' : 'Factura B';
 
       const presupuesto: CreatePresupuesto = {
         fecha: new Date().toISOString(),
@@ -138,8 +138,6 @@ export const Ventas = () => {
       clienteTelefono: telefono,
       clienteDomicilio: direccion,
     };
-    console.log(venta);
-    return;
 
     const res = await mutateAsync({ venta, metodosPagos: metodosPago, productos: productosCarrito, facturado, descontarStock: true, esNotaCredito: ventaData.esNotaCredito });
 
@@ -250,24 +248,24 @@ export const Ventas = () => {
         />
       </div>
 
-      {/* <DrawerClientes
+      <DrawerClientes
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        onSelectCliente={(id: string, nombre: string) => {
+        onSelectCliente={(id: number, nombre: string) => {
           setVentaData({ ...ventaData, clienteId: Number(id) });
           setNombre(nombre);
           setIsDrawerOpen(false);
         }}
-      /> */}
+      />
 
-      {/* <DrawerProductos
+      <DrawerProductos
         isOpen={isDrawerOpenProductos}
         onClose={() => setIsDrawerOpenProductos(false)}
         onSelectProducto={(id: string) => {
           setCodigo(id);
           setIsDrawerOpenProductos(false);
         }}
-      /> */}
+      />
 
       <ModalMetodosPago
         isOpen={isModalOpen}

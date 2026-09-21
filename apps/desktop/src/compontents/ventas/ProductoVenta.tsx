@@ -12,6 +12,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { startGetProductoVenta } from '../../hooks';
 import { ProductoVentaItem } from './ProductoVentaItem';
+import { ModalModificarProducto } from './ModalModificarProducto';
 
 interface Props {
   setIsDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -306,7 +307,7 @@ export const ProductoVenta = ({ setIsDrawerOpen, codigo, setCodigo }: Props) => 
       </div>
 
       {/* Modal para modificar producto */}
-      {/* <ModalModificarProducto isOpen={isOpenModalProducto} onClose={() => setIsOpenModalProducto(false)} /> */}
+      <ModalModificarProducto isOpen={isOpenModalProducto} onClose={() => setIsOpenModalProducto(false)} />
     </section>
   );
 };

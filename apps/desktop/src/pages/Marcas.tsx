@@ -1,27 +1,21 @@
 import { useState, useMemo } from 'react';
 import { Cabecera, Loading, MarcaItem } from '../compontents';
 import { useMarcas } from '../hooks';
-import { Marca } from '../interface';
 import { ModalMarca } from '../compontents/marcas/ModalMarca';
 import { useMarcaStore } from '../store';
-
 
 import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-
-
-
-
 export const Marcas = () => {
-  const { setModalAbierto, modalAbierto, setMarca} = useMarcaStore()
+  const { setModalAbierto, modalAbierto, setMarca } = useMarcaStore();
   const { data: marcas, isLoading, error } = useMarcas();
 
   const [buscador, setBuscador] = useState('');
 
   // Formulario mock (estado puramente visual)
- 
+
   const abrirModalCrear = () => {
     setMarca(null);
     setModalAbierto(true);
@@ -31,11 +25,7 @@ export const Marcas = () => {
   const marcasFiltradas = useMemo(() => {
     if (!buscador.trim()) return marcas;
     const query = buscador.toLowerCase();
-    return marcas?.filter(
-      (m) =>
-        m.Nombre.toLowerCase().includes(query) ||
-        m.Descripcion.toLowerCase().includes(query)
-    );
+    return marcas?.filter((m) => m.Nombre.toLowerCase().includes(query) || m.Descripcion.toLowerCase().includes(query));
   }, [marcas, buscador]);
 
   // Cálculos de métricas rápidas de diseño
@@ -43,20 +33,22 @@ export const Marcas = () => {
   const marcasActivas = marcas?.filter((m) => m.Activo).length;
   const totalProductos = marcas?.reduce((acc, m) => acc + Number(m.TotalProductos || 0), 0) || 0;
 
-  if(isLoading) return <Loading text='Cargando Marcas...'/>
+  if (isLoading) return <Loading text="Cargando Marcas..." />;
 
-  if(error) return <div>
-    <Cabecera
-        titulo="Gestión de Marcas"
-        descripcion="Administra y cataloga las marcas y fabricantes de tus productos"
-        textoBoton="Nueva Marca"
-        funcion={abrirModalCrear}
-        buscador={buscador}
-        setBuscador={setBuscador}
-      />
-    <p>Error al cargar las marcas</p>
-  </div>
-  
+  if (error)
+    return (
+      <div>
+        <Cabecera
+          titulo="Gestión de Marcas"
+          descripcion="Administra y cataloga las marcas y fabricantes de tus productos"
+          textoBoton="Nueva Marca"
+          funcion={abrirModalCrear}
+          buscador={buscador}
+          setBuscador={setBuscador}
+        />
+        <p>Error al cargar las marcas</p>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 p-6 space-y-6 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
@@ -77,12 +69,8 @@ export const Marcas = () => {
             <BrandingWatermarkIcon className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Total de Marcas
-            </span>
-            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-              {totalMarcas}
-            </div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Total de Marcas</span>
+            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">{totalMarcas}</div>
           </div>
         </div>
 
@@ -91,12 +79,8 @@ export const Marcas = () => {
             <CheckCircleIcon className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Marcas Activas
-            </span>
-            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-              {marcasActivas}
-            </div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Marcas Activas</span>
+            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">{marcasActivas}</div>
           </div>
         </div>
 
@@ -105,12 +89,8 @@ export const Marcas = () => {
             <Inventory2OutlinedIcon className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Productos Vinculados
-            </span>
-            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-              {totalProductos ?? 0}
-            </div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Productos Vinculados</span>
+            <div className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">{totalProductos ?? 0}</div>
           </div>
         </div>
       </div>
@@ -137,14 +117,8 @@ export const Marcas = () => {
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500 dark:text-zinc-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">
-                        No se encontraron marcas
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-zinc-500">
-                        {buscador
-                          ? 'Prueba cambiando los términos de búsqueda'
-                          : 'No hay marcas registradas en el catálogo'}
-                      </p>
+                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">No se encontraron marcas</p>
+                      <p className="text-xs text-slate-500 dark:text-zinc-500">{buscador ? 'Prueba cambiando los términos de búsqueda' : 'No hay marcas registradas en el catálogo'}</p>
                     </div>
                   </td>
                 </tr>
@@ -155,7 +129,9 @@ export const Marcas = () => {
 
         {/* Footer de la tabla con contador */}
         <div className="px-4 py-3 bg-slate-50/50 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-          <span>Mostrando {marcasFiltradas?.length} de {marcas?.length} marcas</span>
+          <span>
+            Mostrando {marcasFiltradas?.length} de {marcas?.length} marcas
+          </span>
           <span>Catálogo de Fabricantes</span>
         </div>
       </div>

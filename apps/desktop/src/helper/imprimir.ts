@@ -6,6 +6,8 @@ export const imprimirPresupuesto = (presupuesto: Presupuesto, dolar: number) => 
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document;
+
+    console.log(doc, presupuesto, dolar)
 }
 
 export const imprimirRemito = {
@@ -20,8 +22,7 @@ export const imprimirVenta = (venta: Venta, dolar: number) => {
     const doc = iframe.contentWindow?.document;
 
 
-
-
+    console.log(doc, venta, dolar)
 
     
 }
