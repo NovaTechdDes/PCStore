@@ -1,6 +1,6 @@
 use futures_util::StreamExt;
 use std::io::Write;
-use tauri::Emitter;
+use tauri::{Emitter, Manager};
 
 #[derive(Clone, serde::Serialize)]
 struct DownloadProgressPayload {
@@ -11,6 +11,17 @@ struct DownloadProgressPayload {
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+fn toggle_devtools(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        if window.is_devtools_open() {
+            window.close_devtools();
+        } else {
+            window.open_devtools();
+        }
+    }
 }
 
 #[tauri::command]
@@ -83,7 +94,11 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![greet, download_and_install_update])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            download_and_install_update,
+            toggle_devtools
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
