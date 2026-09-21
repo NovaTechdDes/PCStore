@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '../layouts';
-import { NotFound, Productos, Marcas, Categoria, Proveedor, Ventas, Clientes } from '../pages/index';
+import { NotFound, Productos, Marcas, Categoria, Proveedor, Ventas, Clientes, Cajas } from '../pages/index';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +23,10 @@ export const router = createBrowserRouter([
       {
         path: 'productos',
         element: <Productos />,
+      },
+      {
+        path: 'cajas',
+        element: <Cajas />,
       },
       {
         path: 'marcas',
