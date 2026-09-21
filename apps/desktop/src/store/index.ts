@@ -5,3 +5,4 @@ export * from "./categoria.store";
 export * from "./proveedor.store";
 export * from "./venta.store";
 export * from "./cliente.store";
+export * from "./caja.store";

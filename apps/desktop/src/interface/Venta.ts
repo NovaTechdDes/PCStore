@@ -1,3 +1,5 @@
+import { Usuario } from "./Usuario";
+
 export interface Venta {
     Id: number;
     Fecha: string;
@@ -14,6 +16,18 @@ export interface Venta {
     ClieteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
+
+    detalleVenta: VentaDetalle[];
+    vendedor?: Usuario;
+}
+
+export interface VentaDetalle {
+    codProd: number;
+    producto: string;
+    serie: string;
+    rubro: string;
+    cantidad: number;
+    precio: number;
 }
 
 export interface CreateVenta {

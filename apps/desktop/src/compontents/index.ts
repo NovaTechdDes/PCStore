@@ -36,3 +36,7 @@ export * from './ventas/FooterVenta';
 export * from './clientes/DrawerClientes';
 export * from './clientes/ModalCliente';
 export * from './clientes/ClienteItem';
+
+
+// Caja
+export * from './caja/CajaItem'

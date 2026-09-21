@@ -9,3 +9,4 @@ export * from "./usuario.service";
 export * from "./cliente.service";
 export * from "./tipoTarjetas.service";
 export * from "./updater.service";
+export * from "./caja.service";
