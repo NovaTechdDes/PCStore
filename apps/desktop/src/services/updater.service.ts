@@ -1,12 +1,30 @@
-import { check } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
-import Swal from 'sweetalert2';
+import api from "./api.service";
+import { getServerUrl } from "./store.service";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
+import Swal from "sweetalert2";
 
 let hasCheckedForUpdates = false;
 
+interface CheckUpdateResponse {
+  updateAvailable: boolean;
+  currentVersion: string;
+  latestVersion: string;
+  releaseNotes?: string;
+  assetId?: number;
+  fileName?: string;
+  size?: number;
+}
+
+interface DownloadProgress {
+  downloaded: number;
+  total: number;
+}
+
 /**
- * Verifica si existe una nueva versión en GitHub Releases.
- * Se ejecuta únicamente una vez al iniciar la aplicación (a menos que se pase force = true).
+ * Verifica si existe una nueva versión consultando a tu backend.
+ * Se ejecuta únicamente al iniciar la aplicación (a menos que se pase force = true).
  */
 export const checkForAppUpdates = async (force = false): Promise<void> => {
   if (hasCheckedForUpdates && !force) {
@@ -15,49 +33,62 @@ export const checkForAppUpdates = async (force = false): Promise<void> => {
   hasCheckedForUpdates = true;
 
   try {
-    const update = await check();
+    const serverUrl = getServerUrl();
+    if (!serverUrl || serverUrl.trim() === "") {
+      return;
+    }
 
-    if (!update || !update.available) {
-      console.info('[Updater] La aplicación se encuentra en la última versión.');
+    let currentVersion = "0.0.0";
+    try {
+      currentVersion = await getVersion();
+    } catch {
+      currentVersion = "0.1.0";
+    }
+
+    // Consultar al backend propio (que tiene el token de GitHub protegido en su .env)
+    const response = await api.get<CheckUpdateResponse>("/updates/check", {
+      params: { currentVersion },
+    });
+
+    const data = response.data;
+    if (!data || !data.updateAvailable || !data.assetId) {
+      console.info("[Updater] La aplicación se encuentra en la última versión.");
       return;
     }
 
     // Preguntar al usuario si desea descargar la nueva versión
     const result = await Swal.fire({
-      title: '¡Nueva versión disponible!',
+      title: "¡Nueva versión disponible!",
       html: `
         <div style="text-align: left; font-size: 15px;">
           <p style="margin-bottom: 8px;">
-            Hay una nueva versión disponible: <strong style="color: #f59e0b;">v${update.version}</strong>
+            Hay una nueva versión disponible: <strong style="color: #f59e0b;">v${data.latestVersion}</strong>
           </p>
           ${
-            update.body
-              ? `<div style="max-height: 120px; overflow-y: auto; background: #f3f4f6; color: #374151; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin: 10px 0; border: 1px solid #e5e7eb; white-space: pre-wrap;">${update.body}</div>`
-              : ''
+            data.releaseNotes
+              ? `<div style="max-height: 120px; overflow-y: auto; background: #f3f4f6; color: #374151; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin: 10px 0; border: 1px solid #e5e7eb; white-space: pre-wrap;">${data.releaseNotes}</div>`
+              : ""
           }
           <p style="margin-top: 8px; color: #4b5563;">¿Deseas descargarla e instalarla ahora?</p>
         </div>
       `,
-      icon: 'info',
+      icon: "info",
       showCancelButton: true,
-      confirmButtonText: 'Descargar e instalar',
-      cancelButtonText: 'Más tarde',
-      confirmButtonColor: '#f59e0b',
-      cancelButtonColor: '#6b7280',
+      confirmButtonText: "Descargar e instalar",
+      cancelButtonText: "Más tarde",
+      confirmButtonColor: "#f59e0b",
+      cancelButtonColor: "#6b7280",
       allowOutsideClick: false,
     });
 
     if (!result.isConfirmed) {
-      console.info('[Updater] El usuario decidió actualizar más tarde.');
+      console.info("[Updater] El usuario decidió actualizar más tarde.");
       return;
     }
 
     // Mostrar modal con barra de progreso
-    let downloaded = 0;
-    let contentLength = 0;
-
     Swal.fire({
-      title: 'Descargando actualización...',
+      title: "Descargando actualización...",
       html: `
         <div style="margin: 10px 0;">
           <div id="updater-progress-text" style="margin-bottom: 10px; font-size: 13px; color: #4b5563;">
@@ -76,55 +107,48 @@ export const checkForAppUpdates = async (force = false): Promise<void> => {
       },
     });
 
-    await update.downloadAndInstall((event) => {
-      const textElem = document.getElementById('updater-progress-text');
-      const barElem = document.getElementById('updater-progress-bar');
+    // Escuchar el progreso en vivo emitido desde Rust
+    const unlisten = await listen<DownloadProgress>(
+      "update-download-progress",
+      (event) => {
+        const { downloaded, total } = event.payload;
+        const textElem = document.getElementById("updater-progress-text");
+        const barElem = document.getElementById("updater-progress-bar");
 
-      switch (event.event) {
-        case 'Started':
-          contentLength = event.data.contentLength || 0;
-          if (textElem && contentLength > 0) {
-            textElem.innerText = `0 MB de ${(contentLength / (1024 * 1024)).toFixed(1)} MB...`;
-          }
-          break;
-
-        case 'Progress': {
-          downloaded += event.data.chunkLength;
-          if (contentLength > 0) {
-            const percentage = Math.min(100, Math.round((downloaded / contentLength) * 100));
-            if (textElem) {
-              textElem.innerText = `${(downloaded / (1024 * 1024)).toFixed(1)} MB / ${(contentLength / (1024 * 1024)).toFixed(1)} MB (${percentage}%)`;
-            }
-            if (barElem) {
-              barElem.style.width = `${percentage}%`;
-            }
-          } else if (textElem) {
-            textElem.innerText = `${(downloaded / (1024 * 1024)).toFixed(1)} MB descargados...`;
-          }
-          break;
-        }
-
-        case 'Finished':
+        if (total > 0) {
+          const percentage = Math.min(
+            100,
+            Math.round((downloaded / total) * 100)
+          );
           if (textElem) {
-            textElem.innerText = 'Instalando actualización...';
+            textElem.innerText = `${(downloaded / (1024 * 1024)).toFixed(
+              1
+            )} MB de ${(total / (1024 * 1024)).toFixed(1)} MB (${percentage}%)`;
           }
-          break;
+          if (barElem) {
+            barElem.style.width = `${percentage}%`;
+          }
+        } else if (textElem) {
+          textElem.innerText = `${(downloaded / (1024 * 1024)).toFixed(
+            1
+          )} MB descargados...`;
+        }
       }
+    );
+
+    // URL completa para la descarga del instalador a través del backend
+    const downloadUrl = `${serverUrl}/PCStore/updates/download/${
+      data.assetId
+    }?fileName=${encodeURIComponent(data.fileName || "update.exe")}`;
+
+    // Descargar el archivo temporalmente y ejecutar el instalador
+    await invoke("download_and_install_update", {
+      downloadUrl,
+      fileName: data.fileName || "update.exe",
     });
 
-    // Notificar éxito y reiniciar la aplicación
-    await Swal.fire({
-      title: '¡Actualización lista!',
-      text: 'La nueva versión se instaló correctamente. La aplicación se reiniciará a continuación.',
-      icon: 'success',
-      confirmButtonText: 'Reiniciar ahora',
-      confirmButtonColor: '#f59e0b',
-      allowOutsideClick: false,
-    });
-
-    await relaunch();
+    unlisten();
   } catch (error) {
-    // Manejo seguro en modo dev o si no hay conexión
-    console.warn('[Updater] No se pudo verificar o aplicar la actualización:', error);
+    console.warn("[Updater] Error al verificar o descargar actualización:", error);
   }
 };
