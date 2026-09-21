@@ -30,13 +30,14 @@ export const checkForAppUpdates = async (force = false): Promise<void> => {
   if (hasCheckedForUpdates && !force) {
     return;
   }
-  hasCheckedForUpdates = true;
+  
 
   try {
     const serverUrl = getServerUrl();
     if (!serverUrl || serverUrl.trim() === "") {
       return;
     }
+    hasCheckedForUpdates = true;
 
     let currentVersion = "0.0.0";
     try {

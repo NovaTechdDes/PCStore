@@ -1,5 +1,5 @@
-import  { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useGlobalStore } from '../store';
 import { Login } from '../compontents/ui/Login';
 import { ServerSetup } from '../pages/App';
@@ -8,7 +8,6 @@ import { TopNavbar } from '../compontents';
 import AsideBar from '../compontents/ui/AsideBar';
 
 const RootLayout = () => {
-
   const { usuario } = useGlobalStore();
   const [loadingConfig, setLoadingConfig] = useState(true);
   const [hasServerURL, setHasServerURL] = useState(false);
@@ -23,7 +22,10 @@ const RootLayout = () => {
         const url = savedUrl || getServerUrl();
 
         if (url && url.trim() !== '') {
-          if (isMounted) setHasServerURL(true);
+          if (isMounted) {
+            setHasServerURL(true);
+            checkForAppUpdates();
+          }
         } else {
           if (isMounted) setHasServerURL(false);
         }
@@ -41,20 +43,15 @@ const RootLayout = () => {
     };
   }, []);
 
-  // Comprobar actualizaciones en GitHub Releases al iniciar la aplicación
-  useEffect(() => {
-    checkForAppUpdates();
-  }, []);
-
-  if(loadingConfig){
-    return(
-      <div  className="flex h-screen w-screen items-center justify-center bg-slate-100/80 dark:bg-[#111113]">
+  if (loadingConfig) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-100/80 dark:bg-[#111113]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
       </div>
-    )
+    );
   }
 
-   if (!hasServerURL) {
+  if (!hasServerURL) {
     return <ServerSetup onConfigured={() => setHasServerURL(true)} />;
   }
 
@@ -64,14 +61,14 @@ const RootLayout = () => {
     <div>
       <TopNavbar />
       {/* Tu Navbar / Layout aquí */}
-      <div className='flex'>
-        <AsideBar/>
+      <div className="flex">
+        <AsideBar />
         <main className="flex-1 min-w-0">
           <Outlet />
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RootLayout
+export default RootLayout;
