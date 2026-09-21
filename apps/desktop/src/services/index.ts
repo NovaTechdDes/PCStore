@@ -7,3 +7,5 @@ export * from "./store.service";
 export * from "./unidad.service";
 export * from "./usuario.service";
 export * from "./cliente.service";
+export * from "./tipoTarjetas.service";
+export * from "./updater.service";

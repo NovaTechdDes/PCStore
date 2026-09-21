@@ -4,6 +4,9 @@ export interface Venta {
     ClienteId: number;
     UsuarioId: number;
     Total: number; 
+    FormaPago: string;
+    TipoComprobante: string;
+    NumeroComprobante?: string;
     Activo: boolean;
 
 
@@ -18,6 +21,9 @@ export interface CreateVenta {
     clienteId: number,
     usuarioId: number;
     total: number;
+    formaPago: string;
+    tipoComprobante: string;
+    numeroComprobante?: string;
     activo: boolean
 
     clienteNombre: string;

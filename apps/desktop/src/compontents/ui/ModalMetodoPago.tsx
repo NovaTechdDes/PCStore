@@ -42,7 +42,7 @@ export const ModalMetodosPago = ({ isOpen, onClose, metodosPago = [], setMetodos
   const [transferenciaObs, setTransferenciaObs] = useState<string>('');
 
   // Formulario Tarjeta
-  const [tarjetaTipo, setTarjetaTipo] = useState<string>(tiposTarjetas?.tipos?.[0]._id || '');
+  const [tarjetaTipo, setTarjetaTipo] = useState<string>(tiposTarjetas?.[0]?.Id.toString() || '');
   const [tarjetaMonto, setTarjetaMonto] = useState<string>('');
   const [tarjetaCliente, setTarjetaCliente] = useState<string>(cliente ?? '');
   const [tarjetaTipoComprobante, setTarjetaTipoComprobante] = useState<string>(tipoComprobante ?? '');
@@ -67,19 +67,19 @@ export const ModalMetodosPago = ({ isOpen, onClose, metodosPago = [], setMetodos
   }, [cliente, tipoComprobante, domicilio, telefono]);
 
   useEffect(() => {
-    setTarjetaTipo(tiposTarjetas?.tipos?.[0]._id || '');
+    setTarjetaTipo(tiposTarjetas?.[0]?.Id.toString() || '');
   }, [tiposTarjetas]);
 
   if (!isOpen) return null;
   const handleAgregarMetodo = () => {
     if (tipoSeleccionado === 'efectivo') {
       const monto = Number(efectivoMonto);
-      if (!monto || monto <= 0) return;
+      if (!monto) return;
       setMetodosPago((prev) => [...prev, { tipo: 'efectivo', monto }]);
       setEfectivoMonto('');
     } else if (tipoSeleccionado === 'transferencia') {
       const monto = Number(transferenciaMonto);
-      if (!monto || monto <= 0) return;
+      if (!monto) return;
       setMetodosPago((prev) => [...prev, { tipo: 'transferencia', monto, observacion: transferenciaObs }]);
       setTransferenciaMonto('');
       setTransferenciaObs('');
@@ -283,7 +283,7 @@ export const ModalMetodosPago = ({ isOpen, onClose, metodosPago = [], setMetodos
                       onChange={(e) => setTarjetaTipo(e.target.value)}
                       className="w-full px-3 py-2 bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                     >
-                      {tiposTarjetas?.tipos?.map((t: TipoTarjeta) => (
+                      {tiposTarjetas?.map((t: TipoTarjeta) => (
                         <option key={t.Id} value={t.Id}>
                           {t.Nombre}
                         </option>

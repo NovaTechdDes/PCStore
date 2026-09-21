@@ -44,7 +44,6 @@ export const Ventas = () => {
 
   useEffect(() => {
     if (cliente) {
-    
       setNombre(cliente.Nombre);
       setCuit(cliente.Cuit);
       setSaldo(cliente.Saldo.toString() ?? '');
@@ -74,7 +73,7 @@ export const Ventas = () => {
   }, [facturado, setFacturado]);
 
   const handleAddVenta = async () => {
-    console.log("b")
+    console.log('b');
     if (!usuario || isPending || isPendingPresupuesto) return;
 
     if (productosCarrito.length === 0) return mensaje('Debe agregar productos', 'error');
@@ -125,19 +124,22 @@ export const Ventas = () => {
       mensaje('Debe ingresar el CUIT y la Condición de IVA', 'error');
       return;
     }
-    console.log("a")
     const venta: CreateVenta = {
       fecha: new Date().toISOString(),
       clienteId: ventaData.clienteId,
       usuarioId: usuario.Id,
       total: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
       activo: true,
+      formaPago: ventaData.tipoPago,
+      tipoComprobante: ventaData.tipoVenta,
 
       //Opcional
       clienteNombre: nombre,
       clienteTelefono: telefono,
       clienteDomicilio: direccion,
     };
+    console.log(venta);
+    return;
 
     const res = await mutateAsync({ venta, metodosPagos: metodosPago, productos: productosCarrito, facturado, descontarStock: true, esNotaCredito: ventaData.esNotaCredito });
 
@@ -164,10 +166,10 @@ export const Ventas = () => {
   };
 
   useEffect(() => {
-  if (isErrorClienteById) {
-    mensaje('El cliente no existe', 'error');
-  }
-}, [isErrorClienteById]);
+    if (isErrorClienteById) {
+      mensaje('El cliente no existe', 'error');
+    }
+  }, [isErrorClienteById]);
 
   return (
     <div className={`flex flex-col h-[calc(100vh-48px)] p-4 transition-colors duration-200 ${!facturado ? 'bg-black' : ''}`}>
@@ -267,7 +269,7 @@ export const Ventas = () => {
         }}
       /> */}
 
-       <ModalMetodosPago
+      <ModalMetodosPago
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         metodosPago={metodosPago}

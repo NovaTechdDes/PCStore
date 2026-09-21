@@ -157,11 +157,45 @@ export const inicializarClienteConsumidorFinal = async () => {
   }
 };
 
+export const inicializarTiposTarjetasPorDefecto = async () => {
+  try {
+    const pool = await getPool();
+    const tarjetas = ["VISA", "VISA DEBITO", "MASTERCARD"];
+
+    for (const nombre of tarjetas) {
+      const existe = await pool
+        .request()
+        .input("nombre", sql.NVarChar(50), nombre)
+        .query(
+          `SELECT Id, Nombre FROM TipoTarjetas WHERE UPPER(Nombre) = UPPER(@nombre)`
+        );
+
+      if (existe.recordset.length > 0) {
+        console.log(`ℹ️ El tipo de tarjeta '${nombre}' ya existe.`);
+        continue;
+      }
+
+      await pool
+        .request()
+        .input("nombre", sql.NVarChar(50), nombre)
+        .query(
+          `INSERT INTO TipoTarjetas (Nombre, Activo)
+           VALUES (@nombre, 1)`
+        );
+
+      console.log(`✅ Tipo de tarjeta '${nombre}' creado exitosamente.`);
+    }
+  } catch (error) {
+    console.error("❌ Error al inicializar los tipos de tarjetas:", error);
+  }
+};
+
 export const inicializarDatosPorDefecto = async () => {
   await inicializarProveedorAirComputer();
   await inicializarMarcaLogitech();
   await inicializarCategoriaMouses();
   await inicializarUnidadPorDefecto();
   await inicializarClienteConsumidorFinal();
+  await inicializarTiposTarjetasPorDefecto();
 };
 

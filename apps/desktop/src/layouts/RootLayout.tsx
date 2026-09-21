@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { useGlobalStore } from '../store';
 import { Login } from '../compontents/ui/Login';
 import { ServerSetup } from '../pages/App';
-import { getServerUrl, initAppStore } from '../services';
+import { getServerUrl, initAppStore, checkForAppUpdates } from '../services';
 import { TopNavbar } from '../compontents';
 import AsideBar from '../compontents/ui/AsideBar';
 
@@ -39,6 +39,11 @@ const RootLayout = () => {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  // Comprobar actualizaciones en GitHub Releases al iniciar la aplicación
+  useEffect(() => {
+    checkForAppUpdates();
   }, []);
 
   if(loadingConfig){

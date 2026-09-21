@@ -13,6 +13,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SellIcon from '@mui/icons-material/Sell';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 interface NavTooltipProps {
   title: React.ReactNode;
@@ -150,12 +151,18 @@ const AsideBar = () => {
       Icon: InventoryIcon,
       active: isActive('/productos'),
     },
+    {
+      to: '/cajas',
+      label: 'Cajas',
+      Icon: AccountBalanceIcon,
+      active: isActive('/cajas'),
+    },
   ];
 
   return (
     <aside
       className={`relative flex flex-col justify-between h-[calc(100vh-3rem)] bg-slate-50 dark:bg-[#111113] border-r border-slate-200/80 dark:border-zinc-800/80 transition-all duration-300 ease-in-out shrink-0 select-none ${
-        isCollapsed ? 'w-[70px]' : 'w-64'
+        isCollapsed ? 'w-17.5' : 'w-64'
       }`}
     >
       {/* Sección Superior: Header y Navegación */}
@@ -164,9 +171,7 @@ const AsideBar = () => {
         <div className={`py-3 px-3.5 border-b border-slate-200/70 dark:border-zinc-800/70 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isCollapsed ? (
             <>
-              <span className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase">
-                Menú Lateral
-              </span>
+              <span className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase">Menú Lateral</span>
               <NavTooltip title="Ocultar barra" disabled={false}>
                 <button
                   type="button"
@@ -201,11 +206,7 @@ const AsideBar = () => {
                 title={
                   <div className="flex items-center gap-2">
                     <span>{item.label}</span>
-                    {item.badge && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                        {item.badge}
-                      </span>
-                    )}
+                    {item.badge && <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">{item.badge}</span>}
                   </div>
                 }
                 disabled={!isCollapsed}
@@ -222,24 +223,18 @@ const AsideBar = () => {
                 >
                   <item.Icon
                     className={`w-5 h-5 transition-colors duration-200 shrink-0 ${
-                      item.active
-                        ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-600 dark:group-hover:text-zinc-300'
+                      item.active ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-600 dark:group-hover:text-zinc-300'
                     }`}
                   />
                   {!isCollapsed && (
                     <>
                       <span className="text-sm truncate flex-1">{item.label}</span>
                       {item.badge && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-                          {item.badge}
-                        </span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">{item.badge}</span>
                       )}
                     </>
                   )}
-                  {isCollapsed && item.badge && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-slate-50 dark:ring-[#111113]" />
-                  )}
+                  {isCollapsed && item.badge && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-slate-50 dark:ring-[#111113]" />}
                 </Link>
               </NavTooltip>
             ))}
@@ -277,29 +272,18 @@ const AsideBar = () => {
         )}
 
         {/* Botón de Cambio de Tema */}
-        <NavTooltip
-          title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-          disabled={!isCollapsed}
-        >
+        <NavTooltip title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'} disabled={!isCollapsed}>
           <button
             type="button"
             onClick={toggleTheme}
             className={`flex items-center rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-zinc-700/60 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-200/50 dark:hover:bg-zinc-800/60 transition-all duration-200 cursor-pointer ${
-              isCollapsed
-                ? 'justify-center w-10 h-10 mx-auto mb-1.5'
-                : 'justify-between w-full px-3.5 py-2 mb-1.5'
+              isCollapsed ? 'justify-center w-10 h-10 mx-auto mb-1.5' : 'justify-between w-full px-3.5 py-2 mb-1.5'
             }`}
             aria-label="Cambiar tema"
           >
             <div className="flex items-center gap-3">
-              {theme === 'dark' ? (
-                <LightModeIcon className="w-4 h-4 text-amber-400 shrink-0" />
-              ) : (
-                <DarkModeIcon className="w-4 h-4 text-slate-600 dark:text-zinc-400 shrink-0" />
-              )}
-              {!isCollapsed && (
-                <span className="text-xs font-medium">{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
-              )}
+              {theme === 'dark' ? <LightModeIcon className="w-4 h-4 text-amber-400 shrink-0" /> : <DarkModeIcon className="w-4 h-4 text-slate-600 dark:text-zinc-400 shrink-0" />}
+              {!isCollapsed && <span className="text-xs font-medium">{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>}
             </div>
           </button>
         </NavTooltip>
@@ -310,9 +294,7 @@ const AsideBar = () => {
             type="button"
             onClick={handleLogOut}
             className={`flex items-center rounded-xl border border-transparent hover:border-red-500/20 text-slate-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 transition-all duration-200 cursor-pointer ${
-              isCollapsed
-                ? 'justify-center w-10 h-10 mx-auto'
-                : 'justify-between w-full px-3.5 py-2'
+              isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'justify-between w-full px-3.5 py-2'
             }`}
             aria-label="Cerrar sesión"
           >

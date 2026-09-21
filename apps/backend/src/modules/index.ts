@@ -7,5 +7,5 @@ export { default as configuracionRoute } from './configuracion/configuracion.rou
 export { default as unidadesRoute } from './unidades/unidades.routes';
 export { default as movimientosRoute } from './movimientos/movimientos.routes';
 export { default as clientesRoute } from './clientes/clientes.route';
-
-   
+export { default as tipoTarjetasRoute } from './tipoTarjetas/tipoTarjetas.routes';
+export { default as ventasRoute } from './ventas/ventas.routes';

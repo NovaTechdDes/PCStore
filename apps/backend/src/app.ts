@@ -10,6 +10,8 @@ import {
   provedoresRoute,
   unidadesRoute,
   usuariosRoute,
+  tipoTarjetasRoute,
+  ventasRoute,
 } from "./modules";
 import { errorHandler } from "./middlewares/errorHandler";
 import path from "path";
@@ -36,6 +38,8 @@ app.use("/PCStore/usuarios", usuariosRoute);
 app.use("/PCStore/productos", productosRoute);
 app.use("/PCStore/unidades", unidadesRoute);
 app.use("/PCStore/movimientos", movimientosRoute);
+app.use("/PCStore/tipo-tarjetas", tipoTarjetasRoute);
+app.use("/PCStore/ventas", ventasRoute);
 
 app.use(errorHandler);
 

@@ -5,15 +5,23 @@ export const caracteristicaSchema = z.object({
     valor: z.string().min(1).max(150)
 });
 
+// Convierte 0, null o cadenas vacías en null / undefined
+const idOpcional = z.preprocess((val) => {
+    if (val === "" || val === null || val === undefined || Number(val) <= 0) {
+        return undefined;
+    }
+    return val;
+}, z.coerce.number().int().positive().optional());
+
 export const crearProductoSchema = z.object({
     codigoInterno: z.string().min(1, 'Requerido').max(50),
     codigoBarra: z.string().max(50).optional(),
     cod_fabrica: z.string().max(50).optional(),
     descripcion: z.string().min(1, 'Requerido').max(255),
-    marcaId: z.coerce.number().int().positive().optional(),
-    proveedorId: z.coerce.number().int().positive().optional(),
-    unidadId: z.coerce.number().int().positive().optional(),
-    categoriaId: z.coerce.number().int().positive().optional(),
+    marcaId: idOpcional,
+    proveedorId: idOpcional,
+    unidadId: idOpcional,
+    categoriaId: idOpcional,
     manejaSeries: z.coerce.boolean().optional().default(false), // 👈 AGREGAR
     costo: z.coerce.number().min(0).default(0),
     costoDolar: z.coerce.number().min(0).default(0),
@@ -28,10 +36,10 @@ export const actualizarProductoSchema = z.object({
     codigoBarra: z.string().max(50).optional(),
     cod_fabrica: z.string().max(50).optional(),
     descripcion: z.string().min(1).max(255).optional(),
-    marcaId: z.coerce.number().int().positive().optional(),
-    proveedorId: z.coerce.number().int().positive().optional(),
-    unidadId: z.coerce.number().int().positive().optional(),
-    categoriaId: z.coerce.number().int().positive().optional(),
+    marcaId: idOpcional,
+    proveedorId: idOpcional,
+    unidadId: idOpcional,
+    categoriaId: idOpcional,
     manejaSeries: z.coerce.boolean().optional(),
     costo: z.coerce.number().min(0).optional(),
     costoDolar: z.coerce.number().min(0).optional(),
