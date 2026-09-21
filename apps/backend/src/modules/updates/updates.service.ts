@@ -119,7 +119,9 @@ export const checkUpdate = async (
   };
 };
 
-export const fetchAssetStream = async (assetId: string | number) => {
+export const getAssetDownloadUrl = async (
+  assetId: string | number
+): Promise<string> => {
   const owner = process.env.GITHUB_REPO_OWNER || "NovaTechdDes";
   const repo = process.env.GITHUB_REPO_NAME || "PCStore";
 
@@ -135,16 +137,22 @@ export const fetchAssetStream = async (assetId: string | number) => {
 
   const url = `https://api.github.com/repos/${owner}/${repo}/releases/assets/${assetId}`;
 
+  // GitHub responde con 302 Found y Location apuntando al CDN (pre-signed URL de S3/Azure)
   const response = await fetch(url, {
     headers,
-    redirect: "follow",
+    redirect: "manual",
   });
 
-  if (!response.ok) {
-    throw new Error(
-      `Error al descargar asset de GitHub (${response.status}): ${response.statusText}`
-    );
+  if (response.status === 302) {
+    const location = response.headers.get("location");
+    if (location) {
+      return location;
+    }
   }
 
-  return response;
+  const errorText = await response.text();
+  throw new Error(
+    `Error al obtener enlace de descarga de GitHub (${response.status}): ${errorText}`
+  );
 };
+
