@@ -163,6 +163,12 @@ const AsideBar = () => {
       Icon: AccountBalanceIcon,
       active: isActive('/recibos'),
     },
+    {
+      to: '/cuenta',
+      label: 'Cuentas Corrientes',
+      Icon: AccountBalanceIcon,
+      active: isActive('/cuenta'),
+    },
   ];
 
   return (
