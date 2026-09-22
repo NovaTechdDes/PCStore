@@ -30,6 +30,7 @@ async fn download_and_install_update(
     download_url: String,
     file_name: String,
 ) -> Result<(), String> {
+    let _ = rustls::crypto::ring::default_provider().install_default();
     let client = reqwest::Client::new();
     let response = client
         .get(&download_url)
@@ -89,6 +90,7 @@ async fn download_and_install_update(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let _ = rustls::crypto::ring::default_provider().install_default();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
@@ -102,4 +104,7 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+
+
 

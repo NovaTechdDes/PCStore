@@ -139,9 +139,12 @@ export const checkForAppUpdates = async (force = false): Promise<void> => {
 
     try {
       // URL completa para la descarga del instalador a través del backend
-      const downloadUrl = `${serverUrl}/PCStore/updates/download/${
+      const cleanServerUrl = serverUrl.replace(/\/+$/, "");
+      const downloadUrl = `${cleanServerUrl}/PCStore/updates/download/${
         data.assetId
       }?fileName=${encodeURIComponent(data.fileName || "update.exe")}`;
+
+      console.log("[Updater] Iniciando descarga desde URL:", downloadUrl);
 
       // Descargar el archivo temporalmente y ejecutar el instalador
       await invoke("download_and_install_update", {
@@ -153,17 +156,20 @@ export const checkForAppUpdates = async (force = false): Promise<void> => {
     }
   } catch (error: any) {
     console.error("[Updater] Error al verificar o descargar actualización:", error);
-    Swal.fire({
-      title: "Error en la actualización",
-      text:
-        typeof error === "string"
-          ? error
-          : error?.message ||
-            "No se pudo completar la descarga. Por favor, verifica la conexión con el servidor.",
-      icon: "error",
-      confirmButtonColor: "#f59e0b",
-      confirmButtonText: "Entendido",
-    });
+    Swal.close();
+    setTimeout(() => {
+      Swal.fire({
+        title: "Error en la actualización",
+        text:
+          typeof error === "string"
+            ? error
+            : error?.message || JSON.stringify(error) ||
+              "No se pudo completar la descarga. Por favor, verifica la conexión con el servidor.",
+        icon: "error",
+        confirmButtonColor: "#f59e0b",
+        confirmButtonText: "Entendido",
+      });
+    }, 100);
   }
 };
 

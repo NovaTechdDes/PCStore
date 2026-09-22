@@ -29,7 +29,7 @@ export const handleDownloadAsset = async (
       return;
     }
 
-    const downloadUrl = await getAssetDownloadUrl(assetId);
+    const downloadUrl = await getAssetDownloadUrl(String(assetId));
     return res.redirect(downloadUrl);
   } catch (error) {
     console.error("[Updates Controller] Error al descargar asset:", error);

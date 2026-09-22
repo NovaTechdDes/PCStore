@@ -764,6 +764,7 @@ version = "0.1.6"
 dependencies = [
  "futures-util",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "tauri",

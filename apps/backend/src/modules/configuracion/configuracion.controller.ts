@@ -54,7 +54,7 @@ export const getConfiguracionPorClave = async (
 ) => {
   try {
     const { clave } = req.params;
-    const config = await configuracionService.obtenerConfiguracionPorClave(clave);
+    const config = await configuracionService.obtenerConfiguracionPorClave(String(clave));
     if (!config) {
       return res.status(404).json({
         ok: false,
@@ -72,7 +72,7 @@ export const putConfiguracion = async (req: Request, res: Response, next: NextFu
   try {
     const { clave } = req.params;
     const data = actualizarConfiguracionSchema.parse(req.body);
-    const configActualizada = await configuracionService.actualizarValorClave(clave, data.valor);
+    const configActualizada = await configuracionService.actualizarValorClave(String(clave), data.valor);
     res.status(200).json({
       ok: true,
       msg: `Configuración '${clave}' actualizada`,
