@@ -157,6 +157,12 @@ const AsideBar = () => {
       Icon: AccountBalanceIcon,
       active: isActive('/cajas'),
     },
+    {
+      to: '/recibos',
+      label: 'Recibos',
+      Icon: AccountBalanceIcon,
+      active: isActive('/recibos'),
+    },
   ];
 
   return (
