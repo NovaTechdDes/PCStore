@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 import { useGlobalStore } from '../../store';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import logoProar from '../../assets/Logo.png';
-import { login } from '../../services';
+import { login, getServerUrl } from '../../services';
 
-export const Login = () => {
+interface LoginProps {
+  onConfigureServer?: () => void;
+}
+
+export const Login = ({ onConfigureServer }: LoginProps) => {
   const { setUsuario } = useGlobalStore();
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const currentServerUrl = getServerUrl();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,9 +83,25 @@ export const Login = () => {
           </button>
         </form>
 
-        {/* Footer */}
-        <div className="py-4 px-8 bg-slate-50/50 dark:bg-zinc-900/40 border-t border-slate-100 dark:border-zinc-800/50 text-center">
-          <p className="text-xs text-slate-400 dark:text-zinc-500">Gestión Interna — PROAR</p>
+        {/* Footer con info y botón de cambiar servidor */}
+        <div className="py-3 px-6 bg-slate-50/50 dark:bg-zinc-900/40 border-t border-slate-100 dark:border-zinc-800/50 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400 max-w-[70%] truncate">
+            <DnsOutlinedIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="truncate" title={currentServerUrl || "No configurado"}>
+              {currentServerUrl ? currentServerUrl.replace(/^https?:\/\//, '') : 'Sin servidor'}
+            </span>
+          </div>
+
+          {onConfigureServer && (
+            <button
+              type="button"
+              onClick={onConfigureServer}
+              className="inline-flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-medium py-1 px-2 rounded-lg hover:bg-amber-500/10 transition-colors cursor-pointer"
+            >
+              <EditOutlinedIcon sx={{ fontSize: 14 }} />
+              <span>Cambiar</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

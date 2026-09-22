@@ -52,10 +52,16 @@ const RootLayout = () => {
   }
 
   if (!hasServerURL) {
-    return <ServerSetup onConfigured={() => setHasServerURL(true)} />;
+    return (
+      <ServerSetup
+        initialUrl={getServerUrl() || ''}
+        onConfigured={() => setHasServerURL(true)}
+        onCancel={getServerUrl() ? () => setHasServerURL(true) : undefined}
+      />
+    );
   }
 
-  if (!usuario) return <Login />;
+  if (!usuario) return <Login onConfigureServer={() => setHasServerURL(false)} />;
 
   return (
     <div>

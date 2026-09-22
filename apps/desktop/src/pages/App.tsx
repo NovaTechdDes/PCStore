@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import { setServerUrl } from "../services/store.service";
 
-export const ServerSetup = ({ onConfigured }: { onConfigured: () => void }) => {
-  const [url, setUrl] = useState("");
+export const ServerSetup = ({
+  onConfigured,
+  onCancel,
+  initialUrl = "",
+}: {
+  onConfigured: () => void;
+  onCancel?: () => void;
+  initialUrl?: string;
+}) => {
+  const [url, setUrl] = useState(initialUrl);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -42,14 +50,29 @@ export const ServerSetup = ({ onConfigured }: { onConfigured: () => void }) => {
           className="w-full p-3 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm mb-4 dark:text-white"
           required
           disabled={saving}
+          autoFocus
         />
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl font-semibold text-sm cursor-pointer"
-        >
-          {saving ? "Guardando..." : "Conectar y Continuar"}
-        </button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={saving}
+              className="w-1/3 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 rounded-xl font-semibold text-sm cursor-pointer disabled:opacity-50 transition-colors"
+            >
+              Cancelar
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={saving}
+            className={`${
+              onCancel ? "w-2/3" : "w-full"
+            } py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl font-semibold text-sm cursor-pointer transition-colors`}
+          >
+            {saving ? "Guardando..." : "Conectar y Continuar"}
+          </button>
+        </div>
       </form>
     </div>
   );
