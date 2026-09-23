@@ -154,6 +154,13 @@ Id INT IDENTITY(1,1) PRIMARY KEY,
 Fecha DATETIME NOT NULL DEFAULT GETDATE(),
 UsuarioId INT NOT NULL FOREIGN KEY REFERENCES Usuarios(Id),
 Total DECIMAL(18,2) NOT NULL DEFAULT 0,
+FormaPago NVARCHAR(20) NOT NULL DEFAULT 'Contado', -- Contado, CuentaCorriente
+TipoComprobante NVARCHAR(20) NOT NULL DEFAULT 'FacturaB', -- FacturaA, FacturaB, FacturaC, NotaCreditoA, NotaCreditoB, NotaCreditoC, Recibo
+NumeroComprobante NVARCHAR(30) NULL,
+ClienteId INT NULL,
+ClienteNombre NVARCHAR(150) NOT NULL DEFAULT 'Consumidor Final',
+ClienteDomicilio NVARCHAR(200) NULL,
+ClienteTelefono NVARCHAR(50) NULL;
 Activo BIT NOT NULL DEFAULT 1
 );
 GO

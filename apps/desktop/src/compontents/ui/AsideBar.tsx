@@ -157,18 +157,18 @@ const AsideBar = () => {
       Icon: AccountBalanceIcon,
       active: isActive('/cajas'),
     },
-    {
-      to: '/recibos',
-      label: 'Recibos',
-      Icon: AccountBalanceIcon,
-      active: isActive('/recibos'),
-    },
-    {
-      to: '/cuenta',
-      label: 'Cuentas Corrientes',
-      Icon: AccountBalanceIcon,
-      active: isActive('/cuenta'),
-    },
+    // {
+    //   to: '/recibos',
+    //   label: 'Recibos',
+    //   Icon: AccountBalanceIcon,
+    //   active: isActive('/recibos'),
+    // },
+    // {
+    //   to: '/cuenta',
+    //   label: 'Cuentas Corrientes',
+    //   Icon: AccountBalanceIcon,
+    //   active: isActive('/cuenta'),
+    // },
   ];
 
   return (
