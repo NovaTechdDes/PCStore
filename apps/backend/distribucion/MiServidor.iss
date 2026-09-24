@@ -21,7 +21,7 @@ Source: "nssm.exe"; DestDir: "{app}"
 Source: "instaladores\node.msi"; DestDir: "{tmp}\instaladores"
 Source: "instaladores\cloudflared.exe"; DestDir: "{tmp}\instaladores"
 Source: "..\package.json"; DestDir: "{app}"
-Source: "backend\*"; DestDir: "{app}"; Flags: recursesubdirs 
+Source: "..\dist\*"; DestDir: "{app}\dist"; Flags: recursesubdirs createallsubdirs
 Source: "..\.env"; DestDir: "{app}"; Flags: ignoreversion
 
 ; ==============================

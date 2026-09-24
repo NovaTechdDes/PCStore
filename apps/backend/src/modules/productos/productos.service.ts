@@ -285,6 +285,11 @@ export const actualizarProducto = async (
 
   const precio = await calcularPrecio(costo, costoDolar, iva, ganancia);
 
+  const proveedorId = data.proveedorId !== undefined ? data.proveedorId : actual.ProveedorId;
+  const marcaId = data.marcaId !== undefined ? data.marcaId : actual.MarcaId;
+  const unidadId = data.unidadId !== undefined ? data.unidadId : actual.UnidadId;
+  const categoriaId = data.categoriaId !== undefined ? data.categoriaId : actual.CategoriaId;
+
   const result = await pool
     .request()
     .input("id", sql.Int, id)
@@ -292,11 +297,11 @@ export const actualizarProducto = async (
     .input("codigoBarra", sql.NVarChar(50), data.codigoBarra ?? null)
     .input("cod_fabrica", sql.NVarChar(50), data.cod_fabrica ?? null)
     .input("descripcion", sql.NVarChar(255), data.descripcion ?? null)
-    .input("marcaId", sql.Int, data.marcaId ?? null)
-    .input("proveedorId", sql.Int, data.proveedorId ?? null)
-    .input("unidadId", sql.Int, data.unidadId ?? null)
+    .input("marcaId", sql.Int, marcaId)
+    .input("proveedorId", sql.Int, proveedorId)
+    .input("unidadId", sql.Int, unidadId)
     .input("manejaSeries", sql.Bit, data.manejaSeries !== undefined ? (data.manejaSeries ? 1 : 0) : null)
-    .input("CategoriaId", sql.Int, data.categoriaId ?? null)
+    .input("CategoriaId", sql.Int, categoriaId)
     .input("costo", sql.Decimal(18, 2), costo)
     .input("costoDolar", sql.Decimal(18, 2), costoDolar)
     .input("iva", sql.Decimal(5, 2), iva)
@@ -307,11 +312,11 @@ export const actualizarProducto = async (
         CodigoBarra = COALESCE(@codigoBarra, CodigoBarra),
         cod_fabrica = COALESCE(@cod_fabrica, cod_fabrica),
         Descripcion = COALESCE(@descripcion, Descripcion),
-        MarcaId = COALESCE(@marcaId, MarcaId),
-        ProveedorId = COALESCE(@proveedorId, ProveedorId),
-        UnidadId = COALESCE(@unidadId, UnidadId),
+        MarcaId = @marcaId,
+        ProveedorId = @proveedorId,
+        UnidadId = @unidadId,
+        CategoriaId = @CategoriaId,
         ManejaSeries = COALESCE(@manejaSeries, ManejaSeries),
-        CategoriaId = COALESCE(@CategoriaId, CategoriaId),
         Costo = @costo,
         CostoDolar = @costoDolar,
         IVA = @iva,
