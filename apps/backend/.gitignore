@@ -1,4 +1,7 @@
 .env
 dist
-distribucion
+backend
+instaladores
+output
+nssm.exe
 uploads
