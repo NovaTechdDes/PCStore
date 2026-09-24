@@ -65,9 +65,16 @@ export const postProducto = async (req: Request, res: Response, next: NextFuncti
             body.caracteristicas = JSON.parse(body.caracteristicas);
         };
 
+        // 1. Validamos los campos de texto que Multer coloco en req.body
         const data = crearProductoSchema.parse(body);
-        const archivos = (req.files as Express.Multer.File[]) ?? [];
-        const producto = await productosService.crearProducto(data, archivos);
+
+        // 2. Extraemos el archivo si vino una nueva imagen
+        const archivo = req.file;
+
+        // 3. Verificamos si se solicito eliminar la imagen actual
+        const eliminarImagen = req.body.eliminarImagen === 'true';
+
+        const producto = await productosService.crearProducto(data, archivo, eliminarImagen);
         res.status(201).json({ok: true, data: producto});
     } catch (error) {
         console.error(error);

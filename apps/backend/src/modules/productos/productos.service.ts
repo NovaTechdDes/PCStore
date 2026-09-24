@@ -174,10 +174,10 @@ export const obtenerProductoParaVenta = async (codigo: string) => {
   return producto
 }
 
-
 export const crearProducto = async (
   data: CrearProductoDTO,
-  archivos: Express.Multer.File[],
+  archivo: Express.Multer.File | undefined,
+  eliminarImagen: boolean
 ) => {
   const pool = await getPool();
   const transaction = pool.transaction();
@@ -244,21 +244,25 @@ export const crearProducto = async (
     }
 
     //Insertar Imagenes
-    for (let i = 0; i < archivos.length; i++) {
-      const rutaRelativa = `/uploads/productos/${archivos[i].filename}`;
+    console.log(archivo)
+    if(archivo){
+      const rutaRelativa = `/uploads/productos/${archivo.filename}`;
       await new sql.Request(transaction)
         .input("productoId", sql.Int, producto.Id)
         .input("ruta", sql.NVarChar(255), rutaRelativa)
-        .input("esPrincipal", sql.Bit, i === 0 ? 1 : 0)
+        .input("esPrincipal", sql.Bit, 1)
         .query(
           "INSERT INTO ProductoImagenes (ProductoId, RutaArchivo, EsPrincipal) VALUES (@productoId, @ruta, @esPrincipal)",
         );
+        
     }
+
+     
     await transaction.commit();
     return obtenerProductoPorId(producto.Id);
   } catch (error) {
     await transaction.rollback();
-    archivos.forEach((f) => fs.unlink(f.path, () => {}));
+    if(archivo) fs.unlink(archivo.path, () => {});
     throw error;
   }
 };

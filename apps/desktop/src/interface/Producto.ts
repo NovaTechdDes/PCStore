@@ -69,6 +69,8 @@ export interface CrearProductoDTO {
   stock?: number;
   caracteristicas?: CaracteristicaDTO[];
   imagen?: File | string | null;
+    eliminarImagen?: boolean;
+
 }
 
 export interface ActualizarProductoDTO {

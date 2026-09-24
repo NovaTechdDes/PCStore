@@ -10,7 +10,7 @@ router.get('/:id', verificarToken, getProductoPorId)
 router.get('/codigoInterno/:codigoInterno', verificarToken, getProductoPorCodigoInterno)
 router.get('/venta/:codigo', verificarToken, getProductoVenta)
 
-router.post('/', verificarToken, uploadImagenesProducto.array('imagenes', 6), postProducto);
+router.post('/', verificarToken, uploadImagenesProducto.single('imagen'), postProducto);
 router.put('/:id', verificarToken, uploadImagenesProducto.single('imagen'), putProducto)
 router.delete('/:id', verificarToken, deleteProducto)
 

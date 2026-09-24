@@ -18,8 +18,33 @@ export const getProductos = async (): Promise<Producto[]> => {
 
 export const crearProducto = async (producto: CrearProductoDTO): Promise<{ok: boolean, msg: string}> => {
   try {
-    const { data } = await api.post('/productos', producto)
+
+    // Si contiene un archivo File o indicador para eliminar imagen, enviamos formdata
+    if(producto.imagen instanceof File || producto?.eliminarImagen){
+      const formData = new FormData();
+      Object.entries(producto).forEach(([key, val]) => {
+        if (val !== undefined && val !== null) {
+          if (key === 'imagen' && val instanceof File) {
+            formData.append('imagen', val);
+          } else if (typeof val === 'object') {
+            formData.append(key, JSON.stringify(val));
+          } else {
+            formData.append(key, String(val));
+          }
+        }
+      });
+      const { data } = await api.post('/productos', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (data.ok) {
+        return { ok: true, msg: 'Producto creado correctamente' };
+      }
+      return { ok: false, msg: data.msg || 'Error al crear el producto' };
+    }
     
+    const { data } = await api.post('/productos', producto)
     if(data.ok){
       return {ok: true, msg: 'Producto creado correctamente'};
     }
@@ -42,6 +67,8 @@ export const actualizarProducto = async (producto: ActualizarProductoDTO): Promi
         if (val !== undefined && val !== null) {
           if (key === 'imagen' && val instanceof File) {
             formData.append('imagen', val);
+          } else if (typeof val === 'object') {
+            formData.append(key, JSON.stringify(val));
           } else {
             formData.append(key, String(val));
           }
