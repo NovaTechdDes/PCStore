@@ -1,19 +1,18 @@
-import { useState, useMemo } from "react";
-import {
-  Cabecera,
-  ProductosItem,
-  Loading,
-  ModalAddMovimiento,
-  ModalProducto,
-} from "../compontents";
-import { useProductos } from "../hooks";
+import { useState, useMemo } from 'react';
+import { Cabecera, ProductosItem, Loading, ModalAddMovimiento, ModalProducto, ModalMovimiento, ModalViewImg } from '../compontents';
+import { useProductos } from '../hooks';
+import { useProductoStore } from '../store';
+import { getProductImageUrl, getProductoMainImage } from '../helper';
 
 export const Productos = () => {
-  const [buscador, setBuscador] = useState("");
-  const [viewModalAddProducto, setViewModalAddProducto] =
-    useState<boolean>(false);
-  const [viewModalMovimiento, setViewModalMovimiento] =
-    useState<boolean>(false);
+  const [buscador, setBuscador] = useState('');
+  const [viewModalAddProducto, setViewModalAddProducto] = useState<boolean>(false);
+  const [viewModalMovimiento, setViewModalMovimiento] = useState<boolean>(false);
+  const [viewMovs, setViewMovs] = useState<boolean>(false);
+  const [viewImg, setViewImg] = useState<boolean>(false);
+
+  const { productoSeleccionado } = useProductoStore();
+
   const { data, isLoading } = useProductos();
 
   const productosFiltrados = useMemo(() => {
@@ -28,9 +27,12 @@ export const Productos = () => {
         item.CodigoBarra?.toLowerCase().includes(query) ||
         item.cod_fabrica?.toLowerCase().includes(query) ||
         item.MarcaNombre?.toLowerCase().includes(query) ||
-        item.CategoriaNombre?.toLowerCase().includes(query),
+        item.CategoriaNombre?.toLowerCase().includes(query)
     );
   }, [data, buscador]);
+
+  const imgPath = productoSeleccionado ? getProductoMainImage(productoSeleccionado) : null;
+  const imgUrl = imgPath ? getProductImageUrl(imgPath) : '';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 p-6 space-y-6 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
@@ -67,10 +69,7 @@ export const Productos = () => {
               {isLoading ? (
                 <>
                   {Array.from({ length: 6 }).map((_, idx) => (
-                    <tr
-                      key={idx}
-                      className="animate-pulse border-b border-slate-200 dark:border-zinc-800/60"
-                    >
+                    <tr key={idx} className="animate-pulse border-b border-slate-200 dark:border-zinc-800/60">
                       <td className="py-4 px-4">
                         <div className="h-4 w-16 bg-slate-200 dark:bg-zinc-800 rounded" />
                       </td>
@@ -100,25 +99,18 @@ export const Productos = () => {
                   <ProductosItem
                     key={elem.Id || elem.CodigoInterno}
                     item={elem}
+                    setViewImg={setViewImg}
+                    setViewModalMovs={setViewMovs}
                     setShowAddMovModal={setViewModalMovimiento}
                     setShowModalProducto={setViewModalAddProducto}
                   />
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="py-12 text-center text-slate-500 dark:text-zinc-500"
-                  >
+                  <td colSpan={7} className="py-12 text-center text-slate-500 dark:text-zinc-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">
-                        No se encontraron productos
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-zinc-500">
-                        {buscador
-                          ? "Prueba cambiando los términos de búsqueda"
-                          : "No hay productos registrados en el sistema"}
-                      </p>
+                      <p className="text-base font-medium text-slate-700 dark:text-zinc-300">No se encontraron productos</p>
+                      <p className="text-xs text-slate-500 dark:text-zinc-500">{buscador ? 'Prueba cambiando los términos de búsqueda' : 'No hay productos registrados en el sistema'}</p>
                     </div>
                   </td>
                 </tr>
@@ -132,20 +124,16 @@ export const Productos = () => {
           <div className="absolute inset-0 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-[2px] flex items-center justify-center">
             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-3">
               <Loading size="sm" showText={false} />
-              <span className="text-sm font-medium text-slate-800 dark:text-zinc-200">
-                Cargando productos...
-              </span>
+              <span className="text-sm font-medium text-slate-800 dark:text-zinc-200">Cargando productos...</span>
             </div>
           </div>
         )}
       </div>
 
-      {viewModalAddProducto && (
-        <ModalProducto onClose={() => setViewModalAddProducto(false)} />
-      )}
-      {viewModalMovimiento && (
-        <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />
-      )}
+      {viewModalAddProducto && <ModalProducto onClose={() => setViewModalAddProducto(false)} />}
+      {viewMovs && <ModalMovimiento setShowModal={setViewMovs} />}
+      {viewModalMovimiento && <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />}
+      {viewImg && <ModalViewImg setShowModal={setViewImg} alt={productoSeleccionado?.Descripcion || ''} imgUrl={imgUrl || ''} />}
     </div>
   );
 };

@@ -37,6 +37,7 @@ export const ModalProducto = ({ onClose }: Props) => {
   const [imagenPreview, setImagenPreview] = useState<string | null>(initialResolvedUrl);
   const [imagenOriginalUrl] = useState<string | null>(initialResolvedUrl);
   const [imagenEliminada, setImagenEliminada] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
 
   // Limpiar memoria de previews blob
   useEffect(() => {
@@ -119,8 +120,8 @@ export const ModalProducto = ({ onClose }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.descripcion.trim()) {
-      mensaje('La descripción del producto es obligatoria', 'error');
+    if (!formData.descripcion.trim() || !formData.codigoInterno) {
+      setError(true);
       return;
     }
 
@@ -257,6 +258,7 @@ export const ModalProducto = ({ onClose }: Props) => {
                   onChange={(e) => setFormData({ ...formData, codigoInterno: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                 />
+                {error && !formData.codigoInterno.trim() && <p className="text-red-500 text-xs mt-1">El código es obligatorio</p>}
               </div>
               <div className="sm:col-span-6">
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
@@ -270,6 +272,7 @@ export const ModalProducto = ({ onClose }: Props) => {
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 />
+                {error && !formData.descripcion.trim() && <p className="text-red-500 text-xs mt-1">La descripción es obligatoria</p>}
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Código Barra</label>

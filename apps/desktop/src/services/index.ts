@@ -10,3 +10,4 @@ export * from "./cliente.service";
 export * from "./tipoTarjetas.service";
 export * from "./updater.service";
 export * from "./caja.service";
+export * from "./movProducto.service";

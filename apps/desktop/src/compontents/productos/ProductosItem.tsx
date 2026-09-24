@@ -11,11 +11,17 @@ interface Props {
   item: Producto;
   setShowAddMovModal: (value: boolean) => void;
   setShowModalProducto: (value: boolean) => void;
+  setViewModalMovs: (value: boolean) => void;
+  setViewImg: (value: boolean) => void;
 }
 
-export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }: Props) => {
+export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto, setViewModalMovs, setViewImg }: Props) => {
   const { setProducto } = useProductoStore();
-  const handleViewMovs = () => {};
+
+  const handleViewMovs = () => {
+    setViewModalMovs(true);
+    setProducto(item);
+  };
 
   const handleEdit = () => {
     setProducto(item);
@@ -33,17 +39,13 @@ export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }
     item.Stock <= 0
       ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
       : item.Stock <= 5
-      ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-      : 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
+        ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+        : 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
 
   return (
     <tr className="hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 border-b border-slate-200 dark:border-zinc-800/60 text-sm">
-      <td className="py-3.5 px-4 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">
-        {item.CodigoInterno}
-      </td>
-      <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">
-        {item.CodigoBarra || <span className="text-slate-400 dark:text-zinc-600">-</span>}
-      </td>
+      <td className="py-3.5 px-4 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">{item.CodigoInterno}</td>
+      <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">{item.CodigoBarra || <span className="text-slate-400 dark:text-zinc-600">-</span>}</td>
       <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-zinc-100">
         <div className="flex items-center gap-3">
           {imgUrl ? (
@@ -51,6 +53,10 @@ export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }
               src={imgUrl}
               alt={item.Descripcion}
               className="w-9 h-9 rounded-lg object-contain bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/70 shrink-0"
+              onClick={() => {
+                setProducto(item);
+                setViewImg(true);
+              }}
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
               }}
@@ -62,23 +68,15 @@ export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }
           )}
           <div className="min-w-0">
             <div className="truncate">{item.Descripcion}</div>
-            {item.CategoriaNombre && (
-              <span className="text-[11px] text-slate-500 dark:text-zinc-500 font-normal">{item.CategoriaNombre}</span>
-            )}
+            {item.CategoriaNombre && <span className="text-[11px] text-slate-500 dark:text-zinc-500 font-normal">{item.CategoriaNombre}</span>}
           </div>
         </div>
       </td>
       <td className="py-3.5 px-4 whitespace-nowrap">
-        <span
-          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${stockColor}`}
-        >
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${stockColor}`}>
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              item.Stock <= 0
-                ? 'bg-red-500 dark:bg-red-400 animate-pulse'
-                : item.Stock <= 5
-                ? 'bg-amber-500 dark:bg-amber-400'
-                : 'bg-emerald-500 dark:bg-emerald-400'
+              item.Stock <= 0 ? 'bg-red-500 dark:bg-red-400 animate-pulse' : item.Stock <= 5 ? 'bg-amber-500 dark:bg-amber-400' : 'bg-emerald-500 dark:bg-emerald-400'
             }`}
           />
           {item.Stock} u.
@@ -96,12 +94,10 @@ export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }
           <span className="text-slate-400 dark:text-zinc-600">-</span>
         )}
       </td>
-      <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">
-        {item.cod_fabrica || <span className="text-slate-400 dark:text-zinc-600">-</span>}
-      </td>
+      <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">{item.cod_fabrica || <span className="text-slate-400 dark:text-zinc-600">-</span>}</td>
       <td className="px-6 py-4 text-right">
         <div className="flex items-center justify-end gap-1">
-           <button
+          <button
             className="p-1.5 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
             onClick={handleAddMov}
             title="Agregar Movimiento"
@@ -117,7 +113,10 @@ export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }
             <VisibilityIcon sx={{ fontSize: 18, color: '#16a34a' }} />
           </button>
 
-          <button onClick={handleEdit} className="p-1.5 text-slate-500 hover:text-amber-600 dark:text-zinc-400 dark:hover:text-amber-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer">
+          <button
+            onClick={handleEdit}
+            className="p-1.5 text-slate-500 hover:text-amber-600 dark:text-zinc-400 dark:hover:text-amber-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+          >
             <EditIcon sx={{ fontSize: 18 }} />
           </button>
         </div>

@@ -10,3 +10,4 @@ export * from './usePresupuesto';
 export * from './useTipoTarjeta'
 export * from './useDebounce'
 export * from './useCajas'
+export * from './useMovimiento'

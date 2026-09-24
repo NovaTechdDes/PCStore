@@ -13,6 +13,9 @@ export * from "./productos/ModalAddMovimiento";
 export * from "./productos/ModalProducto";
 export * from "./productos/DrawerProductos";
 export * from "./productos/ProductoImagenUploader";
+export * from "./productos/ModalMovimiento";
+export * from "./productos/MovimientoItem";
+export * from "./productos/ModalViewImg";
 
 //Marcas
 export * from './marcas/MarcaItem'

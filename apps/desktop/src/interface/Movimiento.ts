@@ -1,12 +1,15 @@
 export interface Movimiento {
-    productoId: number;
-    tipo: string;
-    cantidad: number;
-    referencia?: string;
+    ProductoId: number;
+    Tipo: string;
+    Cantidad: number;
+    Referencia?: string;
     usuarioId?: string;
-    numeroFactura?: string;
-    tipoVenta?: string;
-    cliente?: number;
+    Fecha: Date;
+    Precio: number;
+    }
+
+export interface MovimientoBackend extends Movimiento{
+    Id: string;
 }
 
 export interface AjustarStockDTO {
