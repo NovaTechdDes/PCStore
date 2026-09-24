@@ -41,6 +41,7 @@ export interface Producto {
 
   caracteristicas?: ProductoCaracteristica[];
   imagenes?: ProductoImagen[];
+  imagen?: string | null;
 }
 
 export interface CaracteristicaDTO {
@@ -67,9 +68,12 @@ export interface CrearProductoDTO {
 
   stock?: number;
   caracteristicas?: CaracteristicaDTO[];
+  imagen?: File | string | null;
 }
 
 export interface ActualizarProductoDTO {
+  Id?: number;
+  id?: number;
   codigoInterno?: string;
   codigoBarra?: string;
   descripcion?: string;
@@ -87,6 +91,8 @@ export interface ActualizarProductoDTO {
   precio?: number;
 
   stock?: number;
+  imagen?: File | string | null;
+  eliminarImagen?: boolean;
 }
 
 export interface FiltrosProductoDTO {

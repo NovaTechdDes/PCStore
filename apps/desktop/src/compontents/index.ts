@@ -12,6 +12,7 @@ export * from "./productos/ProductosItem";
 export * from "./productos/ModalAddMovimiento";
 export * from "./productos/ModalProducto";
 export * from "./productos/DrawerProductos";
+export * from "./productos/ProductoImagenUploader";
 
 //Marcas
 export * from './marcas/MarcaItem'

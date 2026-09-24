@@ -60,17 +60,26 @@ export const listarProductos = async (filtros: FiltrosProductoDTO) => {
   const where = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : "";
 
   const result = await request.query(`
-        SELECT p.*, m.Nombre AS MarcaNombre, c.Nombre as CategoriaNombre, pr.Nombre AS ProveedorNombre, u.Nombre AS UnidadNombre
+        SELECT p.*, m.Nombre AS MarcaNombre, c.Nombre as CategoriaNombre, pr.Nombre AS ProveedorNombre, u.Nombre AS UnidadNombre, img.RutaArchivo AS Imagen
         FROM Productos p
         LEFT JOIN Marcas m ON m.Id = p.MarcaId
         LEFT JOIN Proveedores pr ON pr.Id = p.ProveedorId
         LEFT JOIN Categorias c ON c.Id = p.CategoriaId
         LEFT JOIN UnidadesMedida u ON u.id = p.UnidadId
+        OUTER APPLY (
+          SELECT TOP 1 pi.RutaArchivo
+          FROM ProductoImagenes pi
+          WHERE pi.ProductoId = p.Id
+          ORDER BY pi.EsPrincipal DESC, pi.Id ASC
+        ) img
         ${where}
         ORDER BY p.Descripcion
     `);
 
-  return result.recordset;
+  return result.recordset.map((p) => ({
+    ...p,
+    imagen: p.Imagen ?? null
+  }));
 };
 
 export const obtenerProductoPorId = async (id: Number) => {
@@ -104,10 +113,15 @@ export const obtenerProductoPorId = async (id: Number) => {
       "SELECT Id, RutaArchivo, EsPrincipal FROM ProductoImagenes WHERE ProductoId = @id",
     );
 
+     const principal = imagenesResult.recordset.find((img: any) => img.EsPrincipal)?.RutaArchivo 
+    ?? imagenesResult.recordset[0]?.RutaArchivo 
+    ?? null;
+
   return {
     ...producto,
     caracteristicas: caracteristicasResult.recordset,
     imagenes: imagenesResult.recordset,
+    imagen: principal,
   };
 };
 
@@ -123,8 +137,21 @@ export const obtenerProductoPorCodigoInterno = async (codigo: string) => {
 
   const producto = productoResult.recordset[0];
   if (!producto) return null;
+
+    const imagenesResult = await pool
+    .request()
+    .input("id", sql.Int, producto.Id)
+    .query(
+      "SELECT Id, RutaArchivo, EsPrincipal FROM ProductoImagenes WHERE ProductoId = @id ORDER BY EsPrincipal DESC, Id ASC",
+    );
+
+  const principal = imagenesResult.recordset.find((img: any) => img.EsPrincipal)?.RutaArchivo 
+    ?? imagenesResult.recordset[0]?.RutaArchivo 
+    ?? null;
   return {
     ...producto,
+    imagenes: imagenesResult.recordset,
+    imagen: principal,
   };
 };
 
@@ -239,6 +266,8 @@ export const crearProducto = async (
 export const actualizarProducto = async (
   id: number,
   data: ActualizarProductoDTO,
+  archivo: Express.Multer.File | undefined,
+  eliminarImagen: boolean,
 ) => {
   const pool = await getPool();
 
@@ -268,8 +297,7 @@ export const actualizarProducto = async (
     .input("costoDolar", sql.Decimal(18, 2), costoDolar)
     .input("iva", sql.Decimal(5, 2), iva)
     .input("ganancia", sql.Decimal(5, 2), ganancia)
-    .input("precio", sql.Decimal(18, 2), precio)
-    .input("stock", sql.Int, data.stock ?? null).query(`
+    .input("precio", sql.Decimal(18, 2), precio).query(`
       UPDATE Productos SET
         CodigoInterno = COALESCE(@codigoInterno, CodigoInterno),
         CodigoBarra = COALESCE(@codigoBarra, CodigoBarra),
@@ -284,13 +312,41 @@ export const actualizarProducto = async (
         CostoDolar = @costoDolar,
         IVA = @iva,
         Ganancia = @ganancia,
-        Precio = @precio,
-        Stock = COALESCE(@stock, Stock)
+        Precio = @precio
       OUTPUT INSERTED.*
       WHERE Id = @id
     `);
 
-  return result.recordset[0] ?? null;
+    if(archivo){
+      if(actual.imagenes && actual.imagenes.length > 0){
+        for(const img of actual.imagenes){
+          const rutaFisica = path.join(process.cwd(), img.RutaArchivo.replace(/^\//, ""));
+          fs.unlink(rutaFisica, () => {});
+        }
+
+        await pool.request().input('productoId', sql.Int, id).query("DELETE FROM ProductoImagenes WHERE ProductoId = @productoId");
+      }
+
+      const rutaRelativa = `/uploads/productos/${archivo.filename}`;
+      await pool.request()
+        .input("productoId", sql.Int, id)
+        .input("ruta", sql.NVarChar(255), rutaRelativa)
+        .input("esPrincipal", sql.Bit, 1)
+        .query("INSERT INTO ProductoImagenes (ProductoId, RutaArchivo, EsPrincipal) VALUES (@productoId, @ruta, @esPrincipal)");
+    }else if (eliminarImagen){
+      if (actual.imagenes && actual.imagenes.length > 0) {
+      for (const img of actual.imagenes) {
+        const rutaFisica = path.join(process.cwd(), img.RutaArchivo.replace(/^\//, ""));
+        fs.unlink(rutaFisica, () => {});
+      }
+      await pool
+        .request()
+        .input("productoId", sql.Int, id)
+        .query("DELETE FROM ProductoImagenes WHERE ProductoId = @productoId");
+    }
+    }
+
+  return obtenerProductoPorId(id);
 };
 
 

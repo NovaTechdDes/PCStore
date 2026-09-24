@@ -101,6 +101,7 @@ export const Productos = () => {
                     key={elem.Id || elem.CodigoInterno}
                     item={elem}
                     setShowAddMovModal={setViewModalMovimiento}
+                    setShowModalProducto={setViewModalAddProducto}
                   />
                 ))
               ) : (

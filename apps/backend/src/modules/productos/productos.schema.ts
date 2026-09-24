@@ -44,8 +44,7 @@ export const actualizarProductoSchema = z.object({
     costo: z.coerce.number().min(0).optional(),
     costoDolar: z.coerce.number().min(0).optional(),
     iva: z.coerce.number().min(0).optional(),
-    ganancia: z.coerce.number().min(0).optional(),
-    stock: z.coerce.number().min(0).optional(),
+    ganancia: z.coerce.number().min(0).optional()
 });
 
 export const actualizarStockSchema = z.object({

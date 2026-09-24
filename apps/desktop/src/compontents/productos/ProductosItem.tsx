@@ -1,32 +1,33 @@
 import { Producto } from '../../interface';
 
-
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
+import ImageIcon from '@mui/icons-material/Image';
 import { useProductoStore } from '../../store';
+import { getProductImageUrl, getProductoMainImage } from '../../helper';
 
 interface Props {
   item: Producto;
   setShowAddMovModal: (value: boolean) => void;
+  setShowModalProducto: (value: boolean) => void;
 }
 
+export const ProductosItem = ({ item, setShowAddMovModal, setShowModalProducto }: Props) => {
+  const { setProducto } = useProductoStore();
+  const handleViewMovs = () => {};
 
-
-
-const handleEdit = () => {
-
-}
-
-export const ProductosItem = ({ item, setShowAddMovModal }: Props) => {
-  const { setProducto } = useProductoStore()
-  const handleViewMovs = () => {
-  }
-  
-  const handleAddMov = () => {
-    setShowAddMovModal(true)
-    setProducto(item)
+  const handleEdit = () => {
+    setProducto(item);
+    setShowModalProducto(true);
   };
+
+  const handleAddMov = () => {
+    setShowAddMovModal(true);
+    setProducto(item);
+  };
+  const imgPath = getProductoMainImage(item);
+  const imgUrl = imgPath ? getProductImageUrl(imgPath) : null;
 
   const stockColor =
     item.Stock <= 0
@@ -44,10 +45,28 @@ export const ProductosItem = ({ item, setShowAddMovModal }: Props) => {
         {item.CodigoBarra || <span className="text-slate-400 dark:text-zinc-600">-</span>}
       </td>
       <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-zinc-100">
-        <div>{item.Descripcion}</div>
-        {item.CategoriaNombre && (
-          <span className="text-[11px] text-slate-500 dark:text-zinc-500 font-normal">{item.CategoriaNombre}</span>
-        )}
+        <div className="flex items-center gap-3">
+          {imgUrl ? (
+            <img
+              src={imgUrl}
+              alt={item.Descripcion}
+              className="w-9 h-9 rounded-lg object-contain bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/70 shrink-0"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-800 flex items-center justify-center text-slate-400 dark:text-zinc-500 shrink-0">
+              <ImageIcon sx={{ fontSize: 18 }} />
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="truncate">{item.Descripcion}</div>
+            {item.CategoriaNombre && (
+              <span className="text-[11px] text-slate-500 dark:text-zinc-500 font-normal">{item.CategoriaNombre}</span>
+            )}
+          </div>
+        </div>
       </td>
       <td className="py-3.5 px-4 whitespace-nowrap">
         <span
@@ -80,8 +99,8 @@ export const ProductosItem = ({ item, setShowAddMovModal }: Props) => {
       <td className="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">
         {item.cod_fabrica || <span className="text-slate-400 dark:text-zinc-600">-</span>}
       </td>
-      <td className='px-6 py-4 text-rigth'>
-        <div className='className="flex items-center justify-end gap-1"'>
+      <td className="px-6 py-4 text-right">
+        <div className="flex items-center justify-end gap-1">
            <button
             className="p-1.5 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
             onClick={handleAddMov}

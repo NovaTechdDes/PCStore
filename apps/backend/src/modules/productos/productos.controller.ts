@@ -78,8 +78,17 @@ export const postProducto = async (req: Request, res: Response, next: NextFuncti
 export const putProducto = async (req:Request, res:Response, next:NextFunction)=>{
     try {
         const id = Number(req.params.id);
+        
+        // 1. Validamos los campos de texto que Multer coloco en req.body
         const data =  actualizarProductoSchema.parse(req.body);
-        const producto = await productosService.actualizarProducto(id, data);
+
+        // 2. Extraemos el archivo si vino una nueva Imagen
+        const archivo = req.file;
+
+        // 3. Verificamos si se solicito eliminar la imagen actual
+        const eliminarImagen = req.body.eliminarImagen === 'true';
+
+        const producto = await productosService.actualizarProducto(id, data, archivo, eliminarImagen);
 
         if(!producto){
             return res.status(404).json({

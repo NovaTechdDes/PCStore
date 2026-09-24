@@ -11,7 +11,7 @@ router.get('/codigoInterno/:codigoInterno', verificarToken, getProductoPorCodigo
 router.get('/venta/:codigo', verificarToken, getProductoVenta)
 
 router.post('/', verificarToken, uploadImagenesProducto.array('imagenes', 6), postProducto);
-router.put('/:id', verificarToken, putProducto)
+router.put('/:id', verificarToken, uploadImagenesProducto.single('imagen'), putProducto)
 router.delete('/:id', verificarToken, deleteProducto)
 
 router.post(

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../ui/Loading';
-import { startCrearProducto, useDatos } from '../../hooks';
+import { startCrearProducto, startActualizarProducto, useDatos } from '../../hooks';
 import { useProductoStore } from '../../store';
-import { mensaje } from '../../helper';
-import { Categoria, CrearProductoDTO, Marca, Provedor, UnidadMedida } from '../../interface';
+import { getProductImageUrl, getProductoMainImage, mensaje } from '../../helper';
+import { Categoria, CrearProductoDTO, ActualizarProductoDTO, Marca, Provedor, UnidadMedida } from '../../interface';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import BadgeIcon from '@mui/icons-material/Badge';
 import { handleFormEnter } from '../../helper/handleFormEnter';
 import { getCodigoProducto } from '../../services';
+import { ProductoImagenUploader } from './ProductoImagenUploader';
 
 interface Props {
   onClose: () => void;
@@ -24,9 +25,55 @@ export const ModalProducto = ({ onClose }: Props) => {
 
   const { productoSeleccionado, setProducto } = useProductoStore();
 
-  //   const { mutateAsync: mutateAsyncActualizar, isPending: isPendingActualizar } = startActualizarProducto();
+  const { mutateAsync: mutateAsyncActualizar, isPending: isPendingActualizar } = startActualizarProducto();
 
   const { mutateAsync: mutateAsyncCrear, isPending: isPendingCrear } = startCrearProducto();
+
+  // Estados para la imagen del producto
+  const initialImgPath = getProductoMainImage(productoSeleccionado);
+  const initialResolvedUrl = initialImgPath ? getProductImageUrl(initialImgPath) : null;
+
+  const [imagenFile, setImagenFile] = useState<File | null>(null);
+  const [imagenPreview, setImagenPreview] = useState<string | null>(initialResolvedUrl);
+  const [imagenOriginalUrl] = useState<string | null>(initialResolvedUrl);
+  const [imagenEliminada, setImagenEliminada] = useState<boolean>(false);
+
+  // Limpiar memoria de previews blob
+  useEffect(() => {
+    return () => {
+      if (imagenPreview && imagenPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagenPreview);
+      }
+    };
+  }, [imagenPreview]);
+
+  const handleSelectImage = (file: File) => {
+    if (imagenPreview && imagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagenPreview);
+    }
+    setImagenFile(file);
+    setImagenEliminada(false);
+    const objectUrl = URL.createObjectURL(file);
+    setImagenPreview(objectUrl);
+  };
+
+  const handleRemoveImage = () => {
+    if (imagenPreview && imagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagenPreview);
+    }
+    setImagenFile(null);
+    setImagenPreview(null);
+    setImagenEliminada(true);
+  };
+
+  const handleRestoreOriginal = () => {
+    if (imagenPreview && imagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagenPreview);
+    }
+    setImagenFile(null);
+    setImagenPreview(imagenOriginalUrl);
+    setImagenEliminada(false);
+  };
 
   const [formData, setFormData] = useState<CrearProductoDTO>({
     codigoInterno: productoSeleccionado?.CodigoInterno || '',
@@ -62,6 +109,9 @@ export const ModalProducto = ({ onClose }: Props) => {
   };
 
   const handleClose = () => {
+    if (imagenPreview && imagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagenPreview);
+    }
     onClose();
     setProducto(null);
   };
@@ -90,19 +140,29 @@ export const ModalProducto = ({ onClose }: Props) => {
       stock: Number(formData.stock),
     };
 
-    // if (productoSeleccionado) {
-    //   const res = await mutateAsyncActualizar(productoParseado);
+    if (productoSeleccionado) {
+      const payload: ActualizarProductoDTO = {
+        Id: productoSeleccionado.Id,
+        ...productoParseado,
+        imagen: imagenFile,
+        eliminarImagen: imagenEliminada,
+      };
 
-    //   if (res.ok) {
-    //     mensaje("Producto actualizado exitosamente!", "success");
-    //     handleClose();
-    //   } else {
-    //     mensaje(res.msg || "Error al actualizar el Producto", "error");
-    //   }
-    //   return;
-    // }
+      const res = await mutateAsyncActualizar(payload);
 
-    const res = await mutateAsyncCrear(productoParseado);
+      if (res.ok) {
+        mensaje('Producto actualizado exitosamente!', 'success');
+        handleClose();
+      } else {
+        mensaje(res.msg || 'Error al actualizar el Producto', 'error');
+      }
+      return;
+    }
+
+    const res = await mutateAsyncCrear({
+      ...productoParseado,
+      imagen: imagenFile,
+    });
 
     if (res.ok) {
       mensaje('Producto cargado exitosamente!', 'success');
@@ -334,6 +394,18 @@ export const ModalProducto = ({ onClose }: Props) => {
             </div>
           </div>
 
+          {/* Sección: Imagen del Producto */}
+          <ProductoImagenUploader
+            imagenPreview={imagenPreview}
+            imagenFile={imagenFile}
+            imagenOriginalUrl={imagenOriginalUrl}
+            imagenEliminada={imagenEliminada}
+            onSelectImage={handleSelectImage}
+            onRemoveImage={handleRemoveImage}
+            onRestoreOriginal={handleRestoreOriginal}
+            isModifying={Boolean(productoSeleccionado)}
+          />
+
           {/* Sección: Precios */}
           <div className="border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-4 relative pt-5">
             <span className="absolute -top-2.5 left-3 bg-white dark:bg-[#18181b] px-2 text-xs font-bold text-amber-600 dark:text-amber-400">Precios</span>
@@ -454,10 +526,10 @@ export const ModalProducto = ({ onClose }: Props) => {
             </button>
             <button
               type="submit"
-              disabled={isPendingCrear}
+              disabled={isPendingCrear || isPendingActualizar}
               className="flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-amber-500/20 cursor-pointer disabled:opacity-50"
             >
-              {isPendingCrear ? (
+              {isPendingCrear || isPendingActualizar ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
