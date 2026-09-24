@@ -5,7 +5,7 @@ import * as ventasService from "./ventas.service";
 
 export const postVenta = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
+        
         const data = createVentaSchema.parse(req.body);
         const venta = await ventasService.createVenta(data, req.usuario!.id);
         if(!venta){

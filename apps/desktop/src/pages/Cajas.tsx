@@ -5,29 +5,25 @@ import { Cabecera, CajaItem, Loading } from '../compontents';
 import { Venta } from '../interface';
 
 export const Cajas = () => {
+  const [tipo, setTipo] = useState<'CD' | 'PP' | 'CC' | 'RC'>('CD');
+
+
   const { desde, hasta, setDesde, setHasta, buscador, setBuscador } = useCajaStore();
   const [desactivados, setDesactivados] = useState<boolean>(false);
-  const { data, isLoading } = useCajas(desde, hasta, desactivados);
+  const { data, isLoading } = useCajas(desde, hasta, tipo);
 
-  const [tipo, setTipo] = useState<'CD' | 'PP' | 'CC' | 'RC'>('CD');
   const [ventasAMostrar, setVentasAMostrar] = useState([]);
 
-  const { ventas = [], recibos = [], presupuestos = [] } = data || { ventas: [], recibos: [], presupuestos: [] };
-
   useEffect(() => {
-    if (tipo === 'CD') {
-      const aux = ventas.filter((venta: Venta) => venta.TipoComprobante === 'CD');
-      setVentasAMostrar(aux);
-    } else if (tipo === 'PP') {
-      const aux = presupuestos;
-      setVentasAMostrar(aux);
-    } else if (tipo === 'CC') {
-      const aux = ventas.filter((venta: Venta) => venta.TipoComprobante === 'CC');
-      setVentasAMostrar(aux);
-    } else {
-      setVentasAMostrar(recibos);
+    if (data) {
+      if (tipo === 'CD') {
+        const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'Contado');
+        console.log(aux)
+        setVentasAMostrar(aux);
+      }
     }
   }, [tipo, data]);
+  
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">

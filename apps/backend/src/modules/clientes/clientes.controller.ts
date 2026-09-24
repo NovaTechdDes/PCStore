@@ -16,7 +16,6 @@ export const getClientes = async (req: Request, res: Response, next: NextFunctio
 export const getClientePorId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
-        console.log(id)
         const cliente = await clientesService.obtenerClientePorId(id);
         if(!cliente){
             return res.status(404).json({ok: false, msg: 'Cliente no encontrado'})

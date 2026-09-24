@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {  activarCaja, desactivarCaja, getCajaForDay } from "../services/caja.service"
 
-export const useCajas = (desde: string, hasta: string, desactivados: boolean) => {
+export const useCajas = (desde: string, hasta: string, tipo: string) => {
     return useQuery({
-        queryKey: ['caja', desde, hasta, desactivados],
-        queryFn: () => getCajaForDay(desde, hasta, desactivados),
+        queryKey: ['caja', desde, hasta, tipo],
+        queryFn: () => getCajaForDay(desde, hasta, tipo),
         refetchOnMount: true,
         refetchOnWindowFocus: false,
         enabled: !!desde && !!hasta

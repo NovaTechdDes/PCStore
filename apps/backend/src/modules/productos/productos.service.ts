@@ -130,7 +130,7 @@ export const obtenerProductoPorCodigoInterno = async (codigo: string) => {
 
 export const obtenerProductoParaVenta = async (codigo: string) => {
   const pool = await getPool();
-  console.log(codigo)
+  
 
   const result = await pool.request().input('codigo', sql.NVarChar(50), codigo)
   .query(`

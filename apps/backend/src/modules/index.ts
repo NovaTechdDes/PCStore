@@ -9,4 +9,5 @@ export { default as movimientosRoute } from './movimientos/movimientos.routes';
 export { default as clientesRoute } from './clientes/clientes.route';
 export { default as tipoTarjetasRoute } from './tipoTarjetas/tipoTarjetas.routes';
 export { default as ventasRoute } from './ventas/ventas.routes';
-export { default as updatesRoute } from './updates/updates.routes';
+export { default as updatesRoute } from './updates/updates.routes';
+export { default as cajasRoute } from './cajas/cajas.routes';

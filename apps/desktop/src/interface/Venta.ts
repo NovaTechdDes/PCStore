@@ -13,21 +13,22 @@ export interface Venta {
 
 
     // Datos Clientes
-    ClieteNombre: string;
+    ClienteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
+    NombreUsuario: string;
 
-    detalleVenta: VentaDetalle[];
+    detalles: VentaDetalle[];
     vendedor?: Usuario;
 }
 
 export interface VentaDetalle {
-    codProd: number;
-    producto: string;
-    serie: string;
-    rubro: string;
-    cantidad: number;
-    precio: number;
+    CodigoInterno: number;
+    ProductoDescripcion: string;
+    Serie: string;
+    Rubro: string;
+    Cantidad: number;
+    PrecioUnitario: number;
 }
 
 export interface CreateVenta {

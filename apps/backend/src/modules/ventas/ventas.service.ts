@@ -5,7 +5,7 @@ import { CreateVentaDTO } from "./ventas.schema";
 export const createVenta = async (data: CreateVentaDTO, usuarioId: number) => {
     if(!usuarioId) return null;
 
-    console.log(typeof data.venta.fecha)
+    
     
     const pool = await getPool();
     const transaction = pool.transaction();
@@ -96,7 +96,7 @@ export const createVenta = async (data: CreateVentaDTO, usuarioId: number) => {
                 const seriesList: string[] = Array.isArray(prod.series) ? prod.series : typeof  prod.series === 'string' ? prod.series.split(/[\n,]+/).map((s: string) => s.trim()).filter(Boolean) : [];
 
                 for(const nroSerie of seriesList){
-                    console.log(nroSerie)
+                    
                     const bajaResult = await new sql.Request(transaction)
                     .input('MovimientoId', sql.Int, mov.recordset[0].Id)
                     .input('ProductoId', sql.Int, prod.id)

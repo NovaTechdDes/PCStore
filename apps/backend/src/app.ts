@@ -13,6 +13,7 @@ import {
   tipoTarjetasRoute,
   ventasRoute,
   updatesRoute,
+  cajasRoute,
 } from "./modules";
 import { errorHandler } from "./middlewares/errorHandler";
 import path from "path";
@@ -42,6 +43,7 @@ app.use("/PCStore/movimientos", movimientosRoute);
 app.use("/PCStore/tipo-tarjetas", tipoTarjetasRoute);
 app.use("/PCStore/ventas", ventasRoute);
 app.use("/PCStore/updates", updatesRoute);
+app.use("/PCStore/cajas", cajasRoute);
 
 app.use(errorHandler);
 

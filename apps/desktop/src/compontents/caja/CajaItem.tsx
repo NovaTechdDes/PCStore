@@ -81,7 +81,7 @@ export const CajaItem = ({ venta }: Props) => {
     }
   };
 
-  const hasMovimientos = venta.detalleVenta && venta.detalleVenta.length > 0;
+  const hasMovimientos = venta.detalles && venta.detalles.length > 0;
 
   return (
     <React.Fragment>
@@ -105,18 +105,24 @@ export const CajaItem = ({ venta }: Props) => {
             >
               {isOpen ? <KeyboardArrowDownIcon className="w-5 h-5 text-amber-500" /> : <KeyboardArrowRightIcon className="w-5 h-5" />}
             </button>
-            <span>{venta.Fecha}</span>
+            <span>{venta.Fecha.slice(0, 10)}</span>
           </div>
         </td>
-        <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-zinc-100">{venta.ClieteNombre}</td>
+        <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-zinc-100">{venta.ClienteNombre}</td>
 
         <td className="py-3.5 px-4">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             {venta.TipoComprobante}
           </span>
         </td>
+        <td className="py-3.5 px-4">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            {venta.FormaPago}
+          </span>
+        </td>
         <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">${Number(venta.Total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
-        <td className="py-3.5 px-4 text-slate-700 dark:text-zinc-300 font-medium text-xs">{venta.vendedor?.NombreUsuario || '-'}</td>
+        <td className="py-3.5 px-4 text-slate-700 dark:text-zinc-300 font-medium text-xs">{venta.NombreUsuario || '-'}</td>
+        
         {/* Acciones */}
         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-end gap-1">
@@ -154,7 +160,7 @@ export const CajaItem = ({ venta }: Props) => {
                 <Inventory2OutlinedIcon className="w-4 h-4 text-amber-500" />
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-200">Movimientos / Artículos de la Venta</span>
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold ml-auto border border-amber-300/50 dark:border-amber-500/30">
-                  {venta.detalleVenta?.length || 0} ítems
+                  {venta.detalles?.length || 0} ítems
                 </span>
               </div>
 
@@ -167,25 +173,26 @@ export const CajaItem = ({ venta }: Props) => {
                       <tr className="text-[11px] font-bold text-slate-700 dark:text-zinc-400 uppercase tracking-wider border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900/60">
                         <th className="py-2.5 px-3">{venta.TipoComprobante === 'Recibo' ? 'Fecha' : 'Producto / Servicio'}</th>
                         <th className="py-2.5 px-3">{venta.TipoComprobante === 'Recibo' ? 'Comprobante' : 'N° Serie'}</th>
-                        <th className="py-2.5 px-3">{venta.TipoComprobante === 'Recibo' ? 'Numero' : 'Rubro'}</th>
+                        
                         <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Pagado' : 'Cantidad'}</th>
                         <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Saldo' : 'Precio Unit.'}</th>
+                        <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Saldo' : 'Subtotal'}</th>
                       </tr>
                     </thead>
 
                     <tbody className="divide-y divide-slate-200 dark:divide-zinc-800/60 text-xs">
-                      {(venta.detalleVenta as VentaDetalle[])?.map((mov, index) => {
-                        const subtotal = (mov.cantidad || 0) * (mov.precio || 0);
+                      {(venta.detalles as VentaDetalle[])?.map((mov, index) => {
+                        const subtotal = (mov.Cantidad || 0) * (mov.PrecioUnitario || 0);
                         return (
                           <tr key={mov.Id || index} className="hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors">
-                            <td className="py-2.5 px-3 font-mono text-slate-600 dark:text-zinc-400 font-medium">{mov.codProd || '-'}</td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-zinc-200">{mov.producto}</td>
-                            <td className="py-2.5 px-3 font-mono text-amber-700 dark:text-amber-400 font-bold">{mov.serie || '-'}</td>
-                            <td className="py-2.5 px-3 text-slate-600 dark:text-zinc-400">{mov.rubro || '-'}</td>
-                            <td className="py-2.5 px-3 text-right font-semibold text-slate-800 dark:text-zinc-200">{mov.cantidad}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-600 dark:text-zinc-400 font-medium">{mov.CodigoInterno  || '-'} - {mov.ProductoDescripcion}</td>
+                            {/* <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-zinc-200">{}</td> */}
+                            <td className="py-2.5 px-3 font-mono text-amber-700 dark:text-amber-400 font-bold">{mov.Serie || '-'}</td>
+                            
+                            <td className="py-2.5 px-3 text-right font-semibold text-slate-800 dark:text-zinc-200">{mov.Cantidad.toFixed(2)}</td>
                             <td className="py-2.5 px-3 text-right font-medium text-slate-700 dark:text-zinc-300">
                               $
-                              {mov.precio?.toLocaleString('es-AR', {
+                              {mov.PrecioUnitario?.toLocaleString('es-AR', {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
