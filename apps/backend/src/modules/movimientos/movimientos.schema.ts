@@ -26,9 +26,9 @@ export const ajustarStockSchema = z.object({
     descripcion: z.string().optional(),
     series: z.array(
         z.object({
-            nro_serie: z.string().min(1).max(100),
-            proveedorId: z.coerce.number().int(),
-            numeroFactura: z.string().max(50)
+             nro_serie: z.string().max(100).optional().nullable().transform(val => val?.trim() || null),
+            proveedorId: z.coerce.number().int().optional().nullable(),
+            numeroFactura: z.string().max(50).optional().nullable()
         })
     ).optional().default([])
 })

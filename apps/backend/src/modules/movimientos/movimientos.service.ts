@@ -42,7 +42,7 @@ export const crearMovimientos = async (data: CrearMovimientosDTO, usuarioId: num
             await new sql.Request(transaction)
             .input('movimientoId', sql.Int, movimiento.id)
             .input('productoId', sql.Int, data.productoId)
-            .input('numeroSerie', sql.NVarChar(100), numeroSerie)
+            .input('numeroSerie', sql.NVarChar(100), numeroSerie || null)
             .query(
                 `INSERT INTO Series(MovimientoId, ProductoId, NumeroSerie)
                 VALUES(@movimientoId, @productoId, @numeroSerie)`
@@ -166,14 +166,7 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
             }
         }
 
-         // 3. Validación de consistencia si el producto maneja series
-        const cantAbsoluta = Math.abs(data.cant);
-        if (producto.ManejaSeries && data.series.length !== cantAbsoluta) {
-            throw {
-                status: 400,
-                msg: `El producto maneja números de serie: debes indicar exactamente ${cantAbsoluta} serie(s) (enviaste ${data.series.length})`
-            };
-        }
+       
 
         const movResult = await new sql.Request(transaction)
         .input('productoId', sql.Int, data.productoId)
@@ -193,7 +186,7 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
                 await new sql.Request(transaction)
                     .input("movimientoId", sql.Int, movimiento.Id)
                     .input("productoId", sql.Int, producto.Id)
-                    .input("numeroSerie", sql.NVarChar(100), nro_serie)
+                    .input("numeroSerie", sql.NVarChar(100), nro_serie || null) 
                     .input("numeroFactura", sql.NVarChar(50), numeroFactura ?? null)
                     .input("provedorId", sql.Int, proveedorId ?? null)
 
@@ -202,25 +195,7 @@ export const ajustarStock = async (data: AjustarStockDTO, usuarioId: number) => 
                     VALUES (@movimientoId, @productoId, @numeroSerie, @numeroFactura, @provedorId)
                     `);
                 }
-        } else if (data.cant < 0 && data.series.length > 0) {
-            // === SALIDA / RESTA: Se dan de baja las series existentes ===
-            for (const { nro_serie } of data.series) {
-                const bajaResult = await new sql.Request(transaction)
-                    .input("productoId", sql.Int, producto.Id)
-                    .input("numeroSerie", sql.NVarChar(100), nro_serie)
-                    .query(`
-                        UPDATE Series 
-                        SET Activo = 0 
-                        OUTPUT INSERTED.Id
-                        WHERE ProductoId = @productoId AND NumeroSerie = @numeroSerie AND Activo = 1
-                    `);
-                if (bajaResult.recordset.length === 0) {
-                    throw {
-                        status: 400,
-                        msg: `El número de serie "${nro_serie}" no está disponible en stock o ya fue dado de baja`
-                    };
-                }
-            }
+        
         }
 
     await new sql.Request(transaction)

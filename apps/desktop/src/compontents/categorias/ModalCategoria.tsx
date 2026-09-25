@@ -16,7 +16,7 @@ export const ModalCategoria = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    activo: false,
+    activo: true,
   });
 
   const cerrarModal = () => {

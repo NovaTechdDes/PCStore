@@ -51,7 +51,7 @@ export const Marcas = () => {
     );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 p-6 space-y-6 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
+    <div className="min-h-[calc(100vh-100px)] bg-slate-50 dark:bg-zinc-950 p-6 space-y-6 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
       {/* Cabecera superior estándar del sistema */}
       <Cabecera
         titulo="Gestión de Marcas"
@@ -97,7 +97,7 @@ export const Marcas = () => {
 
       {/* Contenedor principal de la Tabla de Marcas */}
       <div className="relative bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden backdrop-blur-xs transition-colors duration-200">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto h-[42vh]">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-100/80 dark:bg-zinc-800/50 border-b border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">
