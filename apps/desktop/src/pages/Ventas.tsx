@@ -73,7 +73,6 @@ export const Ventas = () => {
   }, [facturado, setFacturado]);
 
   const handleAddVenta = async () => {
-    console.log('b');
     if (!usuario || isPending || isPendingPresupuesto) return;
 
     if (productosCarrito.length === 0) return mensaje('Debe agregar productos', 'error');
@@ -145,7 +144,8 @@ export const Ventas = () => {
       mensaje('Venta cargada correctamente', 'success');
 
       setMetodosPago([]);
-      clearProductosCarrito();
+      resetVenta();
+      reiniciarDatosCliente();
 
       if (ventaData.impresion && res.venta) {
         imprimirVenta(res.venta, 1);
@@ -157,10 +157,22 @@ export const Ventas = () => {
 
   const handleCancelar = async () => {
     if (productosCarrito.length > 0 && usuario) {
-      setVentaData({ ...ventaData, clienteId: 1 });
+      resetVenta();
       setMetodosPago([]);
-      clearProductosCarrito();
+      reiniciarDatosCliente();
     }
+  };
+
+  const reiniciarDatosCliente = () => {
+    setNombre('');
+    setCuit('');
+    setSaldo('');
+    setTelefono('');
+    setLocalidad('');
+    setDireccion('');
+    setCondicionFacturacion('');
+    setCondicionIva('');
+    setObservaciones('');
   };
 
   useEffect(() => {
@@ -258,14 +270,7 @@ export const Ventas = () => {
         }}
       />
 
-      <DrawerProductos
-        isOpen={isDrawerOpenProductos}
-        onClose={() => setIsDrawerOpenProductos(false)}
-        onSelectProducto={(id: string) => {
-          setCodigo(id);
-          setIsDrawerOpenProductos(false);
-        }}
-      />
+      <DrawerProductos isOpen={isDrawerOpenProductos} onClose={() => setIsDrawerOpenProductos(false)} />
 
       <ModalMetodosPago
         isOpen={isModalOpen}

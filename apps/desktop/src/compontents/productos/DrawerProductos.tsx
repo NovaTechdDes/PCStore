@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -10,16 +10,31 @@ import { DialogCantidad } from '../ui/DialogCantidad';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSelectProducto?: (id: string) => void;
 }
 
-export const DrawerProductos = ({ isOpen, onClose, onSelectProducto }: Props) => {
+export const DrawerProductos = ({ isOpen, onClose }: Props) => {
   const [busqueda, setBusqueda] = useState('');
   const [condicion, setCondicion] = useState('descripcion');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: productos } = useProductos();
+
+  const productosFiltrados = useMemo(() => {
+    if (!productos) return [];
+    if (!busqueda) return productos;
+
+    return productos.filter((producto) => {
+      switch (condicion) {
+        case 'descripcion':
+          return producto.Descripcion.toLowerCase().includes(busqueda.toLowerCase());
+        case 'marca':
+          return producto.MarcaNombre?.toLowerCase().includes(busqueda.toLowerCase());
+        case 'codigo':
+          return producto.Id.toString().includes(busqueda.toLowerCase());
+      }
+    });
+  }, [productos, busqueda, condicion]);
 
   useEffect(() => {
     if (isOpen) {
@@ -117,8 +132,8 @@ export const DrawerProductos = ({ isOpen, onClose, onSelectProducto }: Props) =>
 
         {/* Listado de Clientes */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {productos && productos.length > 0 ? (
-            productos.map((producto) => <ProductoItem onSelectProducto={onSelectProducto} key={producto.Id} producto={producto} />)
+          {productosFiltrados && productosFiltrados.length > 0 ? (
+            productosFiltrados.map((producto) => <ProductoItem key={producto.Id} producto={producto} />)
           ) : (
             <div className="text-center py-8 text-sm text-slate-400 dark:text-zinc-500">No se encontraron productos que coincidan.</div>
           )}
@@ -130,10 +145,9 @@ export const DrawerProductos = ({ isOpen, onClose, onSelectProducto }: Props) =>
 
 interface PropsProductosItems {
   producto: Producto;
-  onSelectProducto?: (id: string) => void;
 }
 
-const ProductoItem = ({ producto, onSelectProducto }: PropsProductosItems) => {
+const ProductoItem = ({ producto }: PropsProductosItems) => {
   const { addProductoCarrito } = useVentaStore();
   const [showCantidad, setShowCantidad] = useState(false);
 
@@ -143,12 +157,12 @@ const ProductoItem = ({ producto, onSelectProducto }: PropsProductosItems) => {
       descripcion: producto.Descripcion,
       impuesto: producto.IVA,
       precio: producto.Precio,
-      marca: producto.MarcaNombre || '',
+      marca: producto.MarcaNombre ?? '',
       productoOriginal: producto,
       cantidad,
     });
 
-    onSelectProducto?.(producto.Id.toString());
+    // onSelectProducto?.(producto.Id.toString());
   };
 
   return (
