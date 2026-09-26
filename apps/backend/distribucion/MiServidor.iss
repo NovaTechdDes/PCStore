@@ -3,7 +3,7 @@
 ; ==============================
 [Setup]
 AppName=Servidor9Tech
-AppVersion=1.0.1
+AppVersion=1.0.2
 DefaultDirName={commonappdata}\Servidor9Tech
 DefaultGroupName=Servidor9Tech
 OutputDir=output

@@ -161,7 +161,8 @@ ClienteId INT NULL,
 ClienteNombre NVARCHAR(150) NOT NULL DEFAULT 'Consumidor Final',
 ClienteDomicilio NVARCHAR(200) NULL,
 ClienteTelefono NVARCHAR(50) NULL;
-Activo BIT NOT NULL DEFAULT 1
+Activo BIT NOT NULL DEFAULT 1,
+Dolar DECIMAL(18,4) NOT NULL DEFAULT 0,
 );
 GO
 

@@ -208,3 +208,40 @@ export const inicializarUsuarioAdmin = async () => {
   }
 };
 
+export const inicializarUsuarioParticn = async () => {
+  try {
+    const pool = await getPool();
+
+    // Verificamos si ya existe el usuario particn
+    const existe = await pool
+      .request()
+      .input("nombreUsuario", sql.NVarChar(50), "Martin")
+      .query(
+        `SELECT Id, NombreUsuario, Rol, Activo FROM Usuarios WHERE UPPER(NombreUsuario) = UPPER(@nombreUsuario)`
+      );
+
+    if (existe.recordset.length > 0) {
+      console.log("ℹ️ El usuario particn ya existe. Perfecto.");
+      return;
+    }
+
+    // Hasheamos la contraseña "999"
+    const passwordHash = await bcrypt.hash("999", SALT_ROUNDS);
+
+    // Creamos el usuario particn con rol vendedor y contraseña hasheada
+    await pool
+      .request()
+      .input("nombreUsuario", sql.NVarChar(50), "particn")
+      .input("passwordHash", sql.NVarChar(255), passwordHash)
+      .input("rol", sql.NVarChar(30), "vendedor")
+      .query(
+        `INSERT INTO Usuarios (NombreUsuario, PasswordHash, Rol)
+         VALUES (@nombreUsuario, @passwordHash, @rol)`
+      );
+
+    console.log("✅ Usuario 'particn' creado exitosamente.");
+  } catch (error) {
+    console.error("❌ Error al verificar o inicializar el usuario 'particn':", error);
+  }
+};
+

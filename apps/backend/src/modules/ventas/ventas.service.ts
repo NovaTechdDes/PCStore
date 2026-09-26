@@ -4,14 +4,26 @@ import { CreateVentaDTO } from "./ventas.schema";
 
 export const createVenta = async (data: CreateVentaDTO, usuarioId: number) => {
     if(!usuarioId) return null;
-
-    
     
     const pool = await getPool();
     const transaction = pool.transaction();
 
     try {
         await transaction.begin();
+
+        // Traemos el valor del Dólar
+        const configResult = await new sql.Request(transaction)
+            .input('clave', sql.NVarChar(50), 'ValorDolar')
+            .query(`
+                SELECT Valor FROM Configuracion WHERE Clave = @clave
+            `);
+
+        if(configResult.recordset.length === 0) {
+            throw { status: 400, msg: "No está configurado el valor del dólar." };
+        }
+        const valorDolar = configResult.recordset[0].Valor;
+
+        console.log(valorDolar)
 
         const ventaResult = await new sql.Request(transaction)
         .input('fecha', sql.NVarChar(50), data.venta.fecha)
@@ -25,10 +37,11 @@ export const createVenta = async (data: CreateVentaDTO, usuarioId: number) => {
         .input('clienteNombre', sql.NVarChar(100), data.venta.clienteNombre)
         .input('clienteTelefono', sql.NVarChar(20), data.venta.clienteTelefono)
         .input('clienteDomicilio', sql.NVarChar(50), data.venta.clienteDomicilio)
+        .input('dolar', sql.Numeric(18,4), valorDolar)
         .query(`
-            INSERT INTO Ventas (Fecha, Total, Activo, ClienteId, UsuarioId, ClienteNombre, ClienteTelefono, ClienteDomicilio)
+            INSERT INTO Ventas (Fecha, Total, Activo, ClienteId, UsuarioId, ClienteNombre, ClienteTelefono, ClienteDomicilio, Dolar)
             OUTPUT INSERTED.*
-            VALUES (@fecha, @total, @activo, @clienteId, @usuarioId, @clienteNombre, @clienteTelefono, @clienteDomicilio)            
+            VALUES (@fecha, @total, @activo, @clienteId, @usuarioId, @clienteNombre, @clienteTelefono, @clienteDomicilio, @dolar)            
         `);
 
         const venta = ventaResult.recordset[0];
