@@ -8,7 +8,7 @@ export const postPresupuesto = async (presupuesto: CreatePresupuesto, productos:
     if(data.ok){
         return {
             ok: true,
-            presupuesto: data.presupuesto
+            presupuesto: data.data
         }
     }
 

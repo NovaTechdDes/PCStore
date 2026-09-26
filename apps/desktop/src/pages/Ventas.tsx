@@ -93,11 +93,11 @@ export const Ventas = () => {
         clienteId: ventaData.clienteId,
         usuarioId: usuario.Id,
         total: productosCarrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0),
-        activo: 1,
+        activo: true,
+        formaPago: ventaData.tipoPago,
+        tipoComprobante: ventaData.tipoVenta,
 
-        observaciones,
-
-        clieteNombre: nombre,
+        clienteNombre: nombre,
         clienteTelefono: telefono,
         clienteDomicilio: direccion,
       };

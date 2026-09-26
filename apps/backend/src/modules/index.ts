@@ -11,3 +11,4 @@ export { default as tipoTarjetasRoute } from './tipoTarjetas/tipoTarjetas.routes
 export { default as ventasRoute } from './ventas/ventas.routes';
 export { default as updatesRoute } from './updates/updates.routes';
 export { default as cajasRoute } from './cajas/cajas.routes';
+export { default as presupuestoRoute } from './presupuesto/presupuesto.route';

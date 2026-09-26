@@ -23,8 +23,6 @@ export const createVenta = async (data: CreateVentaDTO, usuarioId: number) => {
         }
         const valorDolar = configResult.recordset[0].Valor;
 
-        console.log(valorDolar)
-
         const ventaResult = await new sql.Request(transaction)
         .input('fecha', sql.NVarChar(50), data.venta.fecha)
         .input('total', sql.Numeric, data.venta.total)

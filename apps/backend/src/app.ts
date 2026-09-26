@@ -14,6 +14,7 @@ import {
   ventasRoute,
   updatesRoute,
   cajasRoute,
+  presupuestoRoute,
 } from "./modules";
 import { errorHandler } from "./middlewares/errorHandler";
 import path from "path";
@@ -36,6 +37,7 @@ app.use("/PCStore/clientes", clientesRoute);
 app.use("/PCStore/configuracion", configuracionRoute);
 app.use("/PCStore/marcas", marcasRoute);
 app.use("/PCStore/proveedores", provedoresRoute);
+app.use("/PCStore/presupuestos", presupuestoRoute);
 app.use("/PCStore/usuarios", usuariosRoute);
 app.use("/PCStore/productos", productosRoute);
 app.use("/PCStore/unidades", unidadesRoute);

@@ -4,13 +4,14 @@ export interface Presupuesto {
     ClienteId: number;
     UsuarioId: number;
     Total: number; 
-    Activo: number;
-
-    observaciones: string;
+    FormaPago: string;
+    TipoComprobante: string;
+    NumeroComprobante?: string;
+    Activo: boolean;
 
 
     // Datos Clientes
-    ClieteNombre: string;
+    ClienteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
 }
@@ -20,13 +21,13 @@ export interface CreatePresupuesto {
     clienteId: number;
     usuarioId: number;
     total: number; 
-    activo: number;
-
-    observaciones: string;
-
+    formaPago: string;
+    tipoComprobante: string;
+    numeroComprobante?: string;
+    activo: boolean;
 
     // Datos Clientes
-    clieteNombre: string;
+    clienteNombre: string;
     clienteTelefono: string;
     clienteDomicilio: string;
 }
