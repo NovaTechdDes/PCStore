@@ -35,6 +35,7 @@ export * from './ventas/ModalModificarProducto';
 export * from './ventas/ProductoVenta';
 export * from './ventas/ProductoVentaItem';
 export * from './ventas/FooterVenta';
+export * from './ventas/VentaPrint';
 
 //Clientes
 export * from './clientes/DrawerClientes';

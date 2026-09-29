@@ -14,6 +14,8 @@ export interface Presupuesto {
     ClienteNombre: string;
     ClienteTelefono: string;
     ClienteDomicilio: string;
+
+    detalles: PresupuestoDetalle[];
 }
 
 export interface CreatePresupuesto {

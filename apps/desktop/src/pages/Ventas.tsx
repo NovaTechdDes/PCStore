@@ -107,8 +107,9 @@ export const Ventas = () => {
       if (res.ok) {
         mensaje('Presupuesto cargado correctamente', 'success');
         clearProductosCarrito();
-
+        console.log(res);
         if (ventaData.impresion && res.presupuesto) {
+          console.log('aaaa');
           imprimirPresupuesto(res.presupuesto, 0);
         }
 
