@@ -8,6 +8,7 @@ export interface Presupuesto {
     TipoComprobante: string;
     NumeroComprobante?: string;
     Activo: boolean;
+    Dolar: number;
 
 
     // Datos Clientes
@@ -40,4 +41,9 @@ export interface PresupuestoDetalle {
     ProductoId: number;
     Cantidad: number;
     PrecioUnitario: number;
+    Impuesto: number;
+    Descripcion: string;
+    CodigoInterno: string;
+    MarcaNombre: string;
+    Imagen: string;
 }

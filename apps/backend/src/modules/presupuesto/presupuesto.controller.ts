@@ -14,4 +14,20 @@ export const postPresupuesto = async (req: Request, res: Response, next: NextFun
         console.error(error);
         next(error);
     }
+};
+
+export const getPresupuestoById = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {id} = req.params;
+        if(typeof id !== 'string') return res.status(400).json({ok: false, msg: "El id es requerido"});
+        
+        const presupuesto = await presupuestoService.getPresupuestoById(id);
+        if(!presupuesto) {
+            return res.status(400).json({ok: false, msg: "Error al obtener el presupuesto"});
+        }
+        return res.status(200).json({ok: true, data: presupuesto})
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
 }

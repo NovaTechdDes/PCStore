@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { getPool, sql } from "../../config/db";
 import { CreatePresupuestoDTO } from "./presupuesto.schema";
+import { pool } from "mssql";
 
 export const createPresupuesto = async (data: CreatePresupuestoDTO, usuarioId: number) => {
     if(!usuarioId) return null;
@@ -63,6 +64,44 @@ export const createPresupuesto = async (data: CreatePresupuestoDTO, usuarioId: n
         
     } catch (error) {
         await transaction.rollback();
+        throw error;
+    }
+};
+
+export const getPresupuestoById = async(id: string) => {
+    try {
+        const pool = await getPool();
+        
+        const presupuestoResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query(`
+                SELECT * FROM Presupuestos WHERE Id = @id
+            `);
+
+        if(presupuestoResult.recordset.length === 0) {
+            throw { status: 404, msg: "No se encontro el presupuesto"}
+        }
+
+        const presupuesto = presupuestoResult.recordset[0]; 
+        
+        const productosResult = await pool.request()
+            .input('presupuestoId', sql.Int, id)
+            .query(`
+                SELECT ps.*, p.Descripcion, p.CodigoInterno, p.CodigoBarra, p.Impuesto, m.Nombre as MarcaNombre, pi.RutaArchivo as ImagenUrl
+                FROM PresupuestoDetalle ps
+                LEFT JOIN Productos p ON p.Id = ps.ProductoId
+                LEFT JOIN Marcas m ON p.MarcaId = m.Id
+                LEFT JOIN ProductoImagenes pi ON pi.ProductoId = p.Id AND pi.EsPrincipal = 1
+                WHERE ps.PresupuestoId = @presupuestoId
+            `);
+        
+        const productos = productosResult.recordset;
+
+        return {
+            ...presupuesto,
+            detalle: productos
+        };
+    } catch (error) {
         throw error;
     }
 }

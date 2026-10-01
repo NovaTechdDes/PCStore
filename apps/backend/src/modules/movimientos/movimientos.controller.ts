@@ -5,7 +5,6 @@ import * as movimientosService from "./movimientos.service";
 
 export const postMovimiento = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
         const data = crearMovimientosSchema.parse(req.body);
         const usuarioId = req.usuario!.id;
         const movimiento = await movimientosService.crearMovimientos(data, usuarioId);
@@ -45,7 +44,6 @@ export const getMovimientosPorId = async(req: Request, res: Response, next: Next
 
 export async function patchAjustarStock(req: Request, res: Response, next: NextFunction) {
   try {
-      console.log(req.body)
     const data = ajustarStockSchema.parse(req.body);
 
 

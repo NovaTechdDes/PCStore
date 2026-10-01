@@ -244,7 +244,6 @@ export const crearProducto = async (
     }
 
     //Insertar Imagenes
-    console.log(archivo)
     if(archivo){
       const rutaRelativa = `/uploads/productos/${archivo.filename}`;
       await new sql.Request(transaction)

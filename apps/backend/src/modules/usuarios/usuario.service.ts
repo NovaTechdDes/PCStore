@@ -208,11 +208,11 @@ export const inicializarUsuarioAdmin = async () => {
   }
 };
 
-export const inicializarUsuarioParticn = async () => {
+export const inicializarUsuarioMartin = async () => {
   try {
     const pool = await getPool();
 
-    // Verificamos si ya existe el usuario particn
+    // Verificamos si ya existe el usuario Martin
     const existe = await pool
       .request()
       .input("nombreUsuario", sql.NVarChar(50), "Martin")
@@ -221,7 +221,7 @@ export const inicializarUsuarioParticn = async () => {
       );
 
     if (existe.recordset.length > 0) {
-      console.log("ℹ️ El usuario particn ya existe. Perfecto.");
+      console.log("ℹ️ El usuario Martin ya existe. Perfecto.");
       return;
     }
 

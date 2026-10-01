@@ -2,7 +2,7 @@ import path from "path";
 import { configDotenv } from "dotenv";
 import { getPool } from "./config/db";
 import app from "./app";
-import { inicializarUsuarioAdmin, inicializarUsuarioParticn } from "./modules/usuarios/usuario.service";
+import { inicializarUsuarioAdmin, inicializarUsuarioMartin } from "./modules/usuarios/usuario.service";
 import { inicializarDatosPorDefecto } from "./utils/seed";
 
 configDotenv({
@@ -13,7 +13,7 @@ const PORTLOCAL = process.env.PORT || 4000;
 
 getPool().then(async () => {
     await inicializarUsuarioAdmin();
-    await inicializarUsuarioParticn();
+    await inicializarUsuarioMartin();
     await inicializarDatosPorDefecto();
 
     app.listen(PORTLOCAL, () => {

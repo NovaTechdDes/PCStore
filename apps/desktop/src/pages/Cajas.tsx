@@ -7,7 +7,6 @@ import { Venta } from '../interface';
 export const Cajas = () => {
   const [tipo, setTipo] = useState<'CD' | 'PP' | 'CC' | 'RC'>('CD');
 
-
   const { desde, hasta, setDesde, setHasta, buscador, setBuscador } = useCajaStore();
   const [desactivados, setDesactivados] = useState<boolean>(false);
   const { data, isLoading } = useCajas(desde, hasta, tipo);
@@ -18,12 +17,21 @@ export const Cajas = () => {
     if (data) {
       if (tipo === 'CD') {
         const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'Contado');
-        console.log(aux)
+        setVentasAMostrar(aux);
+      }
+      if (tipo === 'PP') {
+        setVentasAMostrar(data.data.ventas || []);
+      }
+      if (tipo === 'CC') {
+        const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'Cuenta Corriente');
+        setVentasAMostrar(aux);
+      }
+      if (tipo === 'RC') {
+        const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'Contado');
         setVentasAMostrar(aux);
       }
     }
   }, [tipo, data]);
-  
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -131,11 +139,11 @@ export const Cajas = () => {
               {ventasAMostrar.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-sm font-medium text-slate-500 dark:text-zinc-400 italic">
-                    No hay ventas registradas para este periodo
+                    No hay {tipo === 'PP' ? 'presupuestos registrados' : 'ventas registradas'} para este periodo
                   </td>
                 </tr>
               ) : (
-                ventasAMostrar.map((venta: Venta) => <CajaItem key={venta.Id} venta={venta} />)
+                ventasAMostrar.map((venta: Venta) => <CajaItem key={venta.Id} venta={venta} tipo={tipo} />)
               )}
             </tbody>
           </table>

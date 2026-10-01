@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Venta, VentaDetalle } from '../../interface';
+import { Venta, VentaDetalle, Presupuesto } from '../../interface';
+import { imprimirPresupuesto, imprimirVenta } from '../../helper/imprimir';
 import PrintIcon from '@mui/icons-material/Print';
 import DeleteIcon from '@mui/icons-material/Delete';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
@@ -9,48 +10,25 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { useGlobalStore } from '../../store';
 import Swal from 'sweetalert2';
 import { startActivarCaja, startDesactviarCaja } from '../../hooks';
-// import { VentaPrint } from '../Venta/VentaPrint';
-// import { ReciboPrint } from '../Recibo/ReciboPrint';
 
 interface Props {
-  venta: Venta;
+  venta: Venta | Presupuesto | any;
+  tipo?: string;
 }
 
-export const CajaItem = ({ venta }: Props) => {
+export const CajaItem = ({ venta, tipo }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const { usuario } = useGlobalStore();
   const { mutateAsync, isPending } = startDesactviarCaja();
   const { mutateAsync: mutateAsyncActivar, isPending: isPendingActivar } = startActivarCaja();
 
-  const imprimirVenta = () => {
-    // const htmlContent = ReactDOMServer.renderToString(venta.tipo_comp.toUpperCase() !== 'RECIBO' ? <VentaPrint venta={venta as VentaBackend} /> : <ReciboPrint recibo={venta as ReciboBackend} />);
-    // const iframe = document.createElement('iframe');
-    // iframe.style.position = 'absolute';
-    // iframe.style.width = '0px';
-    // iframe.style.height = '0px';
-    // iframe.style.display = 'none';
-    // document.body.appendChild(iframe);
-    // const doc = iframe.contentWindow?.document;
-    // if (doc) {
-    //   doc.open();
-    //   doc.writeln(`
-    //       <html>
-    //         <head>
-    //           ${Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
-    //             .map((style) => style.outerHTML)
-    //             .join('')}
-    //         </head>
-    //         <body>
-    //           ${htmlContent}
-    //         </body>
-    //       </html>`);
-    //   doc.close();
-    //   iframe.contentWindow?.focus();
-    //   setTimeout(() => {
-    //     iframe.contentWindow?.print();
-    //     document.body.removeChild(iframe);
-    //   }, 250);
-    // }
+  const handleImprimir = () => {
+    const tipoComp = (venta.TipoComprobante || '').toUpperCase();
+    if (tipo === 'PP' || tipoComp.includes('PRESUPUESTO')) {
+      imprimirPresupuesto(venta as unknown as Presupuesto, Number(venta.Dolar || 0));
+    } else {
+      imprimirVenta(venta, Number(venta.Dolar || 0));
+    }
   };
 
   const handleActivar = async () => {
@@ -117,7 +95,7 @@ export const CajaItem = ({ venta }: Props) => {
         </td>
         <td className="py-3.5 px-4">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            {venta.FormaPago}
+            {venta.FormaPago || (tipo === 'PP' ? 'Cotización' : '-')}
           </span>
         </td>
         <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">${Number(venta.Total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
@@ -130,9 +108,10 @@ export const CajaItem = ({ venta }: Props) => {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                imprimirVenta();
+                handleImprimir();
               }}
               className="p-1.5 text-slate-500 hover:text-amber-600 dark:text-zinc-400 dark:hover:text-amber-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+              title="Imprimir"
             >
               <PrintIcon sx={{ fontSize: 18 }} />
             </button>
