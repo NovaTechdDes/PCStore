@@ -39,14 +39,7 @@ export const PresupuestoPrint = ({ presupuesto, dolar }: Props) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 text-xs font-semibold text-slate-700 pt-1">
-          <div>
-            <strong>I.V.A.:</strong> Responsable Inscripto
-          </div>
-          <div className="text-right">
-            <strong>C.U.I.T.:</strong> 27-34010523-1
-          </div>
-        </div>
+        
       </header>
 
       {/* 2. Datos del Cliente */}

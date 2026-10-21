@@ -24,14 +24,14 @@ export const metodoPagoItemSchema = z.object({
 export const createVentaSchema = z.object({
     venta: z.object({
         clienteId: z.coerce.number().int().positive().optional(),
-        clienteNombre: z.string().min(1).max(100).optional(),
+        clienteNombre: z.string().max(150).optional(),
         clienteTelefono: z.string().max(50).optional(),
-        clienteDomicilio: z.string().max(255).optional(),
+        clienteDomicilio: z.string().max(200).optional(),
 
         facturado: z.boolean().default(false),
-        formaPago: z.string(),
-        tipoComprobante: z.string(),
-        numeroComprobante: z.string().optional(),
+        formaPago: z.string().max(20),
+        tipoComprobante: z.string().max(20),
+        numeroComprobante: z.string().max(30).optional(),
         fecha: z.string(),
         total: z.number(),
         activo: z.boolean().default(true),

@@ -23,7 +23,7 @@ export const ProductoVentaItem = ({ item, setIsOpenModalProducto }: Props) => {
       inputAttributes: {
         autocapitalize: 'off',
       },
-      inputValue: Array.isArray(item?.series) ? item.series.join('/n') : (item?.series ?? ''),
+      inputValue: Array.isArray(item?.series) ? item.series.join('\n') : (item?.series ?? ''),
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
       cancelButtonText: 'Cancelar',
