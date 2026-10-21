@@ -16,6 +16,7 @@ export * from "./productos/ProductoImagenUploader";
 export * from "./productos/ModalMovimiento";
 export * from "./productos/MovimientoItem";
 export * from "./productos/ModalViewImg";
+export * from "./productos/ModalExportar";
 
 //Marcas
 export * from './marcas/MarcaItem'

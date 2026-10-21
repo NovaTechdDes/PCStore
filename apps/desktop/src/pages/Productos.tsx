@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Cabecera, ProductosItem, Loading, ModalAddMovimiento, ModalProducto, ModalMovimiento, ModalViewImg } from '../compontents';
+import { Cabecera, ProductosItem, Loading, ModalAddMovimiento, ModalProducto, ModalMovimiento, ModalViewImg, ModalExportar } from '../compontents';
+import IosShareIcon from '@mui/icons-material/IosShare';
 import { useProductos } from '../hooks';
 import { useProductoStore } from '../store';
 import { getProductImageUrl, getProductoMainImage } from '../helper';
@@ -10,6 +11,7 @@ export const Productos = () => {
   const [viewModalMovimiento, setViewModalMovimiento] = useState<boolean>(false);
   const [viewMovs, setViewMovs] = useState<boolean>(false);
   const [viewImg, setViewImg] = useState<boolean>(false);
+  const [viewExportar, setViewExportar] = useState<boolean>(false);
 
   const { productoSeleccionado } = useProductoStore();
 
@@ -46,7 +48,16 @@ export const Productos = () => {
         }}
         buscador={buscador}
         setBuscador={setBuscador}
-      />
+      >
+        <button
+          type="button"
+          onClick={() => setViewExportar(true)}
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-semibold text-sm rounded-xl transition-all cursor-pointer w-full sm:w-auto"
+        >
+          <IosShareIcon className="w-5 h-5" />
+          <span>Exportar</span>
+        </button>
+      </Cabecera>
 
       {/* Contenedor principal de la Tabla */}
       <div className="relative bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden backdrop-blur-xs transition-colors duration-200">
@@ -134,6 +145,7 @@ export const Productos = () => {
       {viewMovs && <ModalMovimiento setShowModal={setViewMovs} />}
       {viewModalMovimiento && <ModalAddMovimiento setShowAddMovModal={setViewModalMovimiento} />}
       {viewImg && <ModalViewImg setShowModal={setViewImg} alt={productoSeleccionado?.Descripcion || ''} imgUrl={imgUrl || ''} />}
+      {viewExportar && <ModalExportar productos={data || []} setShowModal={setViewExportar} />}
     </div>
   );
 };
