@@ -16,7 +16,7 @@ export const Cajas = () => {
   useEffect(() => {
     if (data) {
       if (tipo === 'CD') {
-        const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'Contado');
+        const aux = data.data.ventas.filter((venta: Venta) => venta.FormaPago === 'CD');
         setVentasAMostrar(aux);
       }
       if (tipo === 'PP') {
@@ -122,7 +122,7 @@ export const Cajas = () => {
 
       {isLoading && <Loading fullScreen text="Cargando datos" />}
       <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs overflow-hidden">
-        <div className="max-h-125 overflow-y-auto custom-scrollbar">
+        <div className="max-h-125 overflow-y-auto custom-scrollbar h-[50vh]">
           <table className="w-full text-left border-collapse">
             <thead className="sticky top-0 bg-slate-100/90 dark:bg-zinc-900/90 text-slate-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wider z-10 border-b border-slate-200 dark:border-zinc-800">
               <tr>

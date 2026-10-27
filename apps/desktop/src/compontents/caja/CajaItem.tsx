@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 import { Venta, VentaDetalle, Presupuesto } from '../../interface';
 import { imprimirPresupuesto, imprimirVenta } from '../../helper/imprimir';
 import PrintIcon from '@mui/icons-material/Print';
-import DeleteIcon from '@mui/icons-material/Delete';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
+
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
-import { useGlobalStore } from '../../store';
-import Swal from 'sweetalert2';
-import { startActivarCaja, startDesactviarCaja } from '../../hooks';
 
 interface Props {
   venta: Venta | Presupuesto | any;
@@ -18,9 +14,6 @@ interface Props {
 
 export const CajaItem = ({ venta, tipo }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { usuario } = useGlobalStore();
-  const { mutateAsync, isPending } = startDesactviarCaja();
-  const { mutateAsync: mutateAsyncActivar, isPending: isPendingActivar } = startActivarCaja();
 
   const handleImprimir = () => {
     const tipoComp = (venta.TipoComprobante || '').toUpperCase();
@@ -28,34 +21,6 @@ export const CajaItem = ({ venta, tipo }: Props) => {
       imprimirPresupuesto(venta as unknown as Presupuesto, Number(venta.Dolar || 0));
     } else {
       imprimirVenta(venta, Number(venta.Dolar || 0));
-    }
-  };
-
-  const handleActivar = async () => {
-    const { isConfirmed } = await Swal.fire({
-      title: '¿Estás seguro?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, Activar',
-      cancelButtonText: 'Cancelar',
-    });
-
-    if (isConfirmed) {
-      await mutateAsyncActivar({ id: venta.Id, tipo: venta.TipoComprobante });
-    }
-  };
-
-  const handleDesactivar = async () => {
-    const { isConfirmed } = await Swal.fire({
-      title: '¿Estás seguro?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, desactivar',
-      cancelButtonText: 'Cancelar',
-    });
-
-    if (isConfirmed) {
-      await mutateAsync({ id: venta.Id, tipo: venta.TipoComprobante });
     }
   };
 
@@ -100,7 +65,7 @@ export const CajaItem = ({ venta, tipo }: Props) => {
         </td>
         <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">${Number(venta.Total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
         <td className="py-3.5 px-4 text-slate-700 dark:text-zinc-300 font-medium text-xs">{venta.NombreUsuario || '-'}</td>
-        
+
         {/* Acciones */}
         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-end gap-1">
@@ -115,17 +80,6 @@ export const CajaItem = ({ venta, tipo }: Props) => {
             >
               <PrintIcon sx={{ fontSize: 18 }} />
             </button>
-
-            {usuario?.Rol === 'admin' && (
-              <button
-                type="button"
-                onClick={() => (venta.Activo ? handleDesactivar() : handleActivar())}
-                disabled={venta.Activo ? isPending : isPendingActivar}
-                className="p-1.5 text-slate-500 dark:text-zinc-400 rounded-lg hover:bg-slate-200/70 dark:hover:bg-zinc-800 transition-all cursor-pointer disabled:opacity-50"
-              >
-                {venta.Activo ? <DeleteIcon sx={{ color: '#ef4444', fontSize: 18 }} /> : <GroupAddIcon sx={{ color: '#22c55e', fontSize: 18 }} />}
-              </button>
-            )}
           </div>
         </td>
       </tr>
@@ -152,7 +106,7 @@ export const CajaItem = ({ venta, tipo }: Props) => {
                       <tr className="text-[11px] font-bold text-slate-700 dark:text-zinc-400 uppercase tracking-wider border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900/60">
                         <th className="py-2.5 px-3">{venta.TipoComprobante === 'Recibo' ? 'Fecha' : 'Producto / Servicio'}</th>
                         <th className="py-2.5 px-3">{venta.TipoComprobante === 'Recibo' ? 'Comprobante' : 'N° Serie'}</th>
-                        
+
                         <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Pagado' : 'Cantidad'}</th>
                         <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Saldo' : 'Precio Unit.'}</th>
                         <th className="py-2.5 px-3 text-right">{venta.TipoComprobante === 'Recibo' ? 'Saldo' : 'Subtotal'}</th>
@@ -164,10 +118,12 @@ export const CajaItem = ({ venta, tipo }: Props) => {
                         const subtotal = (mov.Cantidad || 0) * (mov.PrecioUnitario || 0);
                         return (
                           <tr key={mov.Id || index} className="hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors">
-                            <td className="py-2.5 px-3 font-mono text-slate-600 dark:text-zinc-400 font-medium">{mov.CodigoInterno  || '-'} - {mov.ProductoDescripcion}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-600 dark:text-zinc-400 font-medium">
+                              {mov.CodigoInterno || '-'} - {mov.ProductoDescripcion}
+                            </td>
                             {/* <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-zinc-200">{}</td> */}
                             <td className="py-2.5 px-3 font-mono text-amber-700 dark:text-amber-400 font-bold">{mov.Serie || '-'}</td>
-                            
+
                             <td className="py-2.5 px-3 text-right font-semibold text-slate-800 dark:text-zinc-200">{mov.Cantidad.toFixed(2)}</td>
                             <td className="py-2.5 px-3 text-right font-medium text-slate-700 dark:text-zinc-300">
                               $
